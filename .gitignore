@@ -1,0 +1,17 @@
+# Binaries — install per-machine via README instructions
+*.exe
+*.dll
+
+# OS noise
+Thumbs.db
+.DS_Store
+desktop.ini
+
+# Editor noise
+.vscode/
+*.bak
+*.swp
+*~
+
+# Logs
+*.log

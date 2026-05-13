@@ -1,0 +1,14 @@
+// Place your key bindings in this file to override the defaults
+// Keybindings that are active when the focus is in the editor
+[
+    {
+        "key": "ctrl+.",
+        "command": "editor.action.quickFix",
+        "when": "editorHasCodeActionsProvider && editorTextFocus && !editorReadonly"
+    },
+    {
+        "key": "ctrl+q",
+        "command": "editor.action.sortLinesAscending",
+        "when": "editorFocus && !editorReadonly"
+    },
+]
