@@ -147,6 +147,7 @@
         "jk": { "command": "vscode-neovim.escape" }
     },
     "editor.lineNumbers": "relative",
+    "editor.cursorSurroundingLines": 5,
     "[csharp]": {
         "editor.defaultFormatter": "ms-dotnettools.csharp"
     },
