@@ -167,6 +167,15 @@
     "vim.easymotion": true,
     // 駝峰命名移動：MyVariableName 用 ,w 跳到 Variable（不影響原生 w）
     "vim.camelCaseMotion.enable": true,
+    // 游標形狀依模式變化：一眼看出當前在哪個模式
+    "vim.cursorStylePerMode": {
+        "normal": "block",
+        "insert": "line",
+        "visual": "block",
+        "visualline": "block-outline",
+        "visualblock": "block-outline",
+        "replace": "underline"
+    },
     // yank/delete 直接寫入系統剪貼簿（yy 後可在外部 Ctrl+V）
     "vim.useSystemClipboard": true,
     // 自動切換輸入法：Insert→保留 / Normal→英文 (1033)
