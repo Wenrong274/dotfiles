@@ -1,5 +1,8 @@
 # sync-from-vscode.ps1 — pull current VSCode user config back into this dotfiles repo
 # Usage: cd ~/dotfiles && .\sync-from-vscode.ps1
+#
+# For settings.json: substitutes $env:USERPROFILE -> __USERPROFILE__ so the
+# committed copy is machine-agnostic. install.ps1 reverses the substitution.
 
 $ErrorActionPreference = "Stop"
 
@@ -19,6 +22,9 @@ if (-not (Test-Path $dstDir)) {
 Write-Host "Syncing $srcDir -> $dstDir" -ForegroundColor Cyan
 Write-Host ""
 
+# JSON-escaped form of $env:USERPROFILE (e.g. "C:\\Users\\foo")
+$userProfileJson = $env:USERPROFILE.Replace('\', '\\')
+
 $tracked = Get-ChildItem $dstDir -File | Select-Object -ExpandProperty Name
 
 if ($tracked.Count -eq 0) {
@@ -30,6 +36,13 @@ $changed = @()
 $unchanged = @()
 $missing = @()
 
+function Get-StringHash([string]$text) {
+    $sha = [System.Security.Cryptography.SHA256]::Create()
+    $bytes = [System.Text.Encoding]::UTF8.GetBytes($text)
+    $hash = $sha.ComputeHash($bytes)
+    return [BitConverter]::ToString($hash) -replace '-', ''
+}
+
 foreach ($name in $tracked) {
     $srcPath = Join-Path $srcDir $name
     $dstPath = Join-Path $dstDir $name
@@ -40,15 +53,30 @@ foreach ($name in $tracked) {
         continue
     }
 
-    $srcHash = (Get-FileHash $srcPath -Algorithm SHA256).Hash
-    $dstHash = (Get-FileHash $dstPath -Algorithm SHA256).Hash
+    if ($name -eq "settings.json") {
+        # Read live, substitute USERPROFILE -> placeholder, compare to repo copy
+        $liveContent = [System.IO.File]::ReadAllText($srcPath)
+        $normalized = $liveContent.Replace($userProfileJson, '__USERPROFILE__')
+        $repoContent = [System.IO.File]::ReadAllText($dstPath)
 
-    if ($srcHash -ne $dstHash) {
-        Copy-Item $srcPath -Destination $dstPath -Force
-        $changed += $name
-        Write-Host "  Updated: $name" -ForegroundColor Green
+        if ((Get-StringHash $normalized) -ne (Get-StringHash $repoContent)) {
+            [System.IO.File]::WriteAllText($dstPath, $normalized)
+            $changed += $name
+            Write-Host "  Updated: $name (normalized USERPROFILE -> __USERPROFILE__)" -ForegroundColor Green
+        } else {
+            $unchanged += $name
+        }
     } else {
-        $unchanged += $name
+        $srcHash = (Get-FileHash $srcPath -Algorithm SHA256).Hash
+        $dstHash = (Get-FileHash $dstPath -Algorithm SHA256).Hash
+
+        if ($srcHash -ne $dstHash) {
+            Copy-Item $srcPath -Destination $dstPath -Force
+            $changed += $name
+            Write-Host "  Updated: $name" -ForegroundColor Green
+        } else {
+            $unchanged += $name
+        }
     }
 }
 
@@ -73,5 +101,5 @@ if ($changed.Count -gt 0) {
     Write-Host "  git add -A && git commit -m `"update: ...`"" -ForegroundColor DarkGray
     Write-Host "  git push" -ForegroundColor DarkGray
 } else {
-    Write-Host "Nothing to commit — repo already up to date." -ForegroundColor DarkGray
+    Write-Host "Nothing to commit - repo already up to date." -ForegroundColor DarkGray
 }

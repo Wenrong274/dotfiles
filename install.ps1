@@ -1,5 +1,8 @@
 # install.ps1 — restore VSCode user config from this dotfiles repo
 # Usage: cd ~/dotfiles && .\install.ps1
+#
+# Substitutes __USERPROFILE__ placeholder with the current $env:USERPROFILE
+# so machine-specific paths (e.g. im-select.exe location) work after clone.
 
 $ErrorActionPreference = "Stop"
 
@@ -13,13 +16,15 @@ if (-not (Test-Path $srcDir)) {
 }
 
 if (-not (Test-Path $dstDir)) {
-    Write-Host "Destination missing — creating: $dstDir"
+    Write-Host "Destination missing - creating: $dstDir"
     New-Item -ItemType Directory -Path $dstDir -Force | Out-Null
 }
 
 Write-Host "Installing VSCode config from $srcDir -> $dstDir" -ForegroundColor Cyan
 Write-Host ""
 
+# JSON-escaped form of $env:USERPROFILE (e.g. "C:\\Users\\foo")
+$userProfileJson = $env:USERPROFILE.Replace('\', '\\')
 $files = Get-ChildItem $srcDir -File
 $timestamp = Get-Date -Format "yyyyMMdd-HHmmss"
 
@@ -32,8 +37,16 @@ foreach ($f in $files) {
         Write-Host "  Backed up: $($f.Name) -> $($f.Name).$timestamp.bak" -ForegroundColor Yellow
     }
 
-    Copy-Item $f.FullName -Destination $dstPath -Force
-    Write-Host "  Installed: $($f.Name)" -ForegroundColor Green
+    # For settings.json: substitute placeholder before writing
+    if ($f.Name -eq "settings.json") {
+        $content = [System.IO.File]::ReadAllText($f.FullName)
+        $substituted = $content.Replace('__USERPROFILE__', $userProfileJson)
+        [System.IO.File]::WriteAllText($dstPath, $substituted)
+        Write-Host "  Installed: $($f.Name) (substituted __USERPROFILE__ -> $env:USERPROFILE)" -ForegroundColor Green
+    } else {
+        Copy-Item $f.FullName -Destination $dstPath -Force
+        Write-Host "  Installed: $($f.Name)" -ForegroundColor Green
+    }
 }
 
 Write-Host ""

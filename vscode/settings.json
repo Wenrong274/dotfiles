@@ -179,8 +179,8 @@
     "vim.autoSwitchInputMethod": {
         "enable": true,
         "defaultIM": "1033",
-        "obtainIMCmd": "C:\\Users\\wenrong.huang\\tools\\im-select.exe",
-        "switchIMCmd": "C:\\Users\\wenrong.huang\\tools\\im-select.exe {im}"
+        "obtainIMCmd": "__USERPROFILE__\\tools\\im-select.exe",
+        "switchIMCmd": "__USERPROFILE__\\tools\\im-select.exe {im}"
     },
     // Easymotion 配色（OneDark Pro 友善）
     "vim.easymotionMarkerBackgroundColor": "#0e7c7b",
@@ -211,6 +211,8 @@
     "vim.ignorecase": true,
     "vim.smartcase": true,
     "vim.surround": true,
+    // % 對應括號跳轉，加入 <> 以支援 C# 泛型 List<T> / Dictionary<K,V>
+    "vim.matchpairs": "(:),{:},[:],<:>",
     // 按鍵映射 (Normal Mode Key Bindings)
     "vim.normalModeKeyBindings": [
         // --- 註解 (Commentary) ---
