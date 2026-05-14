@@ -80,10 +80,6 @@
         "temp/": true,
         "Temp/": true
     },
-    "csharpfixformat.style.braces.onSameLine": false,
-    "csharpfixformat.style.newline.atEnd": true,
-    "csharpfixformat.style.spaces.beforeParenthesis": false,
-    "csharpfixformat.style.spaces.afterParenthesis": false,
     "sync.gist": "e8172f695b70480e67b182b9484cbefc",
     "editor.formatOnType": true,
     "security.workspace.trust.untrustedFiles": "open",
@@ -316,8 +312,8 @@
             ]
         },
         // --- 歷史紀錄 ---
-        // 註：移除 <C-o> / <C-i> 的覆寫，恢復 Vim 原生 jumplist 行為。
-        // 若想用 VSCode 編輯歷史，請改用 <leader>o / <leader>i 或保留原本綁定。
+        // 註：<C-o> / <C-i> 保留 Vim 原生 jumplist（游標位置歷史）。
+        // 若要 VSCode 編輯歷史 (Navigate Back/Forward)，從 Command Palette 觸發。
         // --- 重構與編輯 ---
         {
             "before": [
