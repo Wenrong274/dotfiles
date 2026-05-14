@@ -44,6 +44,7 @@
 | `<Space>s` | 水平分割 |
 | `<Space>w` | 關閉當前編輯器 |
 | `<Space><CR>` | 清除搜尋 highlight |
+| `<Space>S` | Sort Lines Ascending（選取範圍排序） |
 
 ---
 
@@ -84,9 +85,20 @@
 
 | 鍵 | 功能 |
 |---|---|
+| `v` | 字元 visual |
+| `V` | 行 visual |
+| `<C-q>` | **Block (方塊) visual**（替代 `<C-v>`，因為 `<C-v>` 還給 VSCode 貼上） |
 | `gc` | 註解選取行 |
 | `<` / `>` | 縮排（**保留選取**） |
 | `vae` | 選整個檔案（V→gg→G） |
+
+### Visual Block 典型用法
+
+```text
+<C-q> 5j I // <Esc>       選 6 行，每行行首插入 "// "
+<C-q> 3j $ A ;<Esc>       選 4 行，每行行尾加 ";"
+<C-q> 5j c FOO <Esc>      選 6 行同位置，全換成 "FOO"
+```
 
 Normal mode 還有：
 

@@ -461,6 +461,11 @@
         {
             "before": ["<leader>", "w"],
             "commands": ["workbench.action.closeActiveEditor"]
+        },
+        // --- 文字操作 ---
+        {
+            "before": ["<leader>", "S"],
+            "commands": ["editor.action.sortLinesAscending"]
         }
     ],
     // Insert Mode 快速離開

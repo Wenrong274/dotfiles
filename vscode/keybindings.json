@@ -5,10 +5,7 @@
         "key": "ctrl+.",
         "command": "editor.action.quickFix",
         "when": "editorHasCodeActionsProvider && editorTextFocus && !editorReadonly"
-    },
-    {
-        "key": "ctrl+q",
-        "command": "editor.action.sortLinesAscending",
-        "when": "editorFocus && !editorReadonly"
-    },
+    }
+    // 註：Ctrl+Q 解除綁定，讓給 VSCodeVim 的 Visual Block 模式 (<C-q>)
+    // sort lines 改用 Vim normal mode 的 <leader>S
 ]
