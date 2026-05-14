@@ -31,10 +31,13 @@
 | 鍵 | 功能 |
 |---|---|
 | `<Space>b` | Toggle Breakpoint |
-| `<Space>D` | Start Debug |
+| `<Space>D` | Start Debug（一般 .NET） |
+| `<Space>U` | **Attach Unity Debugger**（Unity 開發用這個） |
 | `<Space>j` | Step Over |
 | `<Space>i` | Step Into |
 | `<Space>t` | Run Test at Cursor |
+
+> Unity dev：存 .cs 檔會自動 refresh Unity AssetDatabase（`vstuc.refreshOnSave: true`）
 
 ### 視窗 / Tab
 

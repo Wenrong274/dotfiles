@@ -468,6 +468,11 @@
         {
             "before": ["<leader>", "S"],
             "commands": ["editor.action.sortLinesAscending"]
+        },
+        // --- Unity ---
+        {
+            "before": ["<leader>", "U"],
+            "commands": ["vstuc.attachUnityDebugger"]
         }
     ],
     // Insert Mode 快速離開
@@ -512,5 +517,6 @@
         "192.168.10.5"
     ],
     "claudeCode.selectedModel": "opus",
-    "chat.viewSessions.orientation": "stacked"
+    "chat.viewSessions.orientation": "stacked",
+    "vstuc.refreshOnSave": true
 }
