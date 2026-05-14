@@ -147,7 +147,7 @@
     },
     "explorer.confirmDragAndDrop": false,
     "dotnet.navigation.navigateToDecompiledSources": true,
-    "editor.maxTokenizationLineLength": 100000000,
+    "editor.maxTokenizationLineLength": 20000,
     "terminal.integrated.fontFamily": "Hack Nerd Font",
     "terminal.external.windowsExec": "C:\\Program Files\\PowerShell\\7\\pwsh.exe",
     "terminal.integrated.defaultProfile.windows": "PowerShell",
