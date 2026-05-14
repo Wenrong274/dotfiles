@@ -55,10 +55,28 @@ cd "$env:USERPROFILE\dotfiles"
 
 ## 同步策略
 
-**從機器 → repo**（備份）：手動複製或寫個 sync 腳本
-**從 repo → 機器**（還原）：跑 `install.ps1`
+| 方向 | 腳本 | 何時用 |
+|---|---|---|
+| **VSCode → repo**（備份） | `.\sync-from-vscode.ps1` | 改完 VSCode 設定，要備份到 git |
+| **repo → VSCode**（還原） | `.\install.ps1` | 換機 / 重灌後初次設定 |
 
-VSCode 內建的 Settings Sync 也可以用，但會把所有東西塞進 GitHub Gist，沒這個方式直觀。
+### 日常維護流程
+
+```powershell
+cd $env:USERPROFILE\dotfiles
+.\sync-from-vscode.ps1            # 比對 hash，只複製有改動的檔
+git add -A
+git commit -m "update: <what changed>"
+git push
+```
+
+`sync-from-vscode.ps1` 會：
+
+- SHA256 比對來源與目的，**只動有變的檔**
+- 列出 changed / unchanged / missing 摘要
+- 跑 `git diff --stat` 預覽變更
+
+VSCode 內建 Settings Sync 也可用，但會塞進 GitHub Gist 不直觀，這套腳本流程更可控。
 
 ## 隱私
 
