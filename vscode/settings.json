@@ -1,5 +1,4 @@
 {
-    "editor.bracketPairColorization.enabled": true,
     "editor.guides.bracketPairs": "active",
     "editor.fontFamily": "JetBrains Mono, Noto Sans TC, FiraCode",
     "editor.fontLigatures": true,
@@ -26,7 +25,6 @@
     "git.enableSmartCommit": true,
     "git.confirmSync": false,
     "typescript.referencesCodeLens.enabled": true,
-    "sync.autoDownload": true,
     "workbench.colorTheme": "One Dark Pro",
     "files.exclude": {
         "**/.DS_Store": true,
@@ -80,7 +78,6 @@
         "temp/": true,
         "Temp/": true
     },
-    "sync.gist": "e8172f695b70480e67b182b9484cbefc",
     "editor.formatOnType": true,
     "security.workspace.trust.untrustedFiles": "open",
     "[html]": {
@@ -95,7 +92,6 @@
     "[jsonc]": {
         "editor.defaultFormatter": "vscode.json-language-features"
     },
-    "liveServer.settings.donotShowInfoMsg": true,
     "[markdown]": {
         "editor.defaultFormatter": "DavidAnson.vscode-markdownlint"
     },
@@ -104,9 +100,7 @@
         "editor.defaultFormatter": "vscode.json-language-features"
     },
     "workbench.startupEditor": "none",
-    "editor.inlineSuggest.enabled": true,
     "markdown.extension.tableFormatter.enabled": false,
-    "markdownlint.config": {},
     "cSpell.userWords": [
         "Asseter",
         "Behaviour",
@@ -132,7 +126,6 @@
     ],
     "editor.suggestLineHeight": 30,
     "explorer.confirmDelete": false,
-    "redhat.telemetry.enabled": true,
     "explorer.confirmDragAndDrop": false,
     "dotnet.navigation.navigateToDecompiledSources": true,
     "editor.maxTokenizationLineLength": 20000,
@@ -162,5 +155,14 @@
     ],
     "claudeCode.selectedModel": "opus",
     "chat.viewSessions.orientation": "stacked",
-    "vstuc.refreshOnSave": true
+    "vstuc.refreshOnSave": true,
+    "extensions.experimental.affinity": {
+        "asvetliakov.vscode-neovim": 1
+    },
+    "chat.tools.terminal.autoApprove": {
+        "/^code --list-extensions 2>/dev/null \\| sort$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
+    }
 }

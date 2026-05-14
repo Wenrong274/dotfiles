@@ -1,6 +1,7 @@
-# VSCode Vim 個人 Cheatsheet
+# vscode-neovim 個人 Cheatsheet
 
 > Leader = `Space`  ·  Mode 提示：N=Normal, V=Visual, I=Insert
+> 架構：真正的 Neovim 跑在背景，Insert mode 由 VSCode 原生處理（零卡頓）
 
 ---
 
@@ -70,17 +71,21 @@
 | `gy` | Go to Type Definition |
 | `gr` | Go to References |
 | `]e` / `[e` | 下一個 / 上一個 錯誤標記 |
-| `<C-o>` / `<C-i>` | Vim jumplist 回 / 前進（原生） |
+| `<C-o>` / `<C-i>` | VSCode 跳轉歷史 回 / 前進 |
+
+> vscode-neovim 使用 VSCode 的 jumplist，所以 `<C-o>` / `<C-i>` 與滑鼠跳定義等行為整合。
 
 ---
 
 ## 四、Insert Mode 跳脫
 
-| 鍵 | 功能 |
-|---|---|
-| `jj` | → Normal Mode |
-| `jk` | → Normal Mode |
-| `<Esc>` | → Normal Mode |
+| 鍵 | 功能 | 機制 |
+|---|---|---|
+| `jj` | → Normal Mode | compositeKeys（VSCode 層） |
+| `jk` | → Normal Mode | compositeKeys（VSCode 層） |
+| `<Esc>` | → Normal Mode | 原生 |
+
+> Insert mode 由 VSCode 原生處理，`jj`/`jk` 透過 settings.json 的 `compositeKeys` 設定，不是 Lua imap。
 
 ---
 
@@ -90,7 +95,7 @@
 |---|---|
 | `v` | 字元 visual |
 | `V` | 行 visual |
-| `<C-q>` | **Block (方塊) visual**（替代 `<C-v>`，因為 `<C-v>` 還給 VSCode 貼上） |
+| `<C-q>` | **Block (方塊) visual**（替代 `<C-v>`） |
 | `gc` | 註解選取行 |
 | `<` / `>` | 縮排（**保留選取**） |
 | `vae` | 選整個檔案（V→gg→G） |
@@ -113,7 +118,7 @@ Normal mode 還有：
 
 ---
 
-## 六、Surround（`vim.surround` 已開）
+## 六、Surround（nvim-surround 插件）
 
 | 鍵 | 功能 | 範例 |
 |---|---|---|
@@ -125,7 +130,7 @@ Normal mode 還有：
 
 ---
 
-## 七、CamelCaseMotion（已開啟，C# 神器）
+## 七、CamelCaseMotion（C# 神器）
 
 對 `MyVariableName` / `getUserName` 這類駝峰命名拆字移動：
 
@@ -141,25 +146,17 @@ Normal mode 還有：
 
 ---
 
-## 八、Easymotion（已開啟）
+## 八、Flash.nvim（跳躍式移動）
 
-預設觸發前綴：`<leader><leader>`（即 `Space Space`）
+觸發：`<Space><Space>`（即 Leader Leader）
 
-| 鍵 | 功能 |
+| 步驟 | 動作 |
 |---|---|
-| `<Space><Space>w` | 跳到下一個 word 開頭 |
-| `<Space><Space>b` | 跳到上一個 word 開頭 |
-| `<Space><Space>f{char}` | 跳到指定字元 |
-| `<Space><Space>j` / `k` | 跳到下 / 上一行 |
-| `<Space><Space>/` | search 模式跳轉 |
+| 1. 按 `<Space><Space>` | 畫面進入 Flash 模式 |
+| 2. 打你要跳過去的字（1~2 字元） | 畫面上所有匹配處出現標記字母 |
+| 3. 按標記字母 | 直接跳到該位置 |
 
----
-
-## 八、還給 VSCode 的快捷鍵（vim.handleKeys）
-
-不被 Vim 攔截，行為與一般 VSCode 一致：
-
-`Ctrl+A` 全選 ·  `Ctrl+C` 複製 ·  `Ctrl+V` 貼上 ·  `Ctrl+Z/Y` Undo/Redo ·  `Ctrl+F` 檔內搜尋 ·  `Ctrl+S` 存檔 ·  `Ctrl+W` 關閉編輯器 ·  `Ctrl+N` 新檔 ·  `Ctrl+P` Command Palette
+**何時用**：移動超過 5 行，或想跳到畫面上任意位置時。比 Easymotion 更直覺——直接打目標文字即可。
 
 ---
 
@@ -175,6 +172,7 @@ Normal mode 還有：
 | `i{` / `a{` | inner / a `{...}` |
 | `ip` / `ap` | inner / a paragraph |
 | `it` / `at` | inner / a tag |
+| `i<` / `a<` | inner / a `<...>`（C# generics 適用，已加 matchpairs） |
 
 組合：`ci"` 改裡面、`da{` 刪整塊、`yi(` yank 括號內
 
@@ -192,13 +190,19 @@ Normal mode 還有：
 
 ---
 
-## 十、待習慣的小提醒
+## 十、vscode-neovim 架構備忘
 
-- Leader = Space，所以單按 `f`（find char）會延遲 700ms 才觸發 → 已設 `vim.timeout: 700`
-- `<C-o>` / `<C-i>` 是 Vim jumplist，**不是** VSCode 編輯歷史；要看編輯歷史用 Command Palette → "Go Back / Forward"
-- `<C-w>` 已還給 VSCode（關 Tab），失去 Vim window 指令；視窗切換改用 `<C-h/j/k/l>` 與 `<Space>v/s`
+| 項目 | 說明 |
+|---|---|
+| Insert mode | 由 VSCode 原生處理（不經 Neovim），所以打字零卡頓 |
+| Normal / Visual mode | 由背景 Neovim 處理，完整 Vim 語法 |
+| `jj` / `jk` escape | 透過 `compositeKeys` 設定（settings.json），不是 Lua imap |
+| 啟動時間 | 比 VSCodeVim 多 ~1 秒（spawn Neovim process） |
+| Ctrl 系列 | 大部分 `Ctrl+` 鍵在 Insert mode 自然歸 VSCode 處理，不需額外設定 |
+| IME 切換 | 透過 Neovim autocmd + im-select.exe 自動處理 |
+| 設定位置 | Neovim：`%LOCALAPPDATA%\nvim\init.lua` / VSCode：`settings.json` |
 
 ---
 
-_最後更新：2026-05-13_
-_設定檔位置：`%APPDATA%\Code\User\settings.json`_
+_最後更新：2026-05-14_
+_設定檔位置：`%LOCALAPPDATA%\nvim\init.lua` + `%APPDATA%\Code\User\settings.json`_

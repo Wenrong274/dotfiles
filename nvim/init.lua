@@ -50,6 +50,8 @@ require('lazy').setup({
         keys = {
             { '<leader><leader>', mode = { 'n', 'x', 'o' },
               function() require('flash').jump() end, desc = 'Flash jump' },
+            { '<leader>T', mode = { 'n', 'x', 'o' },
+              function() require('flash').treesitter() end, desc = 'Flash treesitter' },
         },
     },
     -- CamelCase motion: ,w / ,b / ,e jump within MyVariableName
@@ -67,7 +69,7 @@ if vim.g.vscode then
     -- ====================================================
     -- VSCode integration
     -- ====================================================
-    local function vs(name) return function() vim.fn.VSCodeNotify(name) end end
+    local function vs(name) return function() require('vscode').action(name) end end
 
     -- Comments
     map('n', 'gcc', vs('editor.action.commentLine'))
@@ -83,12 +85,15 @@ if vim.g.vscode then
     map('n', 'gi', vs('editor.action.goToImplementation'))
     map('n', 'gy', vs('editor.action.goToTypeDefinition'))
     map('n', 'gr', vs('editor.action.goToReferences'))
+    map('n', 'K',  vs('editor.action.showHover'))
+    map('n', 'gD', vs('editor.action.peekDefinition'))
     map('n', ']e', vs('editor.action.marker.next'))
     map('n', '[e', vs('editor.action.marker.prev'))
 
     -- File / project
     map('n', '<leader>f', vs('workbench.action.quickOpen'))
     map('n', '<leader>e', vs('workbench.view.explorer'))
+    map('n', '<leader>d', vs('workbench.actions.view.problems'))
 
     -- Refactor / edit
     map('n', '<leader>r', vs('editor.action.rename'))
@@ -105,7 +110,7 @@ if vim.g.vscode then
     map('n', '<leader>t', vs('testing.runAtCursor'))
 
     -- Search
-    map('n', '<leader><CR>', ':nohlsearch<CR>')
+    map('n', '<leader><CR>', '<cmd>nohlsearch<CR>')
     map('n', '<leader>/', vs('workbench.action.findInFiles'))
     map('n', '<leader>g', vs('workbench.action.gotoSymbol'))
     map('n', '<leader>G', vs('workbench.action.showAllSymbols'))
@@ -132,6 +137,9 @@ if vim.g.vscode then
     -- Visual indent keeps selection
     map('x', '<', '<gv')
     map('x', '>', '>gv')
+
+    -- Visual paste without overwriting register
+    map('x', 'p', '"_dP')
 
     -- NOTE: jj/jk Esc handled by vscode-neovim.compositeKeys in settings.json
     -- (Insert mode is owned by VSCode, lua imap doesn't fire there)

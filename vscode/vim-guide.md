@@ -1,6 +1,6 @@
 # Vim 使用文件（個人化版）
 
-> 本文件針對 **VSCode + VSCodeVim 擴充** 的使用情境撰寫，並對應你目前在 `settings.json` 中的個人設定（Leader = `Space`）。
+> 本文件針對 **VSCode + vscode-neovim 擴充** 的使用情境撰寫，並對應你目前在 `init.lua` + `settings.json` 中的個人設定（Leader = `Space`）。
 > 速查請見 [vim-cheatsheet.md](./vim-cheatsheet.md)，本文重在**理解 Vim 思維**與**為什麼這樣設**。
 
 ---
@@ -15,7 +15,7 @@
 6. [複製貼上與 Registers](#6-複製貼上與-registers)
 7. [Marks、Jumps、Macros](#7-marksjumpsmacros)
 8. [Surround：包覆操作](#8-surround包覆操作)
-9. [Easymotion：跳躍式移動](#9-easymotion跳躍式移動)
+9. [Flash.nvim：跳躍式移動](#9-flashnvim跳躍式移動)
 10. [VSCode 整合的最佳實踐](#10-vscode-整合的最佳實踐)
 11. [學習路徑建議](#11-學習路徑建議)
 12. [常見踩雷與對策](#12-常見踩雷與對策)
@@ -46,8 +46,8 @@ Vim 不是「能用鍵盤的文字編輯器」——它是一套**語法**。
 | 模式 | 進入方式 | 用途 |
 |---|---|---|
 | **Normal** | 預設 / `<Esc>` / `jj` / `jk` | 移動、執行指令。**99% 時間應該停在這裡** |
-| **Insert** | `i` `a` `o` `I` `A` `O` | 真的在打字 |
-| **Visual** | `v`（字元）`V`（行）`<C-v>`（區塊） | 選取後對選取區操作 |
+| **Insert** | `i` `a` `o` `I` `A` `O` | 真的在打字（由 VSCode 原生處理） |
+| **Visual** | `v`（字元）`V`（行）`<C-q>`（區塊） | 選取後對選取區操作 |
 | **Command-line** | `:` `/` `?` | 執行 ex 指令 / 搜尋 |
 
 ### 進入 Insert 的六種姿勢
@@ -61,6 +61,13 @@ Vim 不是「能用鍵盤的文字編輯器」——它是一套**語法**。
 | `O` | 新增**上一行** |
 
 **初學者最常見的錯誤**：一直停在 Insert 模式，需要移動時用方向鍵。**請強迫自己每打完一句話就 `<Esc>`（或 `jj`）回到 Normal。**
+
+### vscode-neovim 的 Insert mode 特性
+
+在 vscode-neovim 中，Insert mode 由 VSCode 原生處理（不經過 Neovim），所以：
+- 打字完全不卡頓
+- `Ctrl+A/C/V/Z/Y/F/S/W/N/P` 等 VSCode 快捷鍵自然可用，不需額外設定
+- `jj`/`jk` 透過 settings.json 的 `compositeKeys` 處理（不是 Lua imap）
 
 ---
 
@@ -108,6 +115,8 @@ h (左)  ←  →  l (右)
 
 > 範例：要改 `name = "foo"` 裡的 `foo`，從行首按 `f"l` 進入引號內，或更快 `ci"`。
 
+> **注意**：`,` 同時是 CamelCaseMotion 的前綴。如果按 `,` 後等了 700ms 才觸發 `f`/`t` 重複，這是正常的 — Neovim 在等你有沒有要按 `,w`/`,b`/`,e`。
+
 ---
 
 ## 4. 動詞 + 文字物件 = Vim 的力量
@@ -134,7 +143,7 @@ h (左)  ←  →  l (右)
 | `(` `)` `b` | 小括號內 |
 | `{` `}` `B` | 大括號內 |
 | `[` `]` | 中括號內 |
-| `<` `>` | 角括號內 |
+| `<` `>` | 角括號內（C# generics 適用，已加 matchpairs） |
 | `t` | XML/HTML tag |
 
 ### 組合範例（**這就是 Vim**）
@@ -188,12 +197,12 @@ h (左)  ←  →  l (右)
 - `i` ignorecase
 
 ### 你的設定如何影響搜尋
-你開了：
-```jsonc
-"vim.hlsearch": true,    // 搜尋結果高亮
-"vim.incsearch": true,   // 邊打邊搜
-"vim.ignorecase": true,  // 忽略大小寫
-"vim.smartcase": true    // 但有大寫時恢復敏感
+在 init.lua 中設定了：
+```lua
+vim.opt.ignorecase = true    -- 忽略大小寫
+vim.opt.smartcase  = true    -- 但有大寫時恢復敏感
+vim.opt.hlsearch   = true    -- 搜尋結果高亮
+vim.opt.incsearch  = true    -- 邊打邊搜
 ```
 所以 `/foo` 會匹配 foo/Foo/FOO，但 `/Foo` 只匹配 Foo。
 
@@ -206,6 +215,8 @@ h (左)  ←  →  l (右)
 - `p` 貼到游標**後**
 - `P` 貼到游標**前**
 
+> 已設 `vim.opt.clipboard = 'unnamedplus'`，所以 yank/delete 自動同步系統剪貼簿。
+
 ### Registers（暫存器）
 語法：`"x{動作}`，x 是 register 名稱
 
@@ -214,20 +225,20 @@ h (左)  ←  →  l (右)
 | `"` | 預設 register（剛 yank/delete 的內容） |
 | `0` | 最近一次 yank（不含 delete） |
 | `1`–`9` | 最近 9 次 delete |
-| `+` | **系統剪貼簿**（重要！） |
+| `+` | **系統剪貼簿**（與預設同步，因為 unnamedplus） |
 | `a`–`z` | 你自己用 |
 | `_` | 黑洞（丟棄） |
 
 ### 實用範例
 ```text
-"+yy            複製整行到系統剪貼簿
-"+p             從系統剪貼簿貼上
+yy              複製整行（自動進系統剪貼簿）
+p               貼上
 "ayw            複製 word 到 register a
 "ap             從 register a 貼上
-"_dd            刪除一行但不進剪貼簿（黑洞）
+"_dd            刪除一行但不動剪貼簿（黑洞）
 ```
 
-> **常見痛點**：vim 預設 `dd` 會把刪掉的內容塞進預設 register，導致剛 yank 的東西被覆寫。解法：刪除前用 `"_dd`，或養成 `"0p` 貼 yank 內容的習慣。
+> **常見痛點**：`dd` 會把刪掉的內容塞進預設 register，覆蓋剛 yank 的內容。解法：刪除前用 `"_dd`，或養成 `"0p` 貼 yank 內容的習慣。
 
 ---
 
@@ -244,7 +255,7 @@ h (左)  ←  →  l (右)
 - `<C-i>` 往前
 - `:jumps` 看清單
 
-> 你已經把 `<C-o>` / `<C-i>` 還給 Vim 原生（從 VSCode navigateBack 改回 Vim jumplist）。要看 VSCode 編輯歷史請用 Command Palette。
+> vscode-neovim 使用 VSCode 的 jumplist（不是 Neovim 內建的），所以滑鼠點擊跳定義等操作也會記錄在跳轉歷史中。
 
 ### Macros（巨集）
 錄製重複動作：
@@ -264,7 +275,7 @@ q               停止錄製
 
 ## 8. Surround：包覆操作
 
-你已啟用 `vim.surround: true`。語法：
+使用 **nvim-surround** 插件（透過 lazy.nvim 安裝）。語法與 vim-surround 相同：
 
 ### 新增包覆（`ys` = you surround）
 ```text
@@ -292,46 +303,52 @@ dst             <b>foo</b> → foo  （t 是 tag）
 
 ---
 
-## 9. Easymotion：跳躍式移動
+## 9. Flash.nvim：跳躍式移動
 
-預設前綴：`<leader><leader>`（即 `Space Space`）
+觸發：`<Space><Space>`（即 Leader Leader）
 
-| 鍵 | 動作 |
-|---|---|
-| `<Space><Space>w` | 在畫面所有 word 開頭打標記，按標記跳轉 |
-| `<Space><Space>f{c}` | 標記畫面所有 `c` 字元 |
-| `<Space><Space>j` / `k` | 標記下方 / 上方行首 |
-| `<Space><Space>/` | 標記搜尋結果 |
+### 使用方式
 
-**何時用**：移動超過 5 行、或行內想跳到某字元但太遠按 `f` 不準時。
+1. 按 `<Space><Space>` — 畫面進入 Flash 模式
+2. 開始打你想跳過去的文字（1~2 個字元即可）
+3. 畫面上所有匹配位置會出現標記字母
+4. 按對應的標記字母 — 直接跳到該位置
+
+### 與 Easymotion 的差異
+
+| | Easymotion (舊) | Flash.nvim (現在) |
+|---|---|---|
+| 觸發方式 | `<Space><Space>w` / `f` / `j` 等子指令 | `<Space><Space>` 直接開始打字 |
+| 搜尋方式 | 固定範圍（word / 行 / 字元） | 打任意文字即時匹配 |
+| 直覺性 | 需要記子指令 | 直接打目標文字，更自然 |
+
+**何時用**：移動超過 5 行、或想跳到畫面上任意位置時。
 
 ---
 
 ## 10. VSCode 整合的最佳實踐
 
 ### 原則
-**讓 Vim 處理「文字編輯」，讓 VSCode 處理「IDE 功能」。**
+**讓 Neovim 處理「文字編輯」（Normal/Visual），讓 VSCode 處理「打字和 IDE 功能」（Insert）。**
 
-| 該由 Vim 處理 | 該由 VSCode 處理 |
+| 該由 Neovim 處理 | 該由 VSCode 處理 |
 |---|---|
-| 移動、選取、刪除、複製 | LSP（跳定義、重命名） |
-| 替換、巨集、文字物件 | Debug、Run、測試 |
-| 行內精準編輯 | 檔案總管、Git、終端 |
+| 移動、選取、刪除、複製 | Insert mode 打字輸入 |
+| 替換、巨集、文字物件 | LSP（跳定義、重命名） |
+| 行內精準編輯 | Debug、Run、測試 |
+| Surround / Flash / CamelCase | 檔案總管、Git、終端 |
 
 ### 你已綁好的橋樑（Leader 系列）
+透過 init.lua 中的 `vim.fn.VSCodeNotify()` 呼叫 VSCode 指令：
 - `<Space>r` rename ← LSP
 - `<Space>a` quick fix ← LSP
 - `<Space>g` / `<Space>G` 符號跳轉 ← LSP
 - `<Space>/` 全域搜尋 ← VSCode
 - `gd` / `gi` / `gy` / `gr` LSP 導覽
-- `<Space>b` / `<Space>D` Debug
+- `<Space>b` / `<Space>D` / `<Space>U` Debug
 
-### 還給 VSCode 的快捷鍵
-你已透過 `vim.handleKeys` 還原：`Ctrl+A/C/V/Z/Y/F/S/W/N/P`。這意味著：
-- ✅ 在 commit message 框 `Ctrl+A` 真的全選
-- ✅ `Ctrl+S` 永遠是存檔
-- ⚠️ 失去 Vim 的 `<C-w>` 視窗指令（已用 `<C-h/j/k/l>` 替代）
-- ⚠️ 失去 `<C-c>` 取消 Insert（用 `<Esc>` 或 `jj`）
+### Insert mode 的 Ctrl 快捷鍵
+vscode-neovim 不攔截 Insert mode 按鍵（由 VSCode 原生處理），所以 `Ctrl+A/C/V/Z/Y/F/S/W/N/P` 等都自然可用，不需像 VSCodeVim 那樣用 `handleKeys` 設定。
 
 ---
 
@@ -360,14 +377,15 @@ dst             <b>foo</b> → foo  （t 是 tag）
 
 ### 第 4 週以後
 - Surround：`ysiw"` / `cs"'` / `ds(`
+- Flash.nvim：`<Space><Space>` 取代大跳
+- CamelCaseMotion：`,w` / `,b` / `,e`
 - Macros：先從錄製簡單 `qaq` 開始
-- Registers：學會 `"+` 系統剪貼簿
-- Easymotion：取代大跳
+- Registers：學會 `"_dd` 黑洞
 
 ### 不要太早碰
-- `<C-v>` 區塊選取（強大但難）
+- `<C-q>` 區塊選取（強大但難）
 - 複雜的 `:g/pattern/d` 操作
-- 自訂 plugin（VSCodeVim 不支援，先別管）
+- 自訂 Neovim 插件（先用好現有的三個就夠了）
 
 ---
 
@@ -381,27 +399,26 @@ dst             <b>foo</b> → foo  （t 是 tag）
 **症狀**：複製一段、刪一行、貼上，發現貼出來是被刪的那行。
 **解法**：用 `"0p` 貼最近一次 yank；或刪用 `"_dd`。
 
-### 雷 3：Leader 延遲讓 `f` `e` 變慢
-**症狀**：按 `f` 想跳字元，要等 700ms 才反應。
-**解法**：已設 `vim.timeout: 700`。若還是受不了，可考慮把 Leader 換成 `\` 或 `,`。
+### 雷 3：Leader 延遲讓 `,` 變慢
+**症狀**：按 `,` 想重複 `f`/`t`，要等一會兒才反應（因為 CamelCaseMotion 用 `,` 前綴）。
+**解法**：已設 `vim.opt.timeoutlen = 700`。養成習慣：要重複 `f`/`t` 用 `;`（不受影響），`,` 留給 CamelCaseMotion。
 
-### 雷 4：`Ctrl+W` 想關 Tab 卻是 Vim window 指令
-**症狀**：曾經發生。
-**解法**：已在 `vim.handleKeys` 中還給 VSCode。
+### 雷 4：`jj` 在 Normal mode 移動兩行
+**症狀**：按 `jj` 沒有 escape。
+**解法**：`jj` 只在 **Insert mode** 生效。在 Normal mode 下 `j` 就是「向下一行」，所以 `jj` 會向下兩行——這是正確行為。
 
-### 雷 5：`<C-i>` 跳轉行為不一致
-**症狀**：以為跳到上次編輯位置，結果跳到別處。
-**解法**：理解 Vim jumplist（**游標位置**歷史）≠ VSCode editor history（**檔案 / 編輯**歷史）。需要後者請從 Command Palette 找 "Navigate Back/Forward"。
-
-### 雷 6：中文輸入法切換忘了切回英文（已自動處理）
+### 雷 5：中文輸入法切換忘了切回英文（已自動處理）
 **症狀**：在 Normal mode 按 `j` 跑出「ㄨ」。
-**已自動化**：透過 `im-select.exe` + `vim.autoSwitchInputMethod` 達成：
+**已自動化**：透過 Neovim autocmd + `im-select.exe` 達成：
 - 離開 Insert mode → 自動切回英文 (`1033`)
 - 進入 Insert mode → 自動還原上次的 IME（中文/英文）
 
-**設定位置**：`vim.autoSwitchInputMethod` in settings.json
 **Binary 位置**：`C:\Users\wenrong.huang\tools\im-select.exe`
 **驗證**：開終端機跑 `~\tools\im-select.exe` 會印出當前 IME 代碼（1028=繁中, 1033=英文）
+
+### 雷 6：VSCode 啟動後 Vim 慢一拍才能用
+**症狀**：開 VSCode 約 1 秒內 Vim 模式還沒啟動。
+**原因**：vscode-neovim 需要 spawn Neovim 背景 process，開機時需 ~1 秒。不影響使用。
 
 ---
 
@@ -410,19 +427,25 @@ dst             <b>foo</b> → foo  （t 是 tag）
 | 項目 | 設定 |
 |---|---|
 | Leader | `Space` |
-| Easymotion | ✅ |
-| Surround | ✅ |
+| 擴充 | vscode-neovim (asvetliakov) |
+| Neovim 版本 | v0.12.2 |
+| 插件管理 | lazy.nvim |
+| 插件 | nvim-surround, flash.nvim, CamelCaseMotion |
 | hlsearch / incsearch | ✅ |
 | ignorecase + smartcase | ✅ |
-| smartRelativeLine | ✅ |
-| timeout | 700ms |
-| `<C-o>` / `<C-i>` | Vim 原生 jumplist |
-| 已還給 VSCode 的鍵 | `<C-a/c/v/z/y/f/s/w/n/p>` |
+| clipboard | unnamedplus（同步系統剪貼簿） |
+| timeoutlen | 700ms |
+| scrolloff | 5 |
+| matchpairs | 含 `<:>`（C# generics） |
+| IME 切換 | im-select.exe + Neovim autocmd |
+| `jj` / `jk` escape | compositeKeys（settings.json） |
 
-完整檔案：`%APPDATA%\Code\User\settings.json`
-速查表：[vim-cheatsheet.md](./vim-cheatsheet.md)
+設定檔：
+- Neovim：`%LOCALAPPDATA%\nvim\init.lua`
+- VSCode：`%APPDATA%\Code\User\settings.json`
+- 速查表：[vim-cheatsheet.md](./vim-cheatsheet.md)
 
 ---
 
-_最後更新：2026-05-13_
-_作者：個人化整理（基於 wenrong 的 VSCodeVim 設定）_
+_最後更新：2026-05-14_
+_作者：個人化整理（基於 wenrong 的 vscode-neovim 設定）_
