@@ -165,6 +165,8 @@
     "outline.collapseItems": "alwaysCollapse",
     "http.systemCertificatesNode": true,
     "vim.easymotion": true,
+    // 駝峰命名移動：MyVariableName 用 ,w 跳到 Variable（不影響原生 w）
+    "vim.camelCaseMotion.enable": true,
     // yank/delete 直接寫入系統剪貼簿（yy 後可在外部 Ctrl+V）
     "vim.useSystemClipboard": true,
     // 自動切換輸入法：Insert→保留 / Normal→英文 (1033)

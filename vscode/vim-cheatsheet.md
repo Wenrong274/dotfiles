@@ -110,7 +110,23 @@ Normal mode 還有：
 
 ---
 
-## 七、Easymotion（已開啟）
+## 七、CamelCaseMotion（已開啟，C# 神器）
+
+對 `MyVariableName` / `getUserName` 這類駝峰命名拆字移動：
+
+| 鍵 | 動作 |
+|---|---|
+| `,w` | 跳到下一個駝峰段開頭（My**V**ariable**N**ame） |
+| `,b` | 跳到上一個駝峰段開頭 |
+| `,e` | 跳到下一個駝峰段結尾 |
+| `ci,w` | 改當前駝峰段（例如游標在 `Variable` → 整段刪改） |
+| `di,w` / `yi,w` | 刪 / 複製當前駝峰段 |
+
+> 原生 `w` `b` `e` 不受影響，仍是整個 word。
+
+---
+
+## 八、Easymotion（已開啟）
 
 預設觸發前綴：`<leader><leader>`（即 `Space Space`）
 
