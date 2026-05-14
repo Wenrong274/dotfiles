@@ -105,14 +105,6 @@
     },
     "workbench.startupEditor": "none",
     "editor.inlineSuggest.enabled": true,
-    "github.copilot.enable": {
-        "*": false,
-        "plaintext": false,
-        "markdown": false,
-        "scminput": false,
-        "yaml": false,
-        "csharp": true
-    },
     "markdown.extension.tableFormatter.enabled": false,
     "markdownlint.config": {},
     "cSpell.userWords": [
@@ -141,17 +133,12 @@
     "editor.suggestLineHeight": 30,
     "explorer.confirmDelete": false,
     "redhat.telemetry.enabled": true,
-    "codeium.enableConfig": {
-        "*": true,
-        "markdown": true
-    },
     "explorer.confirmDragAndDrop": false,
     "dotnet.navigation.navigateToDecompiledSources": true,
     "editor.maxTokenizationLineLength": 20000,
     "terminal.integrated.fontFamily": "Hack Nerd Font",
     "terminal.external.windowsExec": "C:\\Program Files\\PowerShell\\7\\pwsh.exe",
     "terminal.integrated.defaultProfile.windows": "PowerShell",
-    "geminicodeassist.project": "ecstatic-mechanic-t757n",
     "diffEditor.codeLens": true,
     "git.openRepositoryInParentFolders": "never",
     "[typescript]": {
