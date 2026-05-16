@@ -9,8 +9,6 @@ vim.g.maplocalleader = ' '
 -- Base options (both modes)
 vim.opt.ignorecase = true
 vim.opt.smartcase = true
-vim.opt.hlsearch = true
-vim.opt.incsearch = true
 vim.opt.clipboard = 'unnamedplus'    -- yank/delete -> system clipboard
 vim.opt.timeoutlen = 700
 vim.opt.scrolloff = 5
@@ -50,8 +48,6 @@ require('lazy').setup({
         keys = {
             { '<leader><leader>', mode = { 'n', 'x', 'o' },
               function() require('flash').jump() end, desc = 'Flash jump' },
-            { '<leader>T', mode = { 'n', 'x', 'o' },
-              function() require('flash').treesitter() end, desc = 'Flash treesitter' },
         },
     },
     -- CamelCase motion: ,w / ,b / ,e jump within MyVariableName
