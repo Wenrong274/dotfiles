@@ -28,10 +28,9 @@ cd "$env:USERPROFILE\dotfiles"
 `bootstrap.ps1` 會依序：
 
 1. 用 winget 安裝 Neovim、PowerShell 7
-2. 下載 `im-select.exe` 到 `%USERPROFILE%\tools\`
-3. 複製 `nvim/init.lua` + `nvim/lazy-lock.json` 到 `%LOCALAPPDATA%\nvim\`
-
-首次啟動 nvim 後執行 `:Lazy restore`，可將 plugin 鎖定到 `lazy-lock.json` 紀錄的 commit。
+2. 下載 `im-select.exe` 到 `%USERPROFILE%\tools\`（pinned commit + SHA256 驗證）
+3. 複製 `nvim/init.lua` + `nvim/lazy-lock.json` 到 `%LOCALAPPDATA%\nvim\`（idempotent）
+4. headless 跑 `:Lazy! restore`，自動安裝 plugin 並鎖定到 lock 版本
 
 VSCode Profile 設定（settings、keybindings、extensions）由 **Settings Sync** 自動還原，登入帳號即可。
 

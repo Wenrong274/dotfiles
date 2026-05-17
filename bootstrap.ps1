@@ -23,7 +23,7 @@ if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
 # ------------------------------------------------------------
 # 1. 安裝核心軟體（winget）
 # ------------------------------------------------------------
-Write-Host "[1/3] Installing software via winget..." -ForegroundColor Yellow
+Write-Host "[1/4] Installing software via winget..." -ForegroundColor Yellow
 
 $packages = @(
     @{ id = "Neovim.Neovim";        name = "Neovim" },
@@ -49,7 +49,7 @@ Write-Host ""
 # 2. 下載 im-select.exe（IME 自動切換）
 #    pin 到固定 commit + SHA256 校驗 (供應鏈安全 / 可重現)
 # ------------------------------------------------------------
-Write-Host "[2/3] Setting up im-select.exe..." -ForegroundColor Yellow
+Write-Host "[2/4] Setting up im-select.exe..." -ForegroundColor Yellow
 
 $toolsDir = Join-Path $env:USERPROFILE "tools"
 $imSelectPath = Join-Path $toolsDir "im-select.exe"
@@ -98,7 +98,7 @@ Write-Host ""
 # ------------------------------------------------------------
 # 3. 套用 Neovim 設定 (idempotent: 內容相同則跳過, 不同才備份+覆蓋)
 # ------------------------------------------------------------
-Write-Host "[3/3] Installing Neovim config..." -ForegroundColor Yellow
+Write-Host "[3/4] Installing Neovim config..." -ForegroundColor Yellow
 
 $nvimDst = Join-Path $env:LOCALAPPDATA "nvim"
 $nvimSrcDir = Join-Path $PSScriptRoot "nvim"
@@ -140,7 +140,33 @@ Sync-ConfigFile -Source $nvimSrc -Destination (Join-Path $nvimDst "init.lua") -L
 # 同步 lazy-lock.json (固定 plugin 版本)
 if (Test-Path $lockSrc) {
     Sync-ConfigFile -Source $lockSrc -Destination (Join-Path $nvimDst "lazy-lock.json") -Label "lazy-lock.json"
-    Write-Host "  Tip: launch nvim then run :Lazy restore to pin plugins to locked commits" -ForegroundColor DarkGray
+}
+Write-Host ""
+
+# ------------------------------------------------------------
+# 4. 首次安裝 plugin 並 restore 到 lock 版本
+#    headless 跑一次, 使用者開 nvim 不必再手動 :Lazy restore
+# ------------------------------------------------------------
+Write-Host "[4/4] Installing & restoring plugins..." -ForegroundColor Yellow
+
+# winget 裝完當下 PATH 可能還沒刷新, fallback 到預設安裝路徑
+$nvimExe = (Get-Command nvim -ErrorAction SilentlyContinue).Source
+if (-not $nvimExe) {
+    $defaultPath = "C:\Program Files\Neovim\bin\nvim.exe"
+    if (Test-Path $defaultPath) { $nvimExe = $defaultPath }
+}
+
+if ($nvimExe) {
+    Write-Host "  Running: $nvimExe --headless +Lazy! restore +qa" -ForegroundColor Green
+    & $nvimExe --headless "+Lazy! restore" "+qa" 2>&1 | Out-Null
+    if ($LASTEXITCODE -eq 0) {
+        Write-Host "  Plugins restored to locked commits" -ForegroundColor Green
+    } else {
+        Write-Host "  [warn] :Lazy restore exited with $LASTEXITCODE — open nvim to inspect" -ForegroundColor Yellow
+    }
+} else {
+    Write-Host "  [skip] nvim not found on PATH or default location" -ForegroundColor DarkGray
+    Write-Host "         Open a new shell and run: nvim --headless +Lazy! restore +qa" -ForegroundColor DarkGray
 }
 Write-Host ""
 
@@ -151,7 +177,6 @@ Write-Host "========== Bootstrap Complete ==========" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "Next steps:" -ForegroundColor Yellow
 Write-Host "  1. Reload VSCode -> sign in to Settings Sync to restore VSCode profiles" -ForegroundColor DarkGray
-Write-Host "  2. First Neovim launch may take ~5s (lazy.nvim installs plugins)" -ForegroundColor DarkGray
 Write-Host ""
 Write-Host "Troubleshooting:" -ForegroundColor Yellow
 Write-Host "  - Neovim path:   C:\Program Files\Neovim\bin\nvim.exe" -ForegroundColor DarkGray
