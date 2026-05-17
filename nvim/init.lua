@@ -25,8 +25,9 @@ end
 -- ============================================================
 local lazypath = vim.fn.stdpath('data') .. '/lazy/lazy.nvim'
 if not (vim.uv or vim.loop).fs_stat(lazypath) then
+    -- clone main branch; 實際版本由 lazy-lock.json 控制 (跑 :Lazy restore)
     vim.fn.system({
-        'git', 'clone', '--filter=blob:none', '--branch=stable',
+        'git', 'clone', '--filter=blob:none',
         'https://github.com/folke/lazy.nvim.git', lazypath,
     })
 end
@@ -141,7 +142,7 @@ if vim.g.vscode then
     -- (Insert mode is owned by VSCode, lua imap doesn't fire there)
 
     -- ----------------------------------------------------
-    -- IME auto-switch via im-select.exe (Windows)
+    -- IME auto-switch via im-select.exe (Windows, async)
     -- ----------------------------------------------------
     local im_select = vim.fn.expand('$USERPROFILE') .. [[\tools\im-select.exe]]
     local default_im = '1033'   -- en-US
@@ -150,15 +151,21 @@ if vim.g.vscode then
     if vim.fn.filereadable(im_select) == 1 then
         vim.api.nvim_create_autocmd('InsertLeave', {
             callback = function()
-                local current = vim.fn.system('"' .. im_select .. '"'):gsub('%s+', '')
-                if current ~= '' then saved_im = current end
-                vim.fn.system('"' .. im_select .. '" ' .. default_im)
+                vim.fn.jobstart({ im_select }, {
+                    stdout_buffered = true,
+                    on_stdout = function(_, data)
+                        if data and data[1] and data[1] ~= '' then
+                            saved_im = data[1]:gsub('%s+', '')
+                        end
+                    end,
+                })
+                vim.fn.jobstart({ im_select, default_im }, { detach = true })
             end,
         })
         vim.api.nvim_create_autocmd('InsertEnter', {
             callback = function()
                 if saved_im ~= default_im then
-                    vim.fn.system('"' .. im_select .. '" ' .. saved_im)
+                    vim.fn.jobstart({ im_select, saved_im }, { detach = true })
                 end
             end,
         })
