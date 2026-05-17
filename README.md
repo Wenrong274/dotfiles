@@ -64,3 +64,7 @@ Copy-Item "$env:LOCALAPPDATA\nvim\lazy-lock.json" .\nvim\lazy-lock.json
 git add nvim/lazy-lock.json
 git commit -m "chore: bump plugin lock"
 ```
+
+## License
+
+MIT — see [LICENSE](LICENSE)
