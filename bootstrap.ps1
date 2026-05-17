@@ -37,9 +37,13 @@ foreach ($pkg in $packages) {
         Write-Host "  [skip] $($pkg.name) already installed" -ForegroundColor DarkGray
     } else {
         Write-Host "  Installing $($pkg.name)..." -ForegroundColor Green
-        winget install --id $pkg.id --exact --accept-source-agreements --accept-package-agreements
+        # --source winget: 避免多 source 環境 (含 msstore) 彈出選單
+        winget install --id $pkg.id --exact --source winget `
+            --accept-source-agreements --accept-package-agreements
         if ($LASTEXITCODE -ne 0) {
-            Write-Host "  [warn] winget install exited with $LASTEXITCODE" -ForegroundColor Yellow
+            Write-Host "  [error] winget install $($pkg.name) failed (exit $LASTEXITCODE)" -ForegroundColor Red
+            Write-Host "          後續步驟需要此套件, 中斷以避免誤導性錯誤" -ForegroundColor DarkGray
+            exit 1
         }
     }
 }
