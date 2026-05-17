@@ -1,0 +1,18 @@
+# 預設讓 git 自動偵測文字檔並正規化換行
+* text=auto
+
+# 平台敏感檔案: 強制換行符
+*.ps1   text eol=crlf
+*.cmd   text eol=crlf
+*.bat   text eol=crlf
+*.lua   text eol=lf
+*.json  text eol=lf
+*.md    text eol=lf
+*.sh    text eol=lf
+
+# 二進位: 不要做任何文字處理
+*.exe   binary
+*.dll   binary
+*.png   binary
+*.jpg   binary
+*.ico   binary
