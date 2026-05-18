@@ -1,6 +1,7 @@
 # vscode-neovim 個人 Cheatsheet
 
 > Leader = `Space` · Mode 提示：N=Normal, V=Visual, I=Insert
+> 按鍵縮寫：`C`=Ctrl, `S`=Shift, `CR`=Enter
 > 架構：真正的 Neovim 跑在背景，Insert mode 由 VSCode 原生處理（零卡頓）
 
 ---
