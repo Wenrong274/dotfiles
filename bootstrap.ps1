@@ -203,6 +203,17 @@ if ($nvimExe) {
 Write-Host ""
 
 # ------------------------------------------------------------
+# Notepad++
+# ------------------------------------------------------------
+Write-Host "========== Bootstrap: Notepad++ ==========" -ForegroundColor Cyan
+$nppScript = Join-Path $PSScriptRoot "notepadpp\install.ps1"
+if (Test-Path $nppScript) {
+    & $nppScript @PSBoundParameters
+} else {
+    Write-Host "  [skip] notepadpp\install.ps1 not found" -ForegroundColor DarkGray
+}
+
+# ------------------------------------------------------------
 # Done
 # ------------------------------------------------------------
 if ($warnings.Count -gt 0) {

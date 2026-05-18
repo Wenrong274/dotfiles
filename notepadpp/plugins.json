@@ -1,0 +1,47 @@
+[
+  {
+    "name": "AutoSave",
+    "version": "2.0.0",
+    "url": "https://github.com/francostellari/NppPlugins/raw/main/AutoSave/AutoSave_dll_2v00_x64.zip"
+  },
+  {
+    "name": "ComparePlugin",
+    "version": "2.0.2",
+    "url": "https://github.com/pnedev/compare-plugin/releases/download/v2.0.2/ComparePlugin_v2.0.2_X64.zip"
+  },
+  {
+    "name": "ComparePlus",
+    "version": "3.0.0",
+    "url": "https://github.com/pnedev/comparePlus/releases/download/cp_3.0.0/ComparePlus_cp_3.0.0_x64.zip"
+  },
+  {
+    "name": "CSVLint",
+    "version": "0.4.7",
+    "url": "https://github.com/BdR76/CSVLint/releases/download/0.4.7/CSVLint_x64.zip"
+  },
+  {
+    "name": "DSpellCheck",
+    "version": "1.5.0",
+    "url": "https://github.com/Predelnik/DSpellCheck/releases/download/v1.5.0/DSpellCheck_x64.zip"
+  },
+  {
+    "name": "MultiReplace",
+    "version": "5.0.0.35",
+    "url": "https://github.com/daddel80/notepadpp-multireplace/releases/download/5.0.0.35/MultiReplace-v5.0.0.35-x64.zip"
+  },
+  {
+    "name": "NPPJSONViewer",
+    "version": "2.1.1.0",
+    "url": "https://github.com/NPP-JSONViewer/JSON-Viewer/releases/download/v2.1.1.0/NppJSONViewer_x64_Release.zip"
+  },
+  {
+    "name": "NppTextFX",
+    "version": "2.0.3",
+    "url": "https://github.com/rainman74/NPPTextFX2/releases/download/2.0.3/NppTextFX2.2.0.3.x64.zip"
+  },
+  {
+    "name": "XMLTools",
+    "version": "3.1.1.13",
+    "url": "https://github.com/morbac/xmltools/releases/download/3.1.1.13/XMLTools-3.1.1.13-x64.zip"
+  }
+]
