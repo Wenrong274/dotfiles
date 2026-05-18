@@ -1,13 +1,20 @@
 # bootstrap.ps1 — 新機器一鍵設定 Neovim 環境
 # Usage: git clone https://github.com/Wenrong274/dotfiles ~/dotfiles
 #        cd ~/dotfiles && .\bootstrap.ps1
+#        cd ~/dotfiles && .\bootstrap.ps1 -DryRun   # 預覽，不實際執行
 #
 # 前提：Windows 10/11 + winget 可用
 # VSCode 設定由 Settings Sync 自動還原，不在此腳本範圍內
 
+param(
+    [switch]$DryRun  # 只顯示動作，不實際寫入檔案或安裝軟體
+)
+
 $ErrorActionPreference = "Stop"
+$warnings = [System.Collections.Generic.List[string]]::new()
 
 Write-Host "========== Bootstrap: Neovim ==========" -ForegroundColor Cyan
+if ($DryRun) { Write-Host "[DRY-RUN] 預覽模式，不會實際修改任何東西`n" -ForegroundColor Magenta }
 Write-Host ""
 
 # ------------------------------------------------------------
@@ -35,6 +42,8 @@ foreach ($pkg in $packages) {
     winget list --id $pkg.id --exact --accept-source-agreements *> $null
     if ($LASTEXITCODE -eq 0) {
         Write-Host "  [skip] $($pkg.name) already installed" -ForegroundColor DarkGray
+    } elseif ($DryRun) {
+        Write-Host "  [dry-run] Would install $($pkg.name) via winget" -ForegroundColor Cyan
     } else {
         Write-Host "  Installing $($pkg.name)..." -ForegroundColor Green
         # --source winget: 避免多 source 環境 (含 msstore) 彈出選單
@@ -75,26 +84,31 @@ if (Test-ImSelectHash -Path $imSelectPath) {
     if (Test-Path $imSelectPath) {
         Write-Host "  [warn] existing im-select.exe has different hash, replacing" -ForegroundColor Yellow
     }
-    New-Item -ItemType Directory -Path $toolsDir -Force | Out-Null
-    Write-Host "  Downloading im-select.exe (pinned commit $($imSelectCommit.Substring(0,7)))..." -ForegroundColor Green
-    $tmpPath = "$imSelectPath.download"
-    try {
-        Invoke-WebRequest -Uri $imSelectUrl -OutFile $tmpPath -UseBasicParsing
-        $actual = (Get-FileHash -Path $tmpPath -Algorithm SHA256).Hash
-        if ($actual -ne $imSelectSha256) {
-            Remove-Item $tmpPath -Force
-            Write-Host "  [error] SHA256 mismatch — refusing to install" -ForegroundColor Red
-            Write-Host "          expected: $imSelectSha256" -ForegroundColor DarkGray
-            Write-Host "          actual:   $actual" -ForegroundColor DarkGray
-            exit 1
+    if ($DryRun) {
+        Write-Host "  [dry-run] Would download im-select.exe to $imSelectPath" -ForegroundColor Cyan
+    } else {
+        New-Item -ItemType Directory -Path $toolsDir -Force | Out-Null
+        Write-Host "  Downloading im-select.exe (pinned commit $($imSelectCommit.Substring(0,7)))..." -ForegroundColor Green
+        $tmpPath = "$imSelectPath.download"
+        try {
+            Invoke-WebRequest -Uri $imSelectUrl -OutFile $tmpPath -UseBasicParsing
+            $actual = (Get-FileHash -Path $tmpPath -Algorithm SHA256).Hash
+            if ($actual -ne $imSelectSha256) {
+                Remove-Item $tmpPath -Force
+                Write-Host "  [error] SHA256 mismatch — refusing to install" -ForegroundColor Red
+                Write-Host "          expected: $imSelectSha256" -ForegroundColor DarkGray
+                Write-Host "          actual:   $actual" -ForegroundColor DarkGray
+                exit 1
+            }
+            Move-Item -Path $tmpPath -Destination $imSelectPath -Force
+            Write-Host "  Saved to: $imSelectPath (SHA256 verified)" -ForegroundColor Green
+        } catch {
+            if (Test-Path $tmpPath) { Remove-Item $tmpPath -Force }
+            Write-Host "  [warn] Download failed: $($_.Exception.Message)" -ForegroundColor Yellow
+            Write-Host "         Manual: $imSelectUrl" -ForegroundColor DarkGray
+            Write-Host "         Save to: $imSelectPath" -ForegroundColor DarkGray
+            $warnings.Add("im-select.exe 下載失敗 — IME 自動切換將無法運作，請手動安裝後再執行一次")
         }
-        Move-Item -Path $tmpPath -Destination $imSelectPath -Force
-        Write-Host "  Saved to: $imSelectPath (SHA256 verified)" -ForegroundColor Green
-    } catch {
-        if (Test-Path $tmpPath) { Remove-Item $tmpPath -Force }
-        Write-Host "  [warn] Download failed: $($_.Exception.Message)" -ForegroundColor Red
-        Write-Host "         Manual: $imSelectUrl" -ForegroundColor DarkGray
-        Write-Host "         Save to: $imSelectPath" -ForegroundColor DarkGray
     }
 }
 Write-Host ""
@@ -122,7 +136,8 @@ function Sync-ConfigFile {
     param(
         [Parameter(Mandatory)][string]$Source,
         [Parameter(Mandatory)][string]$Destination,
-        [Parameter(Mandatory)][string]$Label
+        [Parameter(Mandatory)][string]$Label,
+        [switch]$DryRun
     )
     if (Test-Path $Destination) {
         $srcHash = (Get-FileHash -Path $Source -Algorithm SHA256).Hash
@@ -131,19 +146,26 @@ function Sync-ConfigFile {
             Write-Host "  [skip] $Label unchanged" -ForegroundColor DarkGray
             return
         }
+        if ($DryRun) {
+            Write-Host "  [dry-run] Would backup and overwrite $Label" -ForegroundColor Cyan
+            return
+        }
         $timestamp = Get-Date -Format "yyyyMMdd-HHmmss"
         Copy-Item $Destination "$Destination.$timestamp.bak"
         Write-Host "  Backed up existing $Label" -ForegroundColor Yellow
+    } elseif ($DryRun) {
+        Write-Host "  [dry-run] Would install $Label -> $(Split-Path $Destination -Parent)" -ForegroundColor Cyan
+        return
     }
     Copy-Item $Source -Destination $Destination -Force
     Write-Host "  Installed: $Label -> $(Split-Path $Destination -Parent)" -ForegroundColor Green
 }
 
-Sync-ConfigFile -Source $nvimSrc -Destination (Join-Path $nvimDst "init.lua") -Label "init.lua"
+Sync-ConfigFile -Source $nvimSrc -Destination (Join-Path $nvimDst "init.lua") -Label "init.lua" -DryRun:$DryRun
 
 # 同步 lazy-lock.json (固定 plugin 版本)
 if (Test-Path $lockSrc) {
-    Sync-ConfigFile -Source $lockSrc -Destination (Join-Path $nvimDst "lazy-lock.json") -Label "lazy-lock.json"
+    Sync-ConfigFile -Source $lockSrc -Destination (Join-Path $nvimDst "lazy-lock.json") -Label "lazy-lock.json" -DryRun:$DryRun
 }
 Write-Host ""
 
@@ -161,12 +183,18 @@ if (-not $nvimExe) {
 }
 
 if ($nvimExe) {
-    Write-Host "  Running: $nvimExe --headless +Lazy! restore +qa" -ForegroundColor Green
-    & $nvimExe --headless "+Lazy! restore" "+qa" 2>&1 | Out-Null
-    if ($LASTEXITCODE -eq 0) {
-        Write-Host "  Plugins restored to locked commits" -ForegroundColor Green
+    if ($DryRun) {
+        Write-Host "  [dry-run] Would run: $nvimExe --headless +Lazy! restore +qa" -ForegroundColor Cyan
     } else {
-        Write-Host "  [warn] :Lazy restore exited with $LASTEXITCODE — open nvim to inspect" -ForegroundColor Yellow
+        Write-Host "  Running: $nvimExe --headless `"+Lazy! restore`" `"+qa`"" -ForegroundColor Green
+        $lazyOutput = & $nvimExe --headless "+Lazy! restore" "+qa" 2>&1
+        if ($LASTEXITCODE -eq 0) {
+            Write-Host "  Plugins restored to locked commits" -ForegroundColor Green
+        } else {
+            Write-Host "  [warn] :Lazy restore exited with $LASTEXITCODE" -ForegroundColor Yellow
+            $lazyOutput | ForEach-Object { Write-Host "    $_" -ForegroundColor DarkGray }
+            Write-Host "         Open nvim to inspect further" -ForegroundColor DarkGray
+        }
     }
 } else {
     Write-Host "  [skip] nvim not found on PATH or default location" -ForegroundColor DarkGray
@@ -177,7 +205,16 @@ Write-Host ""
 # ------------------------------------------------------------
 # Done
 # ------------------------------------------------------------
+if ($warnings.Count -gt 0) {
+    Write-Host "========== 警告 ==========" -ForegroundColor Yellow
+    foreach ($w in $warnings) {
+        Write-Host "  !! $w" -ForegroundColor Yellow
+    }
+    Write-Host ""
+}
+
 Write-Host "========== Bootstrap Complete ==========" -ForegroundColor Cyan
+if ($DryRun) { Write-Host "[DRY-RUN] 以上為預覽，實際執行請移除 -DryRun 參數`n" -ForegroundColor Magenta }
 Write-Host ""
 Write-Host "Next steps:" -ForegroundColor Yellow
 Write-Host "  1. Reload VSCode -> sign in to Settings Sync to restore VSCode profiles" -ForegroundColor DarkGray

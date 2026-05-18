@@ -65,16 +65,16 @@
 
 ## 三、導覽（LSP）
 
-| 鍵                | 功能                      |
-| ----------------- | ------------------------- |
-| `gd`              | Go to Definition          |
+| 鍵                | 功能                                        |
+| ----------------- | ------------------------------------------- |
+| `gd`              | Go to Definition                            |
 | `gD`              | Peek Definition（浮動視窗，不離開當前檔案） |
-| `gi`              | Go to Implementation      |
-| `gy`              | Go to Type Definition     |
-| `gr`              | Go to References          |
-| `K`               | Show Hover（型別資訊 / 文件） |
-| `]e` / `[e`       | 下一個 / 上一個 錯誤標記  |
-| `<C-o>` / `<C-i>` | VSCode 跳轉歷史 回 / 前進 |
+| `gi`              | Go to Implementation                        |
+| `gy`              | Go to Type Definition                       |
+| `gr`              | Go to References                            |
+| `K`               | Show Hover（型別資訊 / 文件）               |
+| `]e` / `[e`       | 下一個 / 上一個 錯誤標記                    |
+| `<C-o>` / `<C-i>` | VSCode 跳轉歷史 回 / 前進                   |
 
 > vscode-neovim 使用 VSCode 的 jumplist，所以 `<C-o>` / `<C-i>` 與滑鼠跳定義等行為整合。
 
@@ -196,17 +196,17 @@ Normal mode 還有：
 
 ## 十、vscode-neovim 架構備忘
 
-| 項目                 | 說明                                                             |
-| -------------------- | ---------------------------------------------------------------- |
-| Insert mode          | 由 VSCode 原生處理（不經 Neovim），所以打字零卡頓                |
-| Normal / Visual mode | 由背景 Neovim 處理，完整 Vim 語法                                |
-| `jj` / `jk` escape   | 透過 `compositeKeys` 設定（settings.json），不是 Lua imap        |
-| 啟動時間             | 比 VSCodeVim 多 ~1 秒（spawn Neovim process）                    |
-| Ctrl 系列            | 大部分 `Ctrl+` 鍵在 Insert mode 自然歸 VSCode 處理，不需額外設定 |
-| IME 切換             | 透過 Neovim autocmd + im-select.exe 自動處理                     |
+| 項目                 | 說明                                                                    |
+| -------------------- | ----------------------------------------------------------------------- |
+| Insert mode          | 由 VSCode 原生處理（不經 Neovim），所以打字零卡頓                       |
+| Normal / Visual mode | 由背景 Neovim 處理，完整 Vim 語法                                       |
+| `jj` / `jk` escape   | 透過 `compositeKeys` 設定（settings.json），不是 Lua imap               |
+| 啟動時間             | 比 VSCodeVim 多 ~1 秒（spawn Neovim process）                           |
+| Ctrl 系列            | 大部分 `Ctrl+` 鍵在 Insert mode 自然歸 VSCode 處理，不需額外設定        |
+| IME 切換             | 透過 Neovim autocmd + im-select.exe 自動處理                            |
 | 行號顯示             | `editor.lineNumbers: "relative"` — 相對行號，直接看 `5j`/`12k` 要跳幾行 |
-| 滑鼠拖選             | `mouseSelectionStartVisualMode: true` — 滑鼠拖選自動進 Visual mode |
-| 設定位置             | Neovim：`%LOCALAPPDATA%\nvim\init.lua` / VSCode：`settings.json` |
+| 滑鼠拖選             | `mouseSelectionStartVisualMode: true` — 滑鼠拖選自動進 Visual mode      |
+| 設定位置             | Neovim：`%LOCALAPPDATA%\nvim\init.lua` / VSCode：`settings.json`        |
 
 ---
 
