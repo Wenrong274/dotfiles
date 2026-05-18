@@ -44,6 +44,7 @@ Vim 的學習曲線不是技術問題，是**習慣覆寫**問題。
 ### 相對行號（你的設定已開啟）
 
 `editor.lineNumbers: "relative"` 是啟用狀態——左邊顯示的是**與游標的距離**，不是絕對行號。
+（此為 VSCode `settings.json` 設定，新機器需在 Settings Sync 還原後才會生效）
 
 ```text
   3  func A() {

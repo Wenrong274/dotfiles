@@ -40,6 +40,7 @@
 | `<Space>t` | Run Test at Cursor                            |
 
 > Unity dev：`vstuc.refreshOnSave` 目前設為 `false`，需手動觸發 AssetDatabase refresh。
+> （此設定在 VSCode `settings.json`，非 Neovim 設定）
 
 ### 視窗 / Tab
 
