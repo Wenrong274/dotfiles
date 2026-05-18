@@ -138,6 +138,12 @@ if vim.g.vscode then
     -- Visual paste without overwriting register
     map('x', 'p', '"_dP')
 
+    -- Keep cursor centered after search jumps & half-page scroll
+    map('n', 'n', 'nzz')
+    map('n', 'N', 'Nzz')
+    map('n', '<C-d>', '<C-d>zz')
+    map('n', '<C-u>', '<C-u>zz')
+
     -- NOTE: jj/jk Esc handled by vscode-neovim.compositeKeys in settings.json
     -- (Insert mode is owned by VSCode, lua imap doesn't fire there)
 

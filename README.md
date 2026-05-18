@@ -8,13 +8,20 @@
 dotfiles/
 ├── nvim/
 │   ├── init.lua        # Neovim 設定（vscode-neovim 主要 / standalone fallback）
-│   └── lazy-lock.json  # plugin 版本鎖（跨機一致）
+│   ├── lazy-lock.json  # plugin 版本鎖（跨機一致）
+│   └── docs/           # vim 使用文件（4 份，配合 init.lua 的個人映射）
+│       ├── vim-onboarding.md     # 4 週上手路徑
+│       ├── vim-guide.md          # 概念教學 + 為什麼這樣設
+│       ├── vim-cheatsheet.md     # 操作速查表
+│       └── vim-test-checklist.md # 50 項設定驗證清單
 ├── bootstrap.ps1       # 新機器一鍵安裝
 ├── .gitattributes      # 跨平台換行符規範
 ├── .gitignore
 ├── LICENSE
 └── README.md
 ```
+
+> `nvim/docs/` 只是參考文件，不會被 `bootstrap.ps1` 部署。直接在 dotfiles 內閱讀或編輯即可。
 
 ## 在新機器上還原
 
