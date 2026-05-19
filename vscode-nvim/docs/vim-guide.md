@@ -387,40 +387,16 @@ vscode-neovim 不攔截 Insert mode 按鍵（由 VSCode 原生處理），所以
 
 ## 11. 學習路徑建議
 
-### 第 1 週：基礎肌肉記憶
+詳細的 4 週執行計畫（每週目標、每日規則、練習題、週末測試）見 [vim-onboarding.md](./vim-onboarding.md)。
 
-**目標：不再用方向鍵。**
+以下是精簡版里程碑：
 
-- `hjkl` 移動
-- `i` `a` `o` 進 Insert，`<Esc>` 或 `jj` 出
-- `w` `b` `e` 跳 word
-- `0` `$` 行首尾
-- `dd` 刪行、`yy` 複製、`p` 貼上、`u` undo、`<C-r>` redo
-
-### 第 2 週：動詞 + 物件
-
-**目標：開始用 `ciw` `da{` `yi"` 而不是「選取再操作」。**
-
-- `c` `d` `y` + `iw` `aw` `i"` `i(` `i{`
-- `f{c}` `t{c}` 行內跳字元
-- `*` 搜尋游標下 word
-
-### 第 3 週：你的個人化映射
-
-**目標：把 cheatsheet 印出來，每次想滑鼠時看一眼。**
-
-- `<Space>f` / `<Space>e` / `<Space>r` / `<Space>a`
-- `gd` / `gr`
-- `<Space>v` / `<Space>s` 分割
-- `<C-h/j/k/l>` 切視窗
-
-### 第 4 週以後
-
-- Surround：`ysiw"` / `cs"'` / `ds(`
-- Flash.nvim：`<Space><Space>` 取代大跳
-- CamelCaseMotion：`,w` / `,b` / `,e`
-- Macros：先從錄製簡單 `qaq` 開始
-- Registers：學會 `"_dd` 黑洞
+| 週次 | 目標 | 關鍵指令 |
+| ---- | ---- | -------- |
+| 第 1 週 | 不再用方向鍵 | `hjkl` `w` `b` `0` `$` `gg` `G` |
+| 第 2 週 | 動詞 + 物件取代選取 | `ciw` `di"` `ya{` `f{c}` |
+| 第 3 週 | Leader 快捷鍵進肌肉記憶 | `<Space>f/r/a` `gd` `<C-o>` |
+| 第 4 週+ | 進階工具按需取用 | Flash / Surround / CamelCase / Macros |
 
 ### 不要太早碰
 
@@ -476,7 +452,7 @@ vscode-neovim 不攔截 Insert mode 按鍵（由 VSCode 原生處理），所以
 | ---------------------- | ------------------------------------------ |
 | Leader                 | `Space`                                    |
 | 擴充                   | vscode-neovim (asvetliakov)                |
-| Neovim 版本            | v0.12.2                                    |
+| Neovim 版本            | 依 winget 安裝（`winget install Neovim.Neovim`） |
 | 插件管理               | lazy.nvim                                  |
 | 插件                   | nvim-surround, flash.nvim, CamelCaseMotion |
 | hlsearch / incsearch   | ✅                                         |

@@ -18,10 +18,14 @@ dotfiles/
 ├── notepadpp/
 │   ├── install.ps1     # Notepad++ 安裝腳本
 │   ├── plugins.json
-│   └── config/         # config.xml / shortcuts.xml / stylers.xml / langs.xml / contextMenu.xml
+│   ├── config/         # config.xml / shortcuts.xml / stylers.xml / langs.xml / contextMenu.xml
+│   └── docs/
+│       └── notepadpp-guide.md  # 插件說明 + 設定檔說明 + 維護方式
 ├── zed/
 │   ├── install.ps1     # Zed 安裝腳本
-│   └── settings.json   # Zed 設定（注意：MCP token 需手動填入）
+│   ├── settings.json   # Zed 設定（注意：MCP token 需手動填入）
+│   └── docs/
+│       └── zed-guide.md        # 設定說明 + Vim 模式 + MCP 整合
 ├── lib/
 │   └── sync-config.ps1 # 共用 Sync-ConfigFile 函式（各 install.ps1 dot-source）
 ├── bootstrap.ps1       # 新機器一鍵安裝（依序呼叫各工具的 install.ps1）
