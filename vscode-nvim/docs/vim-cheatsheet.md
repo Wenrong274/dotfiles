@@ -170,17 +170,23 @@ Normal mode 還有：
 
 ### 文字物件（Text Objects）
 
-| 鍵          | 範圍                                                   |
-| ----------- | ------------------------------------------------------ |
-| `iw` / `aw` | inner / a word                                         |
-| `i"` / `a"` | inner / a `"..."`                                      |
-| `i(` / `a(` | inner / a `(...)`                                      |
-| `i{` / `a{` | inner / a `{...}`                                      |
-| `ip` / `ap` | inner / a paragraph                                    |
-| `it` / `at` | inner / a tag                                          |
-| `i<` / `a<` | inner / a `<...>`（C# generics 適用，已加 matchpairs） |
+| 鍵          | 範圍                                                              |
+| ----------- | ----------------------------------------------------------------- |
+| `iw` / `aw` | inner / a word                                                    |
+| `i"` / `a"` | inner / a `"..."`                                                 |
+| `i(` / `a(` | inner / a `(...)`                                                 |
+| `i{` / `a{` | inner / a `{...}`                                                 |
+| `ip` / `ap` | inner / a paragraph                                               |
+| `it` / `at` | inner / a tag                                                     |
+| `i<` / `a<` | inner / a `<...>`（C# generics 適用，已加 matchpairs）            |
+| `ia` / `aa` | inner / a **函式引數**（mini.ai 提供）                            |
+| `iq` / `aq` | inner / a 任意引號（mini.ai：自動找最近的 `"`/`'`/`` ` ``）       |
+| `ib` / `ab` | inner / a 任意 brackets（mini.ai：自動找最近的 `()`/`[]`/`{}`） |
 
-組合：`ci"` 改裡面、`da{` 刪整塊、`yi(` yank 括號內
+組合：`ci"` 改裡面、`da{` 刪整塊、`yi(` yank 括號內、`dia` 刪引數本體、`daa` 刪引數含逗號
+
+> **mini.ai 補充**：原生 vim 沒有「函式引數」這個 text object。例如 `foo(a, b, c)` 游標在 `b` 上：
+> `dia` → `foo(a, , c)`（只刪本體）；`daa` → `foo(a, c)`（含逗號）。
 
 ### 暫存器 / 巨集
 
@@ -208,6 +214,7 @@ Normal mode 還有：
 | IME 切換             | 透過 Neovim autocmd + im-select.exe 自動處理                            |
 | 行號顯示             | `editor.lineNumbers: "relative"` — 相對行號，直接看 `5j`/`12k` 要跳幾行 |
 | 滑鼠拖選             | `mouseSelectionStartVisualMode: true` — 滑鼠拖選自動進 Visual mode      |
+| yank 高亮            | yank 後該範圍泛黃 200ms（`vim.hl.on_yank`），VSCode 內可能不顯示但 terminal nvim 看得到 |
 | 設定位置             | Neovim：`%LOCALAPPDATA%\nvim\init.lua` / VSCode：`settings.json`        |
 
 ---

@@ -144,17 +144,24 @@ h (左)  ←  →  l (右)
 
 語法：`i` (inner) / `a` (around) + 物件
 
-| 物件            | 範圍                                          |
-| --------------- | --------------------------------------------- |
-| `w`             | word                                          |
-| `s`             | sentence                                      |
-| `p`             | paragraph                                     |
-| `"` `'` `` ` `` | 引號內                                        |
-| `(` `)` `b`     | 小括號內                                      |
-| `{` `}` `B`     | 大括號內                                      |
-| `[` `]`         | 中括號內                                      |
-| `<` `>`         | 角括號內（C# generics 適用，已加 matchpairs） |
-| `t`             | XML/HTML tag                                  |
+| 物件            | 範圍                                                       |
+| --------------- | ---------------------------------------------------------- |
+| `w`             | word                                                       |
+| `s`             | sentence                                                   |
+| `p`             | paragraph                                                  |
+| `"` `'` `` ` `` | 引號內                                                     |
+| `(` `)` `b`     | 小括號內                                                   |
+| `{` `}` `B`     | 大括號內                                                   |
+| `[` `]`         | 中括號內                                                   |
+| `<` `>`         | 角括號內（C# generics 適用，已加 matchpairs）              |
+| `t`             | XML/HTML tag                                               |
+| `a`             | **函式引數**（mini.ai 提供，原生 vim 沒有）                |
+| `q`             | 任意引號（mini.ai：自動找最近的 `"`/`'`/`` ` ``）          |
+| `b` *           | 任意 brackets（mini.ai：自動找最近的 `()`/`[]`/`{}`）      |
+
+> *`b` 同時是原生 vim 的小括號和 mini.ai 的「任意 brackets」。實務上 mini.ai 的 `ib`/`ab` 會找最近的括號，更通用。
+>
+> **函式引數的威力**：`foo(a, b, c)` 游標在 `b` 上 → `dia` 變 `foo(a, , c)`（只刪本體）→ `daa` 變 `foo(a, c)`（含逗號）。重構函式呼叫超快。
 
 ### 組合範例（**這就是 Vim**）
 
@@ -454,13 +461,14 @@ vscode-neovim 不攔截 Insert mode 按鍵（由 VSCode 原生處理），所以
 | 擴充                   | vscode-neovim (asvetliakov)                |
 | Neovim 版本            | 依 winget 安裝（`winget install Neovim.Neovim`） |
 | 插件管理               | lazy.nvim                                  |
-| 插件                   | nvim-surround, flash.nvim, CamelCaseMotion |
+| 插件                   | nvim-surround, flash.nvim, CamelCaseMotion, mini.ai |
 | hlsearch / incsearch   | ✅                                         |
 | ignorecase + smartcase | ✅                                         |
 | clipboard              | unnamedplus（同步系統剪貼簿）              |
 | timeoutlen             | 700ms                                      |
 | scrolloff              | 5                                          |
 | matchpairs             | 含 `<:>`（C# generics）                    |
+| yank 高亮              | 200ms（`vim.hl.on_yank` autocmd）          |
 | IME 切換               | im-select.exe + Neovim autocmd             |
 | `jj` / `jk` escape     | compositeKeys（settings.json）             |
 

@@ -14,6 +14,14 @@ vim.opt.timeoutlen = 700
 vim.opt.scrolloff = 5
 vim.opt.matchpairs:append('<:>')     -- % jumps in C# generics
 
+-- Briefly highlight yanked region (200ms)
+-- vim.hl is the new API in Neovim 0.11+; fall back to vim.highlight on older versions
+vim.api.nvim_create_autocmd('TextYankPost', {
+    callback = function()
+        (vim.hl or vim.highlight).on_yank({ timeout = 200 })
+    end,
+})
+
 -- Helper
 local function map(mode, lhs, rhs, opts)
     opts = vim.tbl_extend('force', { silent = true, noremap = true }, opts or {})
@@ -56,6 +64,13 @@ require('lazy').setup({
         'bkad/CamelCaseMotion',
         event = 'VeryLazy',
         init = function() vim.g.camelcasemotion_key = ',' end,
+    },
+    -- Argument text objects: dia / daa / cia / via for function args
+    -- (預設還順便給 iq/aq, ib/ab, it/at 等)
+    {
+        'echasnovski/mini.ai',
+        event = 'VeryLazy',
+        opts = {},
     },
 }, {
     install = { missing = true },

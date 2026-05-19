@@ -190,6 +190,7 @@ Vim 的學習曲線不是技術問題，是**習慣覆寫**問題。
 | 想把 `"foo"` 換成 `'foo'`             | Surround：`cs"'`                                  |
 | 想包覆一個 word 成 `(word)`           | Surround：`ysiw)`                                 |
 | 要對 C# 的 `MyVariableName` 拆字移動  | CamelCaseMotion：`,w` `,b`                        |
+| 想換 `foo(a, b, c)` 裡某個引數        | mini.ai：游標放在引數上 `cia` 改本體 / `daa` 連逗號刪 |
 | 要對 20 行做同樣的編輯                | Macros：`qa` 錄製，`q` 結束，`19@a` 執行          |
 | 要每行行首加 `//`                     | Visual Block：`<C-q>` 選行，`I// <Esc>`           |
 

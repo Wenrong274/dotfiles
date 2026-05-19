@@ -167,11 +167,33 @@
 
 ---
 
+## 🔵 mini.ai 引數文字物件
+
+> 找一段函式呼叫測，例如 `DoSomething(playerId, weaponName, "fireball");`，游標放 `weaponName` 上。
+
+| #   | 測試動作 | 預期結果                                    | 結果 |
+| --- | -------- | ------------------------------------------- | :--: |
+| 51  | `dia`    | 變成 `DoSomething(playerId, , "fireball");`（只刪本體） |      |
+| 52  | `daa`    | 變成 `DoSomething(playerId, "fireball");`（含逗號） |      |
+| 53  | `cia`    | 進 Insert，引數本體被清空                   |      |
+| 54  | `via`    | Visual 選取 `weaponName`                    |      |
+
+---
+
+## 🔵 yank 高亮
+
+| #   | 測試動作                                          | 預期結果                                  | 結果 |
+| --- | ------------------------------------------------- | ----------------------------------------- | :--: |
+| 55  | 在 terminal 開 `nvim init.lua`，按 `yy`           | 該行短暫泛黃 200ms                        |      |
+| 56  | 在 VSCode（vscode-neovim）內按 `yy`               | 高亮可能不顯示（已知限制），yank 仍正常   |      |
+
+---
+
 ## 完成後
 
 記下失敗的項目編號，對照 `vscode-nvim/docs/vim-guide.md` 相關章節重新排查設定。
 
-50 項全 ✅ — vscode-neovim 設定為穩定可用狀態。
+56 項全 ✅ — vscode-neovim 設定為穩定可用狀態。
 
 ---
 
