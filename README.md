@@ -18,7 +18,7 @@ dotfiles/
 ├── notepadpp/
 │   ├── install.ps1     # Notepad++ 安裝腳本
 │   ├── plugins.json
-│   └── config/
+│   └── config/         # config.xml / shortcuts.xml / stylers.xml / langs.xml / contextMenu.xml
 ├── zed/
 │   ├── install.ps1     # Zed 安裝腳本
 │   └── settings.json   # Zed 設定（注意：MCP token 需手動填入）

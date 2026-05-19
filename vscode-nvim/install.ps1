@@ -12,6 +12,8 @@ param(
 $ErrorActionPreference = "Stop"
 $warnings = [System.Collections.Generic.List[string]]::new()
 
+. (Join-Path $PSScriptRoot "..\lib\sync-config.ps1")
+
 Write-Host "========== Bootstrap: Neovim ==========" -ForegroundColor Cyan
 if ($DryRun) { Write-Host "[DRY-RUN] 預覽模式，不會實際修改任何東西`n" -ForegroundColor Magenta }
 Write-Host ""
@@ -129,8 +131,6 @@ if (-not (Test-Path $nvimSrc)) {
 if (-not (Test-Path $nvimDst)) {
     New-Item -ItemType Directory -Path $nvimDst -Force | Out-Null
 }
-
-. (Join-Path $PSScriptRoot "..\lib\sync-config.ps1")
 
 Sync-ConfigFile -Source $nvimSrc -Destination (Join-Path $nvimDst "init.lua") -Label "init.lua" -DryRun:$DryRun
 

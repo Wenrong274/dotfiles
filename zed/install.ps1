@@ -62,7 +62,9 @@ foreach ($f in @("settings.json", "keymap.json")) {
     }
 }
 
-if (-not $DryRun) {
+$settingsDst = Join-Path $zedDst "settings.json"
+if (-not $DryRun -and (Test-Path $settingsDst) -and
+    (Get-Content $settingsDst -Raw) -match "GITHUB_PERSONAL_ACCESS_TOKEN") {
     $warnings.Add("settings.json 的 github_personal_access_token 需要手動更新（MCP GitHub 整合用）")
 }
 Write-Host ""
