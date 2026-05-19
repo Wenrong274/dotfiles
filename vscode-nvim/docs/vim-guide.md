@@ -460,7 +460,7 @@ vscode-neovim 不攔截 Insert mode 按鍵（由 VSCode 原生處理），所以
 - 離開 Insert mode → 自動切回英文 (`1033`)
 - 進入 Insert mode → 自動還原上次的 IME（中文/英文）
 
-**Binary 位置**：`C:\Users\wenrong.huang\tools\im-select.exe`
+**Binary 位置**：`%USERPROFILE%\tools\im-select.exe`
 **驗證**：開終端機跑 `~\tools\im-select.exe` 會印出當前 IME 代碼（1028=繁中, 1033=英文）
 
 ### 雷 6：VSCode 啟動後 Vim 慢一拍才能用

@@ -34,9 +34,9 @@ if (-not $isAdmin -and -not $DryRun) {
 
 function Sync-ConfigFile {
     param(
-        [string]$Source,
-        [string]$Destination,
-        [string]$Label,
+        [Parameter(Mandatory)][string]$Source,
+        [Parameter(Mandatory)][string]$Destination,
+        [Parameter(Mandatory)][string]$Label,
         [switch]$DryRun
     )
     if (Test-Path $Destination) {
@@ -90,52 +90,54 @@ Write-Host "[2/3] Installing plugins..." -ForegroundColor Yellow
 
 if (-not $isAdmin -and -not $DryRun) {
     Write-Host "  [skip] 跳過插件安裝（非 Admin）" -ForegroundColor DarkGray
+    $warnings.Add("plugins 未安裝 — 非 Admin 身分執行，請以系統管理員重新執行此腳本")
 } else {
     $pluginsJson = Join-Path $PSScriptRoot "plugins.json"
     $plugins     = Get-Content $pluginsJson -Raw | ConvertFrom-Json
     $nppPluginDir = "C:\Program Files\Notepad++\plugins"
     $tmpDir       = Join-Path $env:TEMP "npp-plugins-bootstrap"
 
-    foreach ($plugin in $plugins) {
-        $pluginDest = Join-Path $nppPluginDir $plugin.name
+    try {
+        foreach ($plugin in $plugins) {
+            $pluginDest = Join-Path $nppPluginDir $plugin.name
 
-        if (Test-Path (Join-Path $pluginDest "$($plugin.name).dll")) {
-            Write-Host "  [skip] $($plugin.name) already installed" -ForegroundColor DarkGray
-            continue
-        }
-
-        if ($DryRun) {
-            Write-Host "  [dry-run] Would install $($plugin.name) v$($plugin.version)" -ForegroundColor Cyan
-            continue
-        }
-
-        Write-Host "  Installing $($plugin.name) v$($plugin.version)..." -ForegroundColor Green
-
-        $zipPath    = Join-Path $tmpDir "$($plugin.name).zip"
-        $extractDir = Join-Path $tmpDir $plugin.name
-
-        New-Item -ItemType Directory $tmpDir -Force | Out-Null
-
-        try {
-            Invoke-WebRequest -Uri $plugin.url -OutFile $zipPath -UseBasicParsing
-
-            if (Test-Path $extractDir) { Remove-Item $extractDir -Recurse -Force }
-            Expand-Archive -Path $zipPath -DestinationPath $extractDir -Force
-
-            if (-not (Test-Path $pluginDest)) { New-Item -ItemType Directory $pluginDest -Force | Out-Null }
-
-            # Copy all DLLs (handles both flat and nested ZIP structures)
-            Get-ChildItem $extractDir -Recurse -Filter "*.dll" | ForEach-Object {
-                Copy-Item $_.FullName -Destination $pluginDest -Force
+            if (Test-Path (Join-Path $pluginDest "$($plugin.name).dll")) {
+                Write-Host "  [skip] $($plugin.name) already installed" -ForegroundColor DarkGray
+                continue
             }
-            Write-Host "    Done" -ForegroundColor Green
-        } catch {
-            Write-Host "    [warn] Failed: $($_.Exception.Message)" -ForegroundColor Yellow
-            $warnings.Add("$($plugin.name) 安裝失敗，請手動安裝: $($plugin.url)")
-        } finally {
-            if (Test-Path $zipPath)    { Remove-Item $zipPath -Force }
-            if (Test-Path $extractDir) { Remove-Item $extractDir -Recurse -Force }
+
+            if ($DryRun) {
+                Write-Host "  [dry-run] Would install $($plugin.name) v$($plugin.version)" -ForegroundColor Cyan
+                continue
+            }
+
+            Write-Host "  Installing $($plugin.name) v$($plugin.version)..." -ForegroundColor Green
+
+            $zipPath    = Join-Path $tmpDir "$($plugin.name).zip"
+            $extractDir = Join-Path $tmpDir $plugin.name
+
+            New-Item -ItemType Directory $tmpDir -Force | Out-Null
+
+            try {
+                Invoke-WebRequest -Uri $plugin.url -OutFile $zipPath -UseBasicParsing
+
+                if (Test-Path $extractDir) { Remove-Item $extractDir -Recurse -Force }
+                Expand-Archive -Path $zipPath -DestinationPath $extractDir -Force
+
+                if (-not (Test-Path $pluginDest)) { New-Item -ItemType Directory $pluginDest -Force | Out-Null }
+
+                # Copy all DLLs (handles both flat and nested ZIP structures)
+                Get-ChildItem $extractDir -Recurse -Filter "*.dll" | ForEach-Object {
+                    Copy-Item $_.FullName -Destination $pluginDest -Force
+                }
+                Write-Host "    Done" -ForegroundColor Green
+            } catch {
+                Write-Host "    [warn] Failed: $($_.Exception.Message)" -ForegroundColor Yellow
+                $warnings.Add("$($plugin.name) 安裝失敗，請手動安裝: $($plugin.url)")
+            }
         }
+    } finally {
+        if (Test-Path $tmpDir) { Remove-Item $tmpDir -Recurse -Force }
     }
 }
 Write-Host ""

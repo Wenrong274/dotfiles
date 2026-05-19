@@ -1,27 +1,32 @@
 # wenrong's dotfiles
 
-個人 Neovim 配置備份，跨機還原用。**僅支援 Windows 10/11**（bootstrap 依賴 winget + PowerShell）。VSCode 設定由 **Settings Sync** 管理。
+個人 Neovim（VSCode 用）配置備份，跨機還原用。**僅支援 Windows 10/11**（bootstrap 依賴 winget + PowerShell）。VSCode 設定由 **Settings Sync** 管理。
 
 ## 結構
 
 ```text
 dotfiles/
-├── nvim/
-│   ├── init.lua        # Neovim 設定（vscode-neovim 主要 / standalone fallback）
+├── vscode-nvim/
+│   ├── init.lua        # Neovim 設定（專用於 vscode-neovim 擴充套件）
 │   ├── lazy-lock.json  # plugin 版本鎖（跨機一致）
+│   ├── install.ps1     # vscode-nvim 安裝腳本
 │   └── docs/           # vim 使用文件（4 份，配合 init.lua 的個人映射）
 │       ├── vim-onboarding.md     # 4 週上手路徑
 │       ├── vim-guide.md          # 概念教學 + 為什麼這樣設
 │       ├── vim-cheatsheet.md     # 操作速查表
 │       └── vim-test-checklist.md # 50 項設定驗證清單
-├── bootstrap.ps1       # 新機器一鍵安裝
+├── notepadpp/
+│   ├── install.ps1     # Notepad++ 安裝腳本
+│   ├── plugins.json
+│   └── config/
+├── bootstrap.ps1       # 新機器一鍵安裝（依序呼叫各工具的 install.ps1）
 ├── .gitattributes      # 跨平台換行符規範
 ├── .gitignore
 ├── LICENSE
 └── README.md
 ```
 
-> `nvim/docs/` 只是參考文件，不會被 `bootstrap.ps1` 部署。直接在 dotfiles 內閱讀或編輯即可。
+> `vscode-nvim/docs/` 只是參考文件，不會被 `install.ps1` 部署。直接在 dotfiles 內閱讀或編輯即可。
 
 ## 在新機器上還原
 
@@ -34,18 +39,20 @@ cd "$env:USERPROFILE\dotfiles"
 .\bootstrap.ps1
 ```
 
-`bootstrap.ps1` 會依序：
+`bootstrap.ps1` 依序呼叫各工具的 `install.ps1`：
+
+**vscode-nvim/install.ps1** 會依序：
 
 1. 用 winget 安裝 Neovim、PowerShell 7
 2. 下載 `im-select.exe` 到 `%USERPROFILE%\tools\`（pinned commit + SHA256 驗證）
-3. 複製 `nvim/init.lua` + `nvim/lazy-lock.json` 到 `%LOCALAPPDATA%\nvim\`（idempotent）
+3. 複製 `vscode-nvim/init.lua` + `vscode-nvim/lazy-lock.json` 到 `%LOCALAPPDATA%\nvim\`（idempotent）
 4. headless 跑 `:Lazy! restore`，自動安裝 plugin 並鎖定到 lock 版本
 
 VSCode Profile 設定（settings、keybindings、extensions）由 **Settings Sync** 自動還原，登入帳號即可。
 
 ## im-select.exe
 
-用途：`nvim/init.lua` 透過 `InsertLeave`/`InsertEnter` autocmd 在 Normal/Insert 模式自動切換中英文輸入法。
+用途：`vscode-nvim/init.lua` 透過 `InsertLeave`/`InsertEnter` autocmd 在 Normal/Insert 模式自動切換中英文輸入法。
 
 `bootstrap.ps1` 會自動下載並驗證 SHA256（pinned 到固定 commit）。
 
@@ -62,11 +69,11 @@ VSCode Profile 設定（settings、keybindings、extensions）由 **Settings Syn
 
 ## 日常維護
 
-修改 `nvim/init.lua` 後：
+修改 `vscode-nvim/init.lua` 後：
 
 ```powershell
 cd $env:USERPROFILE\dotfiles
-git add nvim/init.lua
+git add vscode-nvim/init.lua
 git commit -m "update: <what changed>"
 git push
 ```
@@ -80,10 +87,10 @@ git push
 #    - 還原到 lock 版本: :Lazy restore
 
 # 2. 把 lazy 寫好的 lock 檔回拷到 repo
-Copy-Item "$env:LOCALAPPDATA\nvim\lazy-lock.json" .\nvim\lazy-lock.json
+Copy-Item "$env:LOCALAPPDATA\nvim\lazy-lock.json" .\vscode-nvim\lazy-lock.json
 
 # 3. commit
-git add nvim/lazy-lock.json
+git add vscode-nvim/lazy-lock.json
 git commit -m "chore: bump plugin lock"
 ```
 
