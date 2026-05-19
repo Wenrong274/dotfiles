@@ -189,7 +189,7 @@ Write-Host "========== Neovim Bootstrap Complete ==========" -ForegroundColor Cy
 if ($DryRun) { Write-Host "[DRY-RUN] 以上為預覽，實際執行請移除 -DryRun 參數`n" -ForegroundColor Magenta }
 Write-Host ""
 Write-Host "Troubleshooting:" -ForegroundColor Yellow
-Write-Host "  - Neovim path:   C:\Program Files\Neovim\bin\nvim.exe" -ForegroundColor DarkGray
+Write-Host "  - Neovim path:   $env:ProgramFiles\Neovim\bin\nvim.exe" -ForegroundColor DarkGray
 Write-Host "  - im-select:     $env:USERPROFILE\tools\im-select.exe" -ForegroundColor DarkGray
 Write-Host "  - Neovim config: $env:LOCALAPPDATA\nvim\init.lua" -ForegroundColor DarkGray
 Write-Host ""

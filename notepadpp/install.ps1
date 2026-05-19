@@ -147,7 +147,7 @@ Write-Host "========== Notepad++ Bootstrap Complete ==========" -ForegroundColor
 if ($DryRun) { Write-Host "[DRY-RUN] 以上為預覽，實際執行請移除 -DryRun 參數`n" -ForegroundColor Magenta }
 Write-Host ""
 Write-Host "Troubleshooting:" -ForegroundColor Yellow
-Write-Host "  - Plugins:    C:\Program Files\Notepad++\plugins\" -ForegroundColor DarkGray
+Write-Host "  - Plugins:    $env:ProgramFiles\Notepad++\plugins\" -ForegroundColor DarkGray
 Write-Host "  - Config:     $env:APPDATA\Notepad++\" -ForegroundColor DarkGray
 Write-Host "  - 更新版本:   編輯 $(Join-Path $PSScriptRoot 'plugins.json')" -ForegroundColor DarkGray
 Write-Host ""
