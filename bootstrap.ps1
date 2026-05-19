@@ -14,7 +14,8 @@ $ErrorActionPreference = "Stop"
 
 $installers = @(
     "vscode-nvim\install.ps1",
-    "notepadpp\install.ps1"
+    "notepadpp\install.ps1",
+    "zed\install.ps1"
 )
 
 foreach ($rel in $installers) {

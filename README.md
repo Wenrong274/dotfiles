@@ -19,6 +19,9 @@ dotfiles/
 │   ├── install.ps1     # Notepad++ 安裝腳本
 │   ├── plugins.json
 │   └── config/
+├── zed/
+│   ├── install.ps1     # Zed 安裝腳本
+│   └── settings.json   # Zed 設定（注意：MCP token 需手動填入）
 ├── bootstrap.ps1       # 新機器一鍵安裝（依序呼叫各工具的 install.ps1）
 ├── .gitattributes      # 跨平台換行符規範
 ├── .gitignore
