@@ -22,6 +22,8 @@ dotfiles/
 ├── zed/
 │   ├── install.ps1     # Zed 安裝腳本
 │   └── settings.json   # Zed 設定（注意：MCP token 需手動填入）
+├── lib/
+│   └── sync-config.ps1 # 共用 Sync-ConfigFile 函式（各 install.ps1 dot-source）
 ├── bootstrap.ps1       # 新機器一鍵安裝（依序呼叫各工具的 install.ps1）
 ├── .gitattributes      # 跨平台換行符規範
 ├── .gitignore
@@ -33,11 +35,13 @@ dotfiles/
 
 ## 在新機器上還原
 
+> **注意**：Notepad++ plugins 安裝需要**系統管理員**權限。建議以系統管理員身分執行 PowerShell 後再跑 bootstrap。
+
 ```powershell
 # 1. clone 到任意位置
 git clone https://github.com/Wenrong274/dotfiles "$env:USERPROFILE\dotfiles"
 
-# 2. 跑 bootstrap
+# 2. 跑 bootstrap（建議以系統管理員身分執行）
 cd "$env:USERPROFILE\dotfiles"
 .\bootstrap.ps1
 ```

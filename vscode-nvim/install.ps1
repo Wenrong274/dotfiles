@@ -130,34 +130,7 @@ if (-not (Test-Path $nvimDst)) {
     New-Item -ItemType Directory -Path $nvimDst -Force | Out-Null
 }
 
-function Sync-ConfigFile {
-    param(
-        [Parameter(Mandatory)][string]$Source,
-        [Parameter(Mandatory)][string]$Destination,
-        [Parameter(Mandatory)][string]$Label,
-        [switch]$DryRun
-    )
-    if (Test-Path $Destination) {
-        $srcHash = (Get-FileHash -Path $Source -Algorithm SHA256).Hash
-        $dstHash = (Get-FileHash -Path $Destination -Algorithm SHA256).Hash
-        if ($srcHash -eq $dstHash) {
-            Write-Host "  [skip] $Label unchanged" -ForegroundColor DarkGray
-            return
-        }
-        if ($DryRun) {
-            Write-Host "  [dry-run] Would backup and overwrite $Label" -ForegroundColor Cyan
-            return
-        }
-        $timestamp = Get-Date -Format "yyyyMMdd-HHmmss"
-        Copy-Item $Destination "$Destination.$timestamp.bak"
-        Write-Host "  Backed up existing $Label" -ForegroundColor Yellow
-    } elseif ($DryRun) {
-        Write-Host "  [dry-run] Would install $Label -> $(Split-Path $Destination -Parent)" -ForegroundColor Cyan
-        return
-    }
-    Copy-Item $Source -Destination $Destination -Force
-    Write-Host "  Installed: $Label -> $(Split-Path $Destination -Parent)" -ForegroundColor Green
-}
+. (Join-Path $PSScriptRoot "..\lib\sync-config.ps1")
 
 Sync-ConfigFile -Source $nvimSrc -Destination (Join-Path $nvimDst "init.lua") -Label "init.lua" -DryRun:$DryRun
 
@@ -176,7 +149,7 @@ Write-Host "[4/4] Installing & restoring plugins..." -ForegroundColor Yellow
 # winget 裝完當下 PATH 可能還沒刷新, fallback 到預設安裝路徑
 $nvimExe = (Get-Command nvim -ErrorAction SilentlyContinue).Source
 if (-not $nvimExe) {
-    $defaultPath = "C:\Program Files\Neovim\bin\nvim.exe"
+    $defaultPath = "$env:ProgramFiles\Neovim\bin\nvim.exe"
     if (Test-Path $defaultPath) { $nvimExe = $defaultPath }
 }
 

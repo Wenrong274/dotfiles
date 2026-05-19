@@ -53,36 +53,7 @@ Write-Host "[2/2] Syncing config files..." -ForegroundColor Yellow
 
 $zedDst = Join-Path $env:APPDATA "Zed"
 
-function Sync-ConfigFile {
-    param(
-        [Parameter(Mandatory)][string]$Source,
-        [Parameter(Mandatory)][string]$Destination,
-        [Parameter(Mandatory)][string]$Label,
-        [switch]$DryRun
-    )
-    if (Test-Path $Destination) {
-        $srcHash = (Get-FileHash -Path $Source -Algorithm SHA256).Hash
-        $dstHash = (Get-FileHash -Path $Destination -Algorithm SHA256).Hash
-        if ($srcHash -eq $dstHash) {
-            Write-Host "  [skip] $Label unchanged" -ForegroundColor DarkGray
-            return
-        }
-        if ($DryRun) {
-            Write-Host "  [dry-run] Would backup and overwrite $Label" -ForegroundColor Cyan
-            return
-        }
-        $timestamp = Get-Date -Format "yyyyMMdd-HHmmss"
-        Copy-Item $Destination "$Destination.$timestamp.bak"
-        Write-Host "  Backed up existing $Label" -ForegroundColor Yellow
-    } elseif ($DryRun) {
-        Write-Host "  [dry-run] Would install $Label -> $(Split-Path $Destination -Parent)" -ForegroundColor Cyan
-        return
-    }
-    $destDir = Split-Path $Destination -Parent
-    if (-not (Test-Path $destDir)) { New-Item -ItemType Directory $destDir -Force | Out-Null }
-    Copy-Item $Source -Destination $Destination -Force
-    Write-Host "  Installed: $Label -> $(Split-Path $Destination -Parent)" -ForegroundColor Green
-}
+. (Join-Path $PSScriptRoot "..\lib\sync-config.ps1")
 
 foreach ($f in @("settings.json", "keymap.json")) {
     $src = Join-Path $PSScriptRoot $f
@@ -91,7 +62,9 @@ foreach ($f in @("settings.json", "keymap.json")) {
     }
 }
 
-$warnings.Add("settings.json 的 github_personal_access_token 需要手動更新（MCP GitHub 整合用）")
+if (-not $DryRun) {
+    $warnings.Add("settings.json 的 github_personal_access_token 需要手動更新（MCP GitHub 整合用）")
+}
 Write-Host ""
 
 # ------------------------------------------------------------

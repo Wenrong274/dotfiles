@@ -32,36 +32,7 @@ if (-not $isAdmin -and -not $DryRun) {
     Write-Host ""
 }
 
-function Sync-ConfigFile {
-    param(
-        [Parameter(Mandatory)][string]$Source,
-        [Parameter(Mandatory)][string]$Destination,
-        [Parameter(Mandatory)][string]$Label,
-        [switch]$DryRun
-    )
-    if (Test-Path $Destination) {
-        $srcHash = (Get-FileHash -Path $Source -Algorithm SHA256).Hash
-        $dstHash = (Get-FileHash -Path $Destination -Algorithm SHA256).Hash
-        if ($srcHash -eq $dstHash) {
-            Write-Host "  [skip] $Label unchanged" -ForegroundColor DarkGray
-            return
-        }
-        if ($DryRun) {
-            Write-Host "  [dry-run] Would backup and overwrite $Label" -ForegroundColor Cyan
-            return
-        }
-        $ts = Get-Date -Format "yyyyMMdd-HHmmss"
-        Copy-Item $Destination "$Destination.$ts.bak"
-        Write-Host "  Backed up existing $Label" -ForegroundColor Yellow
-    } elseif ($DryRun) {
-        Write-Host "  [dry-run] Would install $Label" -ForegroundColor Cyan
-        return
-    }
-    $destDir = Split-Path $Destination -Parent
-    if (-not (Test-Path $destDir)) { New-Item -ItemType Directory $destDir -Force | Out-Null }
-    Copy-Item $Source -Destination $Destination -Force
-    Write-Host "  Installed: $Label" -ForegroundColor Green
-}
+. (Join-Path $PSScriptRoot "..\lib\sync-config.ps1")
 
 # ------------------------------------------------------------
 # 1. 安裝 Notepad++
@@ -93,8 +64,13 @@ if (-not $isAdmin -and -not $DryRun) {
     $warnings.Add("plugins 未安裝 — 非 Admin 身分執行，請以系統管理員重新執行此腳本")
 } else {
     $pluginsJson = Join-Path $PSScriptRoot "plugins.json"
-    $plugins     = Get-Content $pluginsJson -Raw | ConvertFrom-Json
-    $nppPluginDir = "C:\Program Files\Notepad++\plugins"
+    try {
+        $plugins = Get-Content $pluginsJson -Raw -ErrorAction Stop | ConvertFrom-Json -ErrorAction Stop
+    } catch {
+        Write-Host "  [error] plugins.json 讀取失敗: $($_.Exception.Message)" -ForegroundColor Red
+        exit 1
+    }
+    $nppPluginDir = "$env:ProgramFiles\Notepad++\plugins"
     $tmpDir       = Join-Path $env:TEMP "npp-plugins-bootstrap"
 
     try {
