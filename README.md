@@ -1,6 +1,6 @@
 # wenrong's dotfiles
 
-個人 Neovim（VSCode 用）配置備份，跨機還原用。**僅支援 Windows 10/11**（bootstrap 依賴 winget + PowerShell）。VSCode 設定由 **Settings Sync** 管理。
+個人開發環境設定備份，跨機還原用。**僅支援 Windows 10/11**（bootstrap 依賴 winget + PowerShell）。VSCode 設定由 **Settings Sync** 管理。
 
 ## 結構
 
@@ -55,13 +55,25 @@ cd "$env:USERPROFILE\dotfiles"
 3. 複製 `vscode-nvim/init.lua` + `vscode-nvim/lazy-lock.json` 到 `%LOCALAPPDATA%\nvim\`（idempotent）
 4. headless 跑 `:Lazy! restore`，自動安裝 plugin 並鎖定到 lock 版本
 
+**notepadpp/install.ps1** 會依序：
+
+1. 用 winget 安裝 Notepad++
+2. 下載並安裝 `plugins.json` 定義的 plugins（需 Admin）
+3. 複製 `notepadpp/config/` 內的設定檔到 `%APPDATA%\Notepad++\`（idempotent）
+
+**zed/install.ps1** 會依序：
+
+1. 用 winget 安裝 Zed
+2. 複製 `zed/settings.json` 到 `%APPDATA%\Zed\`（idempotent）
+3. 安裝完成後提示手動填入 `github_personal_access_token`（MCP GitHub 整合用）
+
 VSCode Profile 設定（settings、keybindings、extensions）由 **Settings Sync** 自動還原，登入帳號即可。
 
 ## im-select.exe
 
 用途：`vscode-nvim/init.lua` 透過 `InsertLeave`/`InsertEnter` autocmd 在 Normal/Insert 模式自動切換中英文輸入法。
 
-`bootstrap.ps1` 會自動下載並驗證 SHA256（pinned 到固定 commit）。
+`vscode-nvim/install.ps1` 會自動下載並驗證 SHA256（pinned 到固定 commit）。
 
 手動下載（如需）：
 
@@ -75,6 +87,8 @@ VSCode Profile 設定（settings、keybindings、extensions）由 **Settings Syn
   ```
 
 ## 日常維護
+
+### vscode-nvim
 
 修改 `vscode-nvim/init.lua` 後：
 
@@ -99,6 +113,33 @@ Copy-Item "$env:LOCALAPPDATA\nvim\lazy-lock.json" .\vscode-nvim\lazy-lock.json
 # 3. commit
 git add vscode-nvim/lazy-lock.json
 git commit -m "chore: bump plugin lock"
+```
+
+### Zed
+
+修改設定後，把最新設定回拷到 repo：
+
+```powershell
+cd $env:USERPROFILE\dotfiles
+Copy-Item "$env:APPDATA\Zed\settings.json" .\zed\settings.json
+git add zed/settings.json
+git commit -m "update: zed settings"
+git push
+```
+
+### Notepad++
+
+更新 plugin 版本：編輯 `notepadpp/plugins.json` 內的 `version` 和 `url`，再 commit。
+
+更新設定檔（config.xml 等）：
+
+```powershell
+cd $env:USERPROFILE\dotfiles
+Copy-Item "$env:APPDATA\Notepad++\config.xml" .\notepadpp\config\config.xml
+# 視需要複製其他 XML 檔
+git add notepadpp/config/
+git commit -m "update: notepadpp config"
+git push
 ```
 
 ## License
