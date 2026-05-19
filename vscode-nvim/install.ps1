@@ -165,6 +165,7 @@ if ($nvimExe) {
             Write-Host "  [warn] :Lazy restore exited with $LASTEXITCODE" -ForegroundColor Yellow
             $lazyOutput | ForEach-Object { Write-Host "    $_" -ForegroundColor DarkGray }
             Write-Host "         Open nvim to inspect further" -ForegroundColor DarkGray
+            $warnings.Add(":Lazy restore 失敗 (exit $LASTEXITCODE) — 開啟 nvim 手動執行 :Lazy restore")
         }
     }
 } else {
