@@ -212,5 +212,5 @@ Normal mode 還有：
 
 ---
 
-_最後更新：2026-05-18_
+_最後更新：2026-05-19_
 _設定檔位置：`%LOCALAPPDATA%\nvim\init.lua` + `%APPDATA%\Code\User\settings.json`_

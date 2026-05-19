@@ -8,24 +8,24 @@
 
 設定檔位置：`%APPDATA%\Zed\settings.json`
 
-| 項目 | 設定值 | 說明 |
-| ---- | ------ | ---- |
-| `vim_mode` | `true` | 啟用內建 Vim 模式 |
-| `base_keymap` | `VSCode` | 快捷鍵基礎採用 VSCode 配置 |
-| `buffer_font_family` | JetBrains Mono | 編輯區主要字型 |
-| `buffer_font_fallbacks` | Noto Sans TC, FiraCode | 中文及備用字型 |
-| `terminal.font_family` | Hack Nerd Font | 內建終端字型 |
-| `theme` | Catppuccin Macchiato (dark) | 深色主題 |
-| `icon_theme` | Catppuccin Mocha | 圖示主題 |
-| `relative_line_numbers` | `enabled` | 相對行號（配合 Vim 跳行） |
-| `mouse_wheel_zoom` | `true` | 滾輪縮放字型大小 |
-| `vertical_scroll_margin` | `5.0` | 捲動時保留上下 5 行可見 |
-| `preview_tabs` | `false` | 停用預覽頁籤，單點即固定開啟 |
-| `sticky_scroll` | `true` | 捲動時固定顯示當前 scope 標頭 |
-| `minimap` | `auto` | 自動顯示 minimap |
-| `semantic_tokens` | `full` | 完整語意 token 上色 |
-| `ensure_final_newline_on_save` | `true` | 儲存時自動補最後換行 |
-| `cli_default_open_behavior` | `existing_window` | `zed .` 優先用現有視窗開啟 |
+| 項目                           | 設定值                      | 說明                          |
+| ------------------------------ | --------------------------- | ----------------------------- |
+| `vim_mode`                     | `true`                      | 啟用內建 Vim 模式             |
+| `base_keymap`                  | `VSCode`                    | 快捷鍵基礎採用 VSCode 配置    |
+| `buffer_font_family`           | JetBrains Mono              | 編輯區主要字型                |
+| `buffer_font_fallbacks`        | Noto Sans TC, FiraCode      | 中文及備用字型                |
+| `terminal.font_family`         | Hack Nerd Font              | 內建終端字型                  |
+| `theme`                        | Catppuccin Macchiato (dark) | 深色主題                      |
+| `icon_theme`                   | Catppuccin Mocha            | 圖示主題                      |
+| `relative_line_numbers`        | `enabled`                   | 相對行號（配合 Vim 跳行）     |
+| `mouse_wheel_zoom`             | `true`                      | 滾輪縮放字型大小              |
+| `vertical_scroll_margin`       | `5.0`                       | 捲動時保留上下 5 行可見       |
+| `preview_tabs`                 | `false`                     | 停用預覽頁籤，單點即固定開啟  |
+| `sticky_scroll`                | `true`                      | 捲動時固定顯示當前 scope 標頭 |
+| `minimap`                      | `auto`                      | 自動顯示 minimap              |
+| `semantic_tokens`              | `full`                      | 完整語意 token 上色           |
+| `ensure_final_newline_on_save` | `true`                      | 儲存時自動補最後換行          |
+| `cli_default_open_behavior`    | `existing_window`           | `zed .` 優先用現有視窗開啟    |
 
 ---
 
@@ -34,6 +34,7 @@
 Zed 內建 Vim 模式（**非嵌入 Neovim**），以 `base_keymap: "VSCode"` 為基礎。
 
 支援的功能：
+
 - Normal / Insert / Visual / Command-line 模式切換
 - `hjkl`、`w/b/e`、`0/$`、`gg/G` 等基礎移動
 - `d/c/y` + 文字物件（`iw`、`i"`、`i(` 等）
@@ -42,12 +43,12 @@ Zed 內建 Vim 模式（**非嵌入 Neovim**），以 `base_keymap: "VSCode"` �
 
 **與 vscode-neovim 的差異**：
 
-| | Zed Vim | vscode-neovim |
-| --- | ------- | ------------- |
-| 實作方式 | 內建重寫 | 真正的 Neovim process |
-| Lua 插件 | ❌ | ✅（lazy.nvim 等） |
-| im-select IME 切換 | ❌ | ✅ |
-| 完整度 | 基本操作 OK | 接近完整 Vim |
+|                    | Zed Vim     | vscode-neovim         |
+| ------------------ | ----------- | --------------------- |
+| 實作方式           | 內建重寫    | 真正的 Neovim process |
+| Lua 插件           | ❌          | ✅（lazy.nvim 等）    |
+| im-select IME 切換 | ❌          | ✅                    |
+| 完整度             | 基本操作 OK | 接近完整 Vim          |
 
 > 需要完整 Vim 體驗時，使用 VSCode + vscode-neovim。
 
@@ -80,10 +81,10 @@ Zed 內建 Vim 模式（**非嵌入 Neovim**），以 `base_keymap: "VSCode"` �
 
 ## Agent Servers
 
-| Agent | 說明 |
-| ----- | ---- |
-| `claude-acp` | Anthropic Claude（透過 Zed registry） |
-| `github-copilot-cli` | GitHub Copilot CLI |
+| Agent                | 說明                                  |
+| -------------------- | ------------------------------------- |
+| `claude-acp`         | Anthropic Claude（透過 Zed registry） |
+| `github-copilot-cli` | GitHub Copilot CLI                    |
 
 ---
 
@@ -113,4 +114,4 @@ cd $env:USERPROFILE\dotfiles
 
 ---
 
-_最後更新：2026-05-19_
+最後更新：2026-05-19
