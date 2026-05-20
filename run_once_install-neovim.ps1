@@ -25,6 +25,7 @@ if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
 Write-Host "[1/3] Installing software via winget..." -ForegroundColor Yellow
 
 $packages = @(
+    @{ id = "Git.Git";              name = "Git" },
     @{ id = "Neovim.Neovim";        name = "Neovim" },
     @{ id = "Microsoft.PowerShell"; name = "PowerShell 7" }
 )
@@ -129,5 +130,4 @@ Write-Host ""
 Write-Host "Paths:" -ForegroundColor Yellow
 Write-Host "  Neovim:    $env:ProgramFiles\Neovim\bin\nvim.exe" -ForegroundColor DarkGray
 Write-Host "  im-select: $env:USERPROFILE\tools\im-select.exe" -ForegroundColor DarkGray
-Write-Host "  Config:    $env:LOCALAPPDATA\nvim\init.lua  (managed by chezmoi)" -ForegroundColor DarkGray
-Write-Host ""
+Write-Host "  Config:    $env:LOCALAPPDATA\nvim\init.lua  (managed b

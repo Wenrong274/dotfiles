@@ -20,9 +20,28 @@ if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
 }
 
 # ------------------------------------------------------------
-# 1. 安裝 Zed
+# 1. 安裝 Node.js LTS（mcp-server-github 需要）
 # ------------------------------------------------------------
-Write-Host "[1/1] Installing Zed..." -ForegroundColor Yellow
+Write-Host "[1/2] Installing Node.js LTS..." -ForegroundColor Yellow
+
+winget list --id OpenJS.NodeJS.LTS --exact --accept-source-agreements *> $null
+if ($LASTEXITCODE -eq 0) {
+    Write-Host "  [skip] Node.js LTS already installed" -ForegroundColor DarkGray
+} else {
+    Write-Host "  Installing Node.js LTS..." -ForegroundColor Green
+    winget install --id OpenJS.NodeJS.LTS --exact --source winget `
+        --accept-source-agreements --accept-package-agreements
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "  [error] winget install Node.js failed (exit $LASTEXITCODE)" -ForegroundColor Red
+        exit 1
+    }
+}
+Write-Host ""
+
+# ------------------------------------------------------------
+# 2. 安裝 Zed
+# ------------------------------------------------------------
+Write-Host "[2/2] Installing Zed..." -ForegroundColor Yellow
 
 winget list --id ZedIndustries.Zed --exact --accept-source-agreements *> $null
 if ($LASTEXITCODE -eq 0) {
@@ -34,23 +53,3 @@ if ($LASTEXITCODE -eq 0) {
     if ($LASTEXITCODE -ne 0) {
         Write-Host "  [error] winget install Zed failed (exit $LASTEXITCODE)" -ForegroundColor Red
         exit 1
-    }
-}
-Write-Host ""
-
-# ------------------------------------------------------------
-# 警告彙整
-# ------------------------------------------------------------
-if ($warnings.Count -gt 0) {
-    Write-Host "========== 警告 ==========" -ForegroundColor Yellow
-    foreach ($w in $warnings) { Write-Host "  !! $w" -ForegroundColor Yellow }
-    Write-Host ""
-}
-
-Write-Host "========== Zed Bootstrap Complete ==========" -ForegroundColor Cyan
-Write-Host ""
-Write-Host "Paths:" -ForegroundColor Yellow
-Write-Host "  Config:  $env:APPDATA\Zed\settings.json  (managed by chezmoi)" -ForegroundColor DarkGray
-Write-Host "  Keymap:  $env:APPDATA\Zed\keymap.json    (managed by chezmoi)" -ForegroundColor DarkGray
-Write-Host "  Token:   GitHub token 由 chezmoi template 自動填入" -ForegroundColor DarkGray
-Write-Host ""
