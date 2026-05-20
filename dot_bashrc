@@ -1,0 +1,6 @@
+# ~/.bashrc — Bash 設定（Git Bash / WSL）
+
+# Starship prompt
+if command -v starship &> /dev/null; then
+    eval "$(starship init bash)"
+fi
