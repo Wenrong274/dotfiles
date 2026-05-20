@@ -1,12 +1,12 @@
 # Notepad++ 設定說明
 
-> 個人化設定備份，對應 `notepadpp/` 內的設定檔與 plugins。
+> 個人化設定備份，對應 chezmoi 管理的 `AppData/Roaming/Notepad++/` 與 `notepadpp/plugins.json`。
 
 ---
 
 ## 已安裝插件
 
-透過 `notepadpp/plugins.json` 管理，`install.ps1` 會自動下載安裝（需 Admin）。
+透過 `notepadpp/plugins.json` 管理，`run_once_install-notepadpp.ps1` 會自動下載安裝（需 Admin）。
 
 | 插件          | 版本     | 用途                                       |
 | ------------- | -------- | ------------------------------------------ |
@@ -24,7 +24,7 @@
 
 ## 設定檔說明
 
-`notepadpp/config/` 內的 XML 檔案在 bootstrap 時複製到 `%APPDATA%\Notepad++\`：
+設定檔由 chezmoi 管理，source 位置在 `AppData/Roaming/Notepad++/`，部署到 `%APPDATA%\Notepad++\`。
 
 | 檔案              | 說明                                               |
 | ----------------- | -------------------------------------------------- |
@@ -54,15 +54,16 @@
 
 ### 同步設定變更回 repo
 
-在 Notepad++ 內調整設定後，把設定檔回拷：
+在 Notepad++ 內調整設定後，用 chezmoi 把最新設定拉回：
 
 ```powershell
-cd $env:USERPROFILE\dotfiles
-Copy-Item "$env:APPDATA\Notepad++\config.xml"      .\notepadpp\config\config.xml
-Copy-Item "$env:APPDATA\Notepad++\shortcuts.xml"   .\notepadpp\config\shortcuts.xml
-Copy-Item "$env:APPDATA\Notepad++\stylers.xml"     .\notepadpp\config\stylers.xml
-# 視需要複製其他 XML 檔
-git add notepadpp/config/
+chezmoi re-add "$env:APPDATA\Notepad++\config.xml"
+chezmoi re-add "$env:APPDATA\Notepad++\shortcuts.xml"
+chezmoi re-add "$env:APPDATA\Notepad++\stylers.xml"
+# 視需要 re-add 其他 XML 檔
+
+cd (chezmoi source-path)
+git add AppData/Roaming/Notepad++/
 git commit -m "update: notepadpp config"
 git push
 ```
@@ -70,11 +71,5 @@ git push
 ### 重新安裝（新機器）
 
 ```powershell
-# 建議以系統管理員身分執行
-cd $env:USERPROFILE\dotfiles
-.\notepadpp\install.ps1
-```
-
----
-
-最後更新：2026-05-19
+# chezmoi init --apply 時會自動執行，不需手動跑
+# 若需單獨重跑（以系統管理員身分執行）

@@ -481,7 +481,7 @@ x         = 333
 
 ### 你已綁好的橋樑（Leader 系列）
 
-透過 init.lua 中的 `vim.fn.VSCodeNotify()` 呼叫 VSCode 指令：
+透過 init.lua 中的 `require('vscode').action()` 呼叫 VSCode 指令：
 
 - `<Space>r` rename ← LSP
 - `<Space>a` quick fix ← LSP
@@ -584,4 +584,4 @@ vscode-neovim 不攔截 Insert mode 按鍵（由 VSCode 原生處理），所以
 
 ---
 
-最後更新：2026-05-20
+最後更新：2026-0
