@@ -12,51 +12,48 @@
       "enabled": true,
       "remote": false,
       "settings": {
-        "github_personal_access_token": "GITHUB_PERSONAL_ACCESS_TOKEN"
-      }
-    }
+        "github_personal_access_token": "GITHUB_PERSONAL_ACCESS_TOKEN",
+      },
+    },
   },
   "cli_default_open_behavior": "existing_window",
   "icon_theme": "Catppuccin Mocha",
-  "vim_mode": true,
+  "vim_mode": false,
   "terminal": {
     "font_family": "Hack Nerd Font",
-    "max_scroll_history_lines": 5000
+    "max_scroll_history_lines": 5000,
   },
   "preview_tabs": {
-    "enabled": false
+    "enabled": false,
   },
   "relative_line_numbers": "enabled",
   "sticky_scroll": {
-    "enabled": true
+    "enabled": true,
   },
   "mouse_wheel_zoom": true,
   "vertical_scroll_margin": 5.0,
   "gutter": {
-    "line_numbers": true
+    "line_numbers": true,
   },
   "minimap": {
-    "show": "auto"
+    "show": "auto",
   },
-  "buffer_font_fallbacks": [
-    "Noto Sans TC",
-    "FiraCode"
-  ],
+  "buffer_font_fallbacks": ["Noto Sans TC", "FiraCode"],
   "buffer_font_family": "JetBrains Mono",
   "use_on_type_format": true,
   "semantic_tokens": "full",
   "ensure_final_newline_on_save": true,
   "indent_guides": {
-    "enabled": false
+    "enabled": false,
   },
   "soft_wrap": "none",
   "agent_servers": {
     "claude-acp": {
-      "type": "registry"
+      "type": "registry",
     },
     "github-copilot-cli": {
-      "type": "registry"
-    }
+      "type": "registry",
+    },
   },
   "base_keymap": "VSCode",
   "ui_font_size": 16,
@@ -64,6 +61,6 @@
   "theme": {
     "mode": "dark",
     "light": "One Light",
-    "dark": "Catppuccin Macchiato"
-  }
+    "dark": "Catppuccin Macchiato",
+  },
 }
