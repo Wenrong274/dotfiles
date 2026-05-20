@@ -16,9 +16,12 @@
 7. [Marks、Jumps、Macros](#7-marksjumpsmacros)
 8. [Surround：包覆操作](#8-surround包覆操作)
 9. [Flash.nvim：跳躍式移動](#9-flashnvim跳躍式移動)
-10. [VSCode 整合的最佳實踐](#10-vscode-整合的最佳實踐)
-11. [學習路徑建議](#11-學習路徑建議)
-12. [常見踩雷與對策](#12-常見踩雷與對策)
+10. [Splitjoin.vim：單行 / 多行結構互轉](#10-splitjoinvim單行--多行結構互轉)
+11. [mini.align：互動對齊](#11-minialign互動對齊)
+12. [repeat.vim：補強 `.` 重播](#12-repeatvim補強--重播)
+13. [VSCode 整合的最佳實踐](#13-vscode-整合的最佳實踐)
+14. [學習路徑建議](#14-學習路徑建議)
+15. [常見踩雷與對策](#15-常見踩雷與對策)
 
 ---
 
@@ -144,22 +147,22 @@ h (左)  ←  →  l (右)
 
 語法：`i` (inner) / `a` (around) + 物件
 
-| 物件            | 範圍                                                       |
-| --------------- | ---------------------------------------------------------- |
-| `w`             | word                                                       |
-| `s`             | sentence                                                   |
-| `p`             | paragraph                                                  |
-| `"` `'` `` ` `` | 引號內                                                     |
-| `(` `)` `b`     | 小括號內                                                   |
-| `{` `}` `B`     | 大括號內                                                   |
-| `[` `]`         | 中括號內                                                   |
-| `<` `>`         | 角括號內（C# generics 適用，已加 matchpairs）              |
-| `t`             | XML/HTML tag                                               |
-| `a`             | **函式引數**（mini.ai 提供，原生 vim 沒有）                |
-| `q`             | 任意引號（mini.ai：自動找最近的 `"`/`'`/`` ` ``）          |
-| `b` *           | 任意 brackets（mini.ai：自動找最近的 `()`/`[]`/`{}`）      |
+| 物件            | 範圍                                                  |
+| --------------- | ----------------------------------------------------- |
+| `w`             | word                                                  |
+| `s`             | sentence                                              |
+| `p`             | paragraph                                             |
+| `"` `'` `` ` `` | 引號內                                                |
+| `(` `)` `b`     | 小括號內                                              |
+| `{` `}` `B`     | 大括號內                                              |
+| `[` `]`         | 中括號內                                              |
+| `<` `>`         | 角括號內（C# generics 適用，已加 matchpairs）         |
+| `t`             | XML/HTML tag                                          |
+| `a`             | **函式引數**（mini.ai 提供，原生 vim 沒有）           |
+| `q`             | 任意引號（mini.ai：自動找最近的 `"`/`'`/`` ` ``）     |
+| `b` \*          | 任意 brackets（mini.ai：自動找最近的 `()`/`[]`/`{}`） |
 
-> *`b` 同時是原生 vim 的小括號和 mini.ai 的「任意 brackets」。實務上 mini.ai 的 `ib`/`ab` 會找最近的括號，更通用。
+> \*`b` 同時是原生 vim 的小括號和 mini.ai 的「任意 brackets」。實務上 mini.ai 的 `ib`/`ab` 會找最近的括號，更通用。
 >
 > **函式引數的威力**：`foo(a, b, c)` 游標在 `b` 上 → `dia` 變 `foo(a, , c)`（只刪本體）→ `daa` 變 `foo(a, c)`（含逗號）。重構函式呼叫超快。
 
@@ -362,7 +365,108 @@ dst             <b>foo</b> → foo  （t 是 tag）
 
 ---
 
-## 10. VSCode 整合的最佳實踐
+## 10. Splitjoin.vim：單行 / 多行結構互轉
+
+使用 **splitjoin.vim** 插件。預設鍵：
+
+- `gS`：把單行結構拆成多行
+- `gJ`：把多行結構合回單行（游標放在該 block 第一行）
+
+### 何時用
+
+- JSON / Lua table / 設定檔物件先寫成一行，之後再展開
+- HTML tag 先壓成一行，再依需要拆開
+- 想在「可讀性」與「精簡」之間快速切換
+
+### 範例
+
+```text
+{"name":"foo","level":3}
+gS
+↓
+{
+  "name": "foo",
+  "level": 3
+}
+```
+
+```text
+<div id="app">
+  <span>foo</span>
+</div>
+gJ
+↓
+<div id="app"><span>foo</span></div>
+```
+
+> 它最適合已支援的語法（像 JSON / HTML / Lua / JS）。某些語言結構若沒有對應規則，不作用是正常的。
+
+---
+
+## 11. mini.align：互動對齊
+
+使用 **mini.align** 插件。預設入口：
+
+- `ga`：開始對齊
+- `gA`：開始對齊（含 preview）
+
+最常用的心法是：**先 Visual 選多行，再按分隔符。**
+
+### 最常用用法
+
+```text
+Visual 選 3 行
+ga=
+```
+
+把：
+
+```text
+foo = 1
+long_name = 22
+x = 333
+```
+
+對齊成：
+
+```text
+foo       = 1
+long_name = 22
+x         = 333
+```
+
+你也可以：
+
+- `ga,`：按逗號欄位對齊
+- `ga|`：對齊 `|`
+- `gA=`：先看 preview 再接受
+
+### 適合的情境
+
+- 參數表、設定表、常數表
+- named arguments / key-value 清單
+- 臨時把多行整理得更易讀
+
+---
+
+## 12. repeat.vim：補強 `.` 重播
+
+原生 Vim 的 `.` 只能重播上一個「可重播修改」。
+安裝 **repeat.vim** 之後，**有接 repeat API 的插件映射** 也能一起被 `.` 重播。
+
+### 觀念
+
+- 原生操作：`cwfoo<Esc>` 後，移到別處按 `.` → 會再做一次
+- 插件操作：是否能用 `.`，取決於該插件有沒有接上 repeat.vim
+
+### 為什麼裝
+
+它本身幾乎無感，但能讓整體 Vim 體驗更一致：
+**能重播的修改，就盡量都用 `.` 重播。**
+
+---
+
+## 13. VSCode 整合的最佳實踐
 
 ### 原則
 
@@ -392,28 +496,28 @@ vscode-neovim 不攔截 Insert mode 按鍵（由 VSCode 原生處理），所以
 
 ---
 
-## 11. 學習路徑建議
+## 14. 學習路徑建議
 
 詳細的 4 週執行計畫（每週目標、每日規則、練習題、週末測試）見 [vim-onboarding.md](./vim-onboarding.md)。
 
 以下是精簡版里程碑：
 
-| 週次 | 目標 | 關鍵指令 |
-| ---- | ---- | -------- |
-| 第 1 週 | 不再用方向鍵 | `hjkl` `w` `b` `0` `$` `gg` `G` |
-| 第 2 週 | 動詞 + 物件取代選取 | `ciw` `di"` `ya{` `f{c}` |
-| 第 3 週 | Leader 快捷鍵進肌肉記憶 | `<Space>f/r/a` `gd` `<C-o>` |
-| 第 4 週+ | 進階工具按需取用 | Flash / Surround / CamelCase / Macros |
+| 週次     | 目標                    | 關鍵指令                                                  |
+| -------- | ----------------------- | --------------------------------------------------------- |
+| 第 1 週  | 不再用方向鍵            | `hjkl` `w` `b` `0` `$` `gg` `G`                           |
+| 第 2 週  | 動詞 + 物件取代選取     | `ciw` `di"` `ya{` `f{c}`                                  |
+| 第 3 週  | Leader 快捷鍵進肌肉記憶 | `<Space>f/r/a` `gd` `<C-o>`                               |
+| 第 4 週+ | 進階工具按需取用        | Flash / Surround / CamelCase / Splitjoin / Align / Macros |
 
 ### 不要太早碰
 
 - `<C-q>` 區塊選取（強大但難）
 - 複雜的 `:g/pattern/d` 操作
-- 自訂 Neovim 插件（先用好現有的三個就夠了）
+- 自訂 Neovim 插件（先用好現有這批核心插件就夠了）
 
 ---
 
-## 12. 常見踩雷與對策
+## 15. 常見踩雷與對策
 
 ### 雷 1：一直停在 Insert 模式
 
@@ -455,22 +559,22 @@ vscode-neovim 不攔截 Insert mode 按鍵（由 VSCode 原生處理），所以
 
 ## 附錄：你的設定一覽
 
-| 項目                   | 設定                                       |
-| ---------------------- | ------------------------------------------ |
-| Leader                 | `Space`                                    |
-| 擴充                   | vscode-neovim (asvetliakov)                |
-| Neovim 版本            | 依 winget 安裝（`winget install Neovim.Neovim`） |
-| 插件管理               | lazy.nvim                                  |
-| 插件                   | nvim-surround, flash.nvim, CamelCaseMotion, mini.ai |
-| hlsearch / incsearch   | ✅                                         |
-| ignorecase + smartcase | ✅                                         |
-| clipboard              | unnamedplus（同步系統剪貼簿）              |
-| timeoutlen             | 700ms                                      |
-| scrolloff              | 5                                          |
-| matchpairs             | 含 `<:>`（C# generics）                    |
-| yank 高亮              | 200ms（`vim.hl.on_yank` autocmd）          |
-| IME 切換               | im-select.exe + Neovim autocmd             |
-| `jj` / `jk` escape     | compositeKeys（settings.json）             |
+| 項目                   | 設定                                                                                       |
+| ---------------------- | ------------------------------------------------------------------------------------------ |
+| Leader                 | `Space`                                                                                    |
+| 擴充                   | vscode-neovim (asvetliakov)                                                                |
+| Neovim 版本            | 依 winget 安裝（`winget install Neovim.Neovim`）                                           |
+| 插件管理               | lazy.nvim                                                                                  |
+| 插件                   | vim-repeat, nvim-surround, flash.nvim, CamelCaseMotion, splitjoin.vim, mini.ai, mini.align |
+| hlsearch / incsearch   | ✅                                                                                         |
+| ignorecase + smartcase | ✅                                                                                         |
+| clipboard              | unnamedplus（同步系統剪貼簿）                                                              |
+| timeoutlen             | 700ms                                                                                      |
+| scrolloff              | 5                                                                                          |
+| matchpairs             | 含 `<:>`（C# generics）                                                                    |
+| yank 高亮              | 200ms（`vim.hl.on_yank` autocmd）                                                          |
+| IME 切換               | im-select.exe + Neovim autocmd                                                             |
+| `jj` / `jk` escape     | compositeKeys（settings.json）                                                             |
 
 設定檔：
 
@@ -480,4 +584,4 @@ vscode-neovim 不攔截 Insert mode 按鍵（由 VSCode 原生處理），所以
 
 ---
 
-最後更新：2026-05-19
+最後更新：2026-05-20

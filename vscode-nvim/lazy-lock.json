@@ -3,5 +3,8 @@
   "flash.nvim": { "branch": "main", "commit": "fcea7ff883235d9024dc41e638f164a450c14ca2" },
   "lazy.nvim": { "branch": "main", "commit": "85c7ff3711b730b4030d03144f6db6375044ae82" },
   "mini.ai": { "branch": "main", "commit": "a783ce6e1a5b3bc90519f20b51f4a5f6702734af" },
-  "nvim-surround": { "branch": "main", "commit": "2e93e154de9ff326def6480a4358bfc149d5da2c" }
+  "mini.align": { "branch": "main", "commit": "c701192658ddac4e3b20956a964c2b03157b5e51" },
+  "nvim-surround": { "branch": "main", "commit": "2e93e154de9ff326def6480a4358bfc149d5da2c" },
+  "splitjoin.vim": { "branch": "main", "commit": "8c4c87e72d20d8d5eee8b29c320eb61767578841" },
+  "vim-repeat": { "branch": "master", "commit": "65846025c15494983dafe5e3b46c8f88ab2e9635" }
 }

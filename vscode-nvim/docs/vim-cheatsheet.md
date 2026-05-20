@@ -6,6 +6,24 @@
 
 ---
 
+## 目錄
+
+1. [Leader 系列（最常用）](#一leader-系列最常用)
+2. [視窗 / Buffer 切換](#二視窗--buffer-切換無-leader)
+3. [導覽（LSP）](#三導覽lsp)
+4. [Insert Mode 跳脫](#四insert-mode-跳脫)
+5. [Visual Mode](#五visual-mode)
+6. [Surround](#六surroundnvim-surround-插件)
+7. [CamelCaseMotion](#七camelcasemotionc-神器)
+8. [Flash.nvim](#八flashnvim跳躍式移動)
+9. [Vim 原生常用備忘](#九vim-原生常用備忘)
+10. [Splitjoin.vim](#十splitjoinvim單行--多行互轉)
+11. [mini.align](#十一minialign互動對齊)
+12. [vim-repeat](#十二vim-repeat補強-)
+13. [vscode-neovim 架構備忘](#十三vscode-neovim-架構備忘)
+
+---
+
 ## 一、Leader 系列（最常用）
 
 ### 檔案 / 導覽
@@ -170,17 +188,17 @@ Normal mode 還有：
 
 ### 文字物件（Text Objects）
 
-| 鍵          | 範圍                                                              |
-| ----------- | ----------------------------------------------------------------- |
-| `iw` / `aw` | inner / a word                                                    |
-| `i"` / `a"` | inner / a `"..."`                                                 |
-| `i(` / `a(` | inner / a `(...)`                                                 |
-| `i{` / `a{` | inner / a `{...}`                                                 |
-| `ip` / `ap` | inner / a paragraph                                               |
-| `it` / `at` | inner / a tag                                                     |
-| `i<` / `a<` | inner / a `<...>`（C# generics 適用，已加 matchpairs）            |
-| `ia` / `aa` | inner / a **函式引數**（mini.ai 提供）                            |
-| `iq` / `aq` | inner / a 任意引號（mini.ai：自動找最近的 `"`/`'`/`` ` ``）       |
+| 鍵          | 範圍                                                            |
+| ----------- | --------------------------------------------------------------- |
+| `iw` / `aw` | inner / a word                                                  |
+| `i"` / `a"` | inner / a `"..."`                                               |
+| `i(` / `a(` | inner / a `(...)`                                               |
+| `i{` / `a{` | inner / a `{...}`                                               |
+| `ip` / `ap` | inner / a paragraph                                             |
+| `it` / `at` | inner / a tag                                                   |
+| `i<` / `a<` | inner / a `<...>`（C# generics 適用，已加 matchpairs）          |
+| `ia` / `aa` | inner / a **函式引數**（mini.ai 提供）                          |
+| `iq` / `aq` | inner / a 任意引號（mini.ai：自動找最近的 `"`/`'`/`` ` ``）     |
 | `ib` / `ab` | inner / a 任意 brackets（mini.ai：自動找最近的 `()`/`[]`/`{}`） |
 
 組合：`ci"` 改裡面、`da{` 刪整塊、`yi(` yank 括號內、`dia` 刪引數本體、`daa` 刪引數含逗號
@@ -202,22 +220,59 @@ Normal mode 還有：
 
 ---
 
-## 十、vscode-neovim 架構備忘
+## 十、Splitjoin.vim（單行 / 多行互轉）
 
-| 項目                 | 說明                                                                    |
-| -------------------- | ----------------------------------------------------------------------- |
-| Insert mode          | 由 VSCode 原生處理（不經 Neovim），所以打字零卡頓                       |
-| Normal / Visual mode | 由背景 Neovim 處理，完整 Vim 語法                                       |
-| `jj` / `jk` escape   | 透過 `compositeKeys` 設定（settings.json），不是 Lua imap               |
-| 啟動時間             | 比 VSCodeVim 多 ~1 秒（spawn Neovim process）                           |
-| Ctrl 系列            | 大部分 `Ctrl+` 鍵在 Insert mode 自然歸 VSCode 處理，不需額外設定        |
-| IME 切換             | 透過 Neovim autocmd + im-select.exe 自動處理                            |
-| 行號顯示             | `editor.lineNumbers: "relative"` — 相對行號，直接看 `5j`/`12k` 要跳幾行 |
-| 滑鼠拖選             | `mouseSelectionStartVisualMode: true` — 滑鼠拖選自動進 Visual mode      |
-| yank 高亮            | yank 後該範圍泛黃 200ms（`vim.hl.on_yank`），VSCode 內可能不顯示但 terminal nvim 看得到 |
-| 設定位置             | Neovim：`%LOCALAPPDATA%\nvim\init.lua` / VSCode：`settings.json`        |
+| 鍵   | 功能                               |
+| ---- | ---------------------------------- |
+| `gS` | 把單行結構拆成多行                 |
+| `gJ` | 把多行結構合回單行（游標放第一行） |
+
+**常見情境**：JSON、Lua table、HTML tag、設定檔物件要在「先寫成一行」和「展開成多行」之間切換時很好用。
 
 ---
 
-_最後更新：2026-05-19_
-_設定檔位置：`%LOCALAPPDATA%\nvim\init.lua` + `%APPDATA%\Code\User\settings.json`_
+## 十一、mini.align（互動對齊）
+
+> 最容易上手的用法：**先 Visual 選多行，再按 `ga=`** 對齊 `=`。
+
+| 鍵      | 功能                   |
+| ------- | ---------------------- |
+| `ga`    | 開始對齊               |
+| `gA`    | 開始對齊（含 preview） |
+| `ga=`   | 對齊 `=`               |
+| `ga,`   | 依 `,` 對齊欄位        |
+| `ga\|`  | 對齊 `\|` 分隔內容     |
+
+**常見情境**：對齊 C# / Lua / PowerShell 的賦值、named args、表格式設定。
+
+---
+
+## 十二、vim-repeat（補強 `.`）
+
+| 鍵  | 功能                                                                              |
+| --- | --------------------------------------------------------------------------------- |
+| `.` | 重播上一個修改；安裝 `vim-repeat` 後，**支援 repeat 的插件映射** 也能一起吃到 `.` |
+
+> 原生 Vim 指令本來就能用 `.`；`vim-repeat` 的價值是把這個能力延伸到部分插件動作。
+
+---
+
+## 十三、vscode-neovim 架構備忘
+
+| 項目                 | 說明                                                                                    |
+| -------------------- | --------------------------------------------------------------------------------------- |
+| Insert mode          | 由 VSCode 原生處理（不經 Neovim），所以打字零卡頓                                       |
+| Normal / Visual mode | 由背景 Neovim 處理，完整 Vim 語法                                                       |
+| `jj` / `jk` escape   | 透過 `compositeKeys` 設定（settings.json），不是 Lua imap                               |
+| 啟動時間             | 比 VSCodeVim 多 ~1 秒（spawn Neovim process）                                           |
+| Ctrl 系列            | 大部分 `Ctrl+` 鍵在 Insert mode 自然歸 VSCode 處理，不需額外設定                        |
+| IME 切換             | 透過 Neovim autocmd + im-select.exe 自動處理                                            |
+| 行號顯示             | `editor.lineNumbers: "relative"` — 相對行號，直接看 `5j`/`12k` 要跳幾行                 |
+| 滑鼠拖選             | `mouseSelectionStartVisualMode: true` — 滑鼠拖選自動進 Visual mode                      |
+| yank 高亮            | yank 後該範圍泛黃 200ms（`vim.hl.on_yank`），VSCode 內可能不顯示但 terminal nvim 看得到 |
+| 設定位置             | Neovim：`%LOCALAPPDATA%\nvim\init.lua` / VSCode：`settings.json`                        |
+
+---
+
+最後更新：2026-05-20
+設定檔位置：`%LOCALAPPDATA%\nvim\init.lua` + `%APPDATA%\Code\User\settings.json`

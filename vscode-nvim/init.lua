@@ -42,6 +42,11 @@ end
 vim.opt.rtp:prepend(lazypath)
 
 require('lazy').setup({
+    -- Make plugin mappings participate in `.` repeat when supported
+    {
+        'tpope/vim-repeat',
+        event = 'VeryLazy',
+    },
     -- Surround operations: ysiw" / cs"' / ds" / S in visual
     {
         'kylechui/nvim-surround',
@@ -65,10 +70,21 @@ require('lazy').setup({
         event = 'VeryLazy',
         init = function() vim.g.camelcasemotion_key = ',' end,
     },
+    -- Split one-liners into blocks and join blocks back to one line
+    {
+        'AndrewRadev/splitjoin.vim',
+        event = 'VeryLazy',
+    },
     -- Argument text objects: dia / daa / cia / via for function args
     -- (預設還順便給 iq/aq, ib/ab, it/at 等)
     {
         'echasnovski/mini.ai',
+        event = 'VeryLazy',
+        opts = {},
+    },
+    -- Interactive alignment: ga / gA align by =, ,, | or custom separators
+    {
+        'nvim-mini/mini.align',
         event = 'VeryLazy',
         opts = {},
     },
