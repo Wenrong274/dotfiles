@@ -57,7 +57,13 @@ if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
     if ((Test-Path $rimeDir) -and (Get-ChildItem $rimeDir -ErrorAction SilentlyContinue)) {
         $backup = "$rimeDir.backup-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
         Write-Host "  [warn] existing files found — backing up to: $backup" -ForegroundColor Yellow
-        Move-Item $rimeDir $backup
+        try {
+            Move-Item $rimeDir $backup -ErrorAction Stop
+        } catch {
+            $backup = "$rimeDir.backup-$(Get-Random)"
+            Write-Host "  [warn] backup path conflict, retrying as: $backup" -ForegroundColor Yellow
+            Move-Item $rimeDir $backup
+        }
     }
 
     Write-Host "  Cloning rime-config (requires GitHub credentials)..." -ForegroundColor Green

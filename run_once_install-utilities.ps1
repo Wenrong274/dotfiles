@@ -24,6 +24,9 @@ $packages = @(
     @{ id = "Microsoft.PowerToys"; name = "PowerToys" }
 )
 
+Write-Host "Installing utilities via winget..." -ForegroundColor Yellow
+Write-Host ""
+
 foreach ($pkg in $packages) {
     winget list --id $pkg.id --exact --accept-source-agreements *> $null
     if ($LASTEXITCODE -eq 0) {
