@@ -4,6 +4,7 @@
 # 使用 $PROFILE 取得正確路徑（處理 OneDrive 重新導向的 Documents）
 
 $ErrorActionPreference = "Stop"
+$warnings = [System.Collections.Generic.List[string]]::new()
 
 Write-Host "========== Setup: PowerShell Starship ==========" -ForegroundColor Cyan
 Write-Host ""
@@ -14,36 +15,37 @@ $profileDir  = Split-Path $profilePath -Parent
 
 if (-not (Get-Command starship -ErrorAction SilentlyContinue)) {
     Write-Host "  [skip] starship not found on PATH — run run_once_install-starship.ps1 first" -ForegroundColor Yellow
-    exit 0
-}
-
-# 建立 profile 目錄（如不存在）
-if (-not (Test-Path $profileDir)) {
-    New-Item -ItemType Directory -Path $profileDir -Force | Out-Null
-}
-
-# 檢查是否已有 Starship init
-if (Test-Path $profilePath) {
-    $content = Get-Content $profilePath -Raw -Encoding UTF8
-    if ($content -match 'starship init') {
-        Write-Host "  [skip] Starship already configured in $profilePath" -ForegroundColor DarkGray
-        Write-Host ""
-        Write-Host "========== PowerShell Starship Setup Complete ==========" -ForegroundColor Cyan
-        exit 0
+    Write-Host ""
+} elseif ((Test-Path $profilePath) -and ((Get-Content $profilePath -Raw -Encoding UTF8) -match 'starship init')) {
+    Write-Host "  [skip] Starship already configured in $profilePath" -ForegroundColor DarkGray
+    Write-Host ""
+} else {
+    if (-not (Test-Path $profileDir)) {
+        New-Item -ItemType Directory -Path $profileDir -Force | Out-Null
     }
-}
 
-# 追加到 profile 尾端
-$snippet = @"
+    # 追加到 profile 尾端
+    $snippet = @"
 
 
 # ── Starship prompt ──────────────────────────────────────────
 Invoke-Expression (&starship init powershell)
 "@
 
-Add-Content -Path $profilePath -Value $snippet -Encoding UTF8
-Write-Host "  Starship added to: $profilePath" -ForegroundColor Green
-Write-Host ""
+    Add-Content -Path $profilePath -Value $snippet -Encoding UTF8
+    Write-Host "  Starship added to: $profilePath" -ForegroundColor Green
+    Write-Host ""
+}
+
+# ------------------------------------------------------------
+# 警告彙整
+# ------------------------------------------------------------
+if ($warnings.Count -gt 0) {
+    Write-Host "========== 警告 ==========" -ForegroundColor Yellow
+    foreach ($w in $warnings) { Write-Host "  !! $w" -ForegroundColor Yellow }
+    Write-Host ""
+}
+
 Write-Host "========== PowerShell Starship Setup Complete ==========" -ForegroundColor Cyan
 Write-Host "  Restart pwsh or run: . `$PROFILE" -ForegroundColor DarkGray
 Write-Host ""

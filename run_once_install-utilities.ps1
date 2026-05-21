@@ -52,6 +52,5 @@ if ($warnings.Count -gt 0) {
     Write-Host ""
 }
 
-Write-Host ""
 Write-Host "========== Utilities Bootstrap Complete ==========" -ForegroundColor Cyan
 Write-Host ""

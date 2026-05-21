@@ -584,4 +584,4 @@ vscode-neovim 不攔截 Insert mode 按鍵（由 VSCode 原生處理），所以
 
 ---
 
-最後更新：2026-0
+最後更新：2026-05-21

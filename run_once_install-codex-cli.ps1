@@ -1,11 +1,11 @@
-# run_once_install-claude-cli.ps1
+# run_once_install-codex-cli.ps1
 # chezmoi 在新機器第一次 apply 時自動執行一次
-# 安裝 Claude Code CLI（Node.js 若未安裝會自行透過 winget 安裝）
+# 安裝 OpenAI Codex CLI（Node.js 若未安裝會自行透過 winget 安裝）
 
 $ErrorActionPreference = "Stop"
 $warnings = [System.Collections.Generic.List[string]]::new()
 
-Write-Host "========== Bootstrap: Claude CLI ==========" -ForegroundColor Cyan
+Write-Host "========== Bootstrap: Codex CLI ==========" -ForegroundColor Cyan
 Write-Host ""
 
 # ------------------------------------------------------------
@@ -14,7 +14,6 @@ Write-Host ""
 $npmExe = Get-Command npm -ErrorAction SilentlyContinue
 
 if (-not $npmExe) {
-    # winget 剛裝完 PATH 可能尚未刷新，試 fallback 路徑
     $fallback = @(
         "$env:ProgramFiles\nodejs\npm.cmd",
         "$env:APPDATA\npm\npm.cmd"
@@ -23,7 +22,6 @@ if (-not $npmExe) {
     if ($found) {
         $npmExe = $found
     } else {
-        # Node.js 尚未安裝，直接在此安裝（不依賴 run_onchange_install-zed.ps1 的執行順序）
         Write-Host "  Node.js not found — installing via winget..." -ForegroundColor Yellow
         winget install --id OpenJS.NodeJS.LTS --exact --source winget `
             --accept-source-agreements --accept-package-agreements
@@ -46,20 +44,20 @@ Write-Host "  npm: $($npmExe.Source ?? $npmExe)" -ForegroundColor DarkGray
 Write-Host ""
 
 # ------------------------------------------------------------
-# 安裝 Claude Code
+# 安裝 Codex CLI
 # ------------------------------------------------------------
-$claudeExe = Get-Command claude -ErrorAction SilentlyContinue
-if ($claudeExe) {
-    $version = & claude --version 2>&1 | Select-Object -First 1
-    Write-Host "  [skip] Claude CLI already installed ($version)" -ForegroundColor DarkGray
+$codexExe = Get-Command codex -ErrorAction SilentlyContinue
+if ($codexExe) {
+    $version = & codex --version 2>&1 | Select-Object -First 1
+    Write-Host "  [skip] Codex CLI already installed ($version)" -ForegroundColor DarkGray
 } else {
-    Write-Host "  Installing @anthropic-ai/claude-code..." -ForegroundColor Green
-    & $npmExe install -g @anthropic-ai/claude-code
+    Write-Host "  Installing @openai/codex..." -ForegroundColor Green
+    & $npmExe install -g @openai/codex
     if ($LASTEXITCODE -ne 0) {
         Write-Host "  [error] npm install failed (exit $LASTEXITCODE)" -ForegroundColor Red
         exit 1
     }
-    Write-Host "  Claude CLI installed" -ForegroundColor Green
+    Write-Host "  Codex CLI installed" -ForegroundColor Green
 }
 Write-Host ""
 
@@ -72,7 +70,9 @@ if ($warnings.Count -gt 0) {
     Write-Host ""
 }
 
-Write-Host "========== Claude CLI Bootstrap Complete ==========" -ForegroundColor Cyan
+Write-Host "========== Codex CLI Bootstrap Complete ==========" -ForegroundColor Cyan
 Write-Host ""
-Write-Host "  登入：claude  （首次執行會引導 OAuth 登入）" -ForegroundColor DarkGray
+Write-Host "  設定 API Key：" -ForegroundColor DarkGray
+Write-Host "    [Environment]::SetEnvironmentVariable('OPENAI_API_KEY','<key>','User')" -ForegroundColor DarkGray
+Write-Host "  登入後執行：codex" -ForegroundColor DarkGray
 Write-Host ""

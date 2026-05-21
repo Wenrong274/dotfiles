@@ -20,11 +20,13 @@ chezmoi init --apply https://github.com/Wenrong274/dotfiles
 
 執行後會自動安裝所有工具、部署設定檔，過程中可能需要：
 
-```
+```text
 Zed GitHub Personal Access Token (留空跳過): ▌
 ```
 
-> ⚠️ `rime-config` 為私人 repo，若 Git Credential Manager 尚未登入 GitHub，clone 會略過並顯示手動指令。建議 `chezmoi apply` 前先確認 `git clone` 任意私人 repo 可正常運作。
+> ⚠️ `rime-config` 為私人 repo，若 Git Credential Manager 尚未登入 GitHub，
+> clone 會略過並顯示手動指令。建議 `chezmoi apply` 前先確認
+> `git clone` 任意私人 repo 可正常運作。
 
 VSCode 設定由 **Settings Sync** 自動還原，登入帳號即可。
 
@@ -132,6 +134,7 @@ chezmoi apply         # 重新產生 Zed settings.json
 Neovim 在 Normal / Insert 模式自動切換中英文輸入法用。`run_once_install-neovim.ps1` 會自動下載並驗證 SHA256。
 
 手動下載：
+
 - URL: <https://raw.githubusercontent.com/daipeihust/im-select/11ed9277fb3118b63b36cfca57c39fa4cc882512/win/out/x64/im-select.exe>
 - SHA256: `E66F0A6E30B9F20787C7D4A1C57B8F2B518D36C1C7CBDBBB6220D51226DDD0B6`
 

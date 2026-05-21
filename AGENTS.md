@@ -6,39 +6,24 @@ This file tells AI agents how to work in this repository.
 
 ```powershell
 # 語法驗證（單一腳本）
+$errors = $null
 [System.Management.Automation.Language.Parser]::ParseFile(
-    "$PWD\run_once_install-<name>.ps1", [ref]$null, [ref]$null)
+    "$PWD\run_once_install-<name>.ps1", [ref]$null, [ref]$errors)
+if ($errors) { $errors }
 
 # Markdown lint
 npx markdownlint-cli "**/*.md" --ignore node_modules
 
-# chezmoi 乾跑（不實際套用）
-chezmoi apply --dry-run --verbose
+# chezmoi 乾跑（以目前 repo 當 source，不實際套用）
+chezmoi -S "$PWD" apply --dry-run --verbose
 
-# chezmoi 套用（實際執行）
-chezmoi apply
+# chezmoi 套用（以目前 repo 當 source，實際執行）
+chezmoi -S "$PWD" apply
 ```
 
 ## Repository Layout
 
-```
-dotfiles/
-├── run_once_install-*.ps1        # 每台機器只跑一次
-├── run_onchange_*.ps1            # 腳本內容變更時重跑
-├── dot_config/                   # → ~/.config/
-│   └── starship.toml
-├── AppData/
-│   ├── Local/nvim/               # → %LOCALAPPDATA%\nvim\
-│   ├── Local/clink/              # → %LOCALAPPDATA%\clink\
-│   └── Roaming/                  # → %APPDATA%\
-│       ├── Notepad++/
-│       └── Zed/settings.json.tmpl
-├── notepadpp/plugins.json        # Notepad++ 插件清單（版本 + URL）
-├── dot_bashrc                    # → ~/.bashrc
-└── .chezmoi.toml.tmpl            # chezmoi init 時提示輸入 token
-```
-
-chezmoi 按字母順序執行腳本，`run_once_` 結尾的跑一次，`run_onchange_` 在檔案內容變更後重跑。
+`dot_config/` → `~/.config/`，`AppData/` 依子路徑對應 `%LOCALAPPDATA%` / `%APPDATA%`，`dot_*` 檔案去前綴後對應 `~/`。腳本按字母順序執行：`run_once_*` 每台機器跑一次，`run_onchange_*` 在腳本內容變更時重跑。
 
 ## Script Pattern — 所有腳本必須遵守
 
@@ -65,8 +50,8 @@ if ($LASTEXITCODE -eq 0) {
         --accept-source-agreements --accept-package-agreements
     if ($LASTEXITCODE -ne 0) {
         Write-Host "  [error] winget install failed (exit $LASTEXITCODE)" -ForegroundColor Red
-        exit 1                                         # 必裝工具用 exit 1
-        # $warnings.Add("說明 — 手動處理方式")        # 選用工具用 warn
+        exit 1                                    # 必裝工具（擇一）
+        # $warnings.Add("說明 — 手動處理方式")    # 選用工具（擇一）
     }
 }
 Write-Host ""
@@ -87,10 +72,29 @@ Write-Host ""
 
 **嚴格 vs 寬鬆錯誤處理的判斷基準：**
 
-| 工具 | 類型 | 失敗時 |
-|------|------|--------|
-| Neovim, Git, Starship | 必裝 | `exit 1` |
-| Clink, PowerToys, Snipaste | 選用 | `$warnings.Add(...)` |
+| 工具                                         | 類型 | 失敗時               |
+| -------------------------------------------- | ---- | -------------------- |
+| Neovim, Git, Starship, Claude CLI, Codex CLI | 必裝 | `exit 1`             |
+| Clink, PowerToys, Snipaste                   | 選用 | `$warnings.Add(...)` |
+
+**npm 安裝樣板（Claude CLI / Codex CLI）：**
+
+```powershell
+# npm skip/install — 先 check 再裝，避免已安裝時顯示誤導訊息
+$exe = Get-Command <cmd> -ErrorAction SilentlyContinue
+if ($exe) {
+    $ver = & <cmd> --version 2>&1 | Select-Object -First 1
+    Write-Host "  [skip] <Package> already installed ($ver)" -ForegroundColor DarkGray
+} else {
+    Write-Host "  Installing <npm-package>..." -ForegroundColor Green
+    & $npmExe install -g <npm-package>
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "  [error] npm install failed (exit $LASTEXITCODE)" -ForegroundColor Red
+        exit 1
+    }
+    Write-Host "  <Package> installed" -ForegroundColor Green
+}
+```
 
 ## Templates
 
@@ -99,9 +103,9 @@ Write-Host ""
 ```json
 {
   "context_servers": {
-    "github": {
+    "mcp-server-github": {
       "settings": {
-        "github_personal_access_token": "{{ .zed_github_token }}"
+        "github_personal_access_token": "{{ get . "zed_github_token" }}"
       }
     }
   }
@@ -112,31 +116,19 @@ Token 在 `chezmoi init` 時提示輸入，寫入 `~/.config/chezmoi/chezmoi.tom
 
 ## Notepad++ Plugins
 
-插件清單由 `notepadpp/plugins.json` 管理：
-
-```json
-[
-  {
-    "name": "ComparePlugin",
-    "version": "2.0.2",
-    "url": "https://github.com/..."
-  }
-]
-```
-
-`run_once_install-notepadpp.ps1` 讀取此檔案下載並安裝插件，**不要直接編輯 AppData/Roaming/Notepad++/ 下的 XML 設定檔**（它們由 Notepad++ 自身管理，chezmoi 只負責初始佈署）。
+插件清單由 `notepadpp/plugins.json` 管理，`run_once_install-notepadpp.ps1` 讀取此檔案下載安裝。**禁止直接編輯 `AppData/Roaming/Notepad++/` 下的 XML 設定檔**——它們由 Notepad++ 自身管理，chezmoi 只負責初始佈署。
 
 ## Known Hardcoded Values
 
 更改這些值前必須全域搜尋確認影響範圍：
 
-| 值 | 說明 | 出現位置 |
-|----|------|----------|
-| `$env:USERPROFILE\tools` | im-select.exe 存放路徑 | `run_once_install-neovim.ps1`, `AppData/Local/nvim/init.lua` |
-| `11ed9277fb3118b63b36cfca57c39fa4cc882512` | im-select.exe pinned commit | `run_once_install-neovim.ps1` |
-| `E66F0A6E...DDD0B6` | im-select.exe SHA256 | `run_once_install-neovim.ps1` |
-| `v3.4.0` | Nerd Fonts 版本 | `run_once_install-fonts.ps1` |
-| `Wenrong274/rime-config` | 私有 Rime 設定倉庫 | `run_once_install-rime.ps1` |
+| 值                                         | 說明                        | 出現位置                                                     |
+| ------------------------------------------ | --------------------------- | ------------------------------------------------------------ |
+| `$env:USERPROFILE\tools`                   | im-select.exe 存放路徑      | `run_once_install-neovim.ps1`, `AppData/Local/nvim/init.lua` |
+| `11ed9277fb3118b63b36cfca57c39fa4cc882512` | im-select.exe pinned commit | `run_once_install-neovim.ps1`                                |
+| `E66F0A6E...DDD0B6`                        | im-select.exe SHA256        | `run_once_install-neovim.ps1`                                |
+| `v3.4.0`                                   | Nerd Fonts 版本             | `run_once_install-fonts.ps1`                                 |
+| `Wenrong274/rime-config`                   | 私有 Rime 設定倉庫          | `run_once_install-rime.ps1`                                  |
 
 ## Absolute Prohibitions
 
@@ -150,14 +142,4 @@ Token 在 `chezmoi init` 時提示輸入，寫入 `~/.config/chezmoi/chezmoi.tom
 
 ## Markdown Style
 
-`.markdownlint.json` 規則：
-
-```json
-{
-  "line-length": { "line_length": 120 },
-  "no-duplicate-heading": { "siblings_only": true },
-  "no-blanks-blockquote": false
-}
-```
-
-表格、程式碼區塊不限行長。`# 標題` 後必須有空行，清單項目縮排 4 格。
+Lint 規則見 `.markdownlint.json`。表格與程式碼區塊不受行長限制。`# 標題` 後必須有空行，清單項目縮排 4 格。
