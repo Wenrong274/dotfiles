@@ -28,6 +28,7 @@ VSCode 設定由 **Settings Sync** 自動還原，登入帳號即可。
 
 | 腳本 | 安裝內容 | 備註 |
 |---|---|---|
+| `run_once_install-rime.ps1` | Weasel（小狼毫）、rime-config | |
 | `run_once_install-utilities.ps1` | NanaZip、Snipaste、PowerToys | |
 | `run_once_install-chocolatey.ps1` | Chocolatey、ripgrep、bat | 需要 Admin |
 | `run_once_install-neovim.ps1` | Git、Neovim、PowerShell 7、im-select.exe | |
