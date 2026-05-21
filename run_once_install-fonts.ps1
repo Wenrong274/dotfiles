@@ -19,6 +19,7 @@ Write-Host ""
 
 # Nerd Fonts 版本（鎖定，確保跨機一致）
 $nerdFontsVersion = "v3.4.0"
+$notoSansCjkVersion = "Sans2.004"
 
 $userFontsDir = "$env:LOCALAPPDATA\Microsoft\Windows\Fonts"
 $regPath      = "HKCU:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts"
@@ -145,34 +146,11 @@ Install-FontZip -Url $fcUrl -ZipName "FiraCode.zip" -Patterns @(
 Write-Host ""
 
 # ------------------------------------------------------------
-# 4. Noto Sans TC（Google Fonts，CJK fallback）
+# 4. Noto Sans TC（official Noto CJK release，CJK fallback）
 # ------------------------------------------------------------
 Write-Host "[4/4] Noto Sans TC..." -ForegroundColor Yellow
-
-# fonts.google.com/download 回傳 HTML 而非 ZIP，改用 CSS API 取得直連 TTF URL
-$cssUrl  = "https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@100;300;400;500;700;900&display=swap"
-$notoDir = Join-Path $tmpDir "NotoSansTC"
-New-Item -ItemType Directory -Path $notoDir -Force | Out-Null
-
-try {
-    $ua  = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0 Safari/537.36"
-    $css = Invoke-WebRequest -Uri $cssUrl -UseBasicParsing -Headers @{ "User-Agent" = $ua }
-    $ttfUrls = [regex]::Matches($css.Content, 'url\((https://fonts\.gstatic\.com/[^)]+\.(?:ttf|otf))\)') |
-               ForEach-Object { $_.Groups[1].Value } | Sort-Object -Unique
-
-    if ($ttfUrls.Count -eq 0) { throw "CSS API 回傳中找不到任何 TTF URL" }
-
-    foreach ($url in $ttfUrls) {
-        $fileName = ($url -split '/')[-1]
-        $dest     = Join-Path $notoDir $fileName
-        Invoke-WebRequest -Uri $url -OutFile $dest -UseBasicParsing
-        Install-FontFile -Path $dest
-    }
-} catch {
-    Write-Host "  [warn] Noto Sans TC 下載失敗: $($_.Exception.Message)" -ForegroundColor Yellow
-    Write-Host "         手動安裝：https://fonts.google.com/noto/specimen/Noto+Sans+TC" -ForegroundColor DarkGray
-    $warnings.Add("Noto Sans TC 下載失敗 — 請手動從 Google Fonts 安裝")
-}
+$notoUrl = "https://github.com/notofonts/noto-cjk/releases/download/$notoSansCjkVersion/19_NotoSansTC.zip"
+Install-FontZip -Url $notoUrl -ZipName "NotoSansTC.zip" -Patterns $null
 Write-Host ""
 
 # ------------------------------------------------------------

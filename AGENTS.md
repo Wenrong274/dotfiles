@@ -217,6 +217,7 @@ Token 在 `chezmoi init` 時提示輸入，寫入 `~/.config/chezmoi/chezmoi.tom
 | `11ed9277fb3118b63b36cfca57c39fa4cc882512` | im-select.exe pinned commit | `run_once_install-neovim.ps1`                                |
 | `E66F0A6E...DDD0B6`                        | im-select.exe SHA256        | `run_once_install-neovim.ps1`                                |
 | `v3.4.0`                                   | Nerd Fonts 版本             | `run_once_install-fonts.ps1`                                 |
+| `Sans2.004`                                | Noto Sans TC release pin    | `run_once_install-fonts.ps1`                                 |
 | `Wenrong274/rime-config`                   | 私有 Rime 設定倉庫          | `run_once_install-rime.ps1`                                  |
 | `2.70.4`                                   | chezmoi CI 版本 pin         | `.github/workflows/ci.yml`                                   |
 
