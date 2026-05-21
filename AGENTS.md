@@ -23,7 +23,9 @@ chezmoi -S "$PWD" apply
 
 ## Repository Layout
 
-`dot_config/` → `~/.config/`，`AppData/` 依子路徑對應 `%LOCALAPPDATA%` / `%APPDATA%`，`dot_*` 檔案去前綴後對應 `~/`。腳本按字母順序執行：`run_once_*` 每台機器跑一次，`run_onchange_*` 在腳本內容變更時重跑。
+`dot_config/` → `~/.config/`，`AppData/` 依子路徑對應 `%LOCALAPPDATA%` / `%APPDATA%`，`dot_*` 檔案去前綴後對應 `~/`。
+
+腳本按字母順序執行：`run_once_*` 每台機器跑一次，`run_onchange_*` 在腳本內容變更時重跑。
 
 ## Script Pattern — 所有腳本必須遵守
 
@@ -116,7 +118,9 @@ Token 在 `chezmoi init` 時提示輸入，寫入 `~/.config/chezmoi/chezmoi.tom
 
 ## Notepad++ Plugins
 
-插件清單由 `notepadpp/plugins.json` 管理，`run_once_install-notepadpp.ps1` 讀取此檔案下載安裝。**禁止直接編輯 `AppData/Roaming/Notepad++/` 下的 XML 設定檔**——它們由 Notepad++ 自身管理，chezmoi 只負責初始佈署。
+插件清單由 `notepadpp/plugins.json` 管理，`run_once_install-notepadpp.ps1` 讀取此檔案下載安裝。
+
+**禁止直接編輯 `AppData/Roaming/Notepad++/` 下的 XML 設定檔**——它們由 Notepad++ 自身管理，chezmoi 只負責初始佈署。
 
 ## Known Hardcoded Values
 

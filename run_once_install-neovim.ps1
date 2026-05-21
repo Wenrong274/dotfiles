@@ -130,4 +130,5 @@ Write-Host ""
 Write-Host "Paths:" -ForegroundColor Yellow
 Write-Host "  Neovim:    $env:ProgramFiles\Neovim\bin\nvim.exe" -ForegroundColor DarkGray
 Write-Host "  im-select: $env:USERPROFILE\tools\im-select.exe" -ForegroundColor DarkGray
-Write-Host "  Config:    $env:LOCALAPPDATA\nvim\init.lua  (managed b
+Write-Host "  Config:    $env:LOCALAPPDATA\nvim\init.lua  (managed by chezmoi)" -ForegroundColor DarkGray
+Write-Host ""
