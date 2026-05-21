@@ -6,48 +6,30 @@ on:
   pull_request:
     branches: [main]
 
+env:
+  # Pin chezmoi to reduce CI drift; update when bumping (see AGENTS.md Known Hardcoded Values)
+  CHEZMOI_VERSION: v2.63.1
+
 jobs:
   audit:
     runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
-          node-version: '20'
+          node-version: '24'
 
-      - name: Install markdownlint-cli
-        run: npm install -g markdownlint-cli
-
-      - name: Install chezmoi
+      - name: Install chezmoi ${{ env.CHEZMOI_VERSION }}
         run: |
-          sh -c "$(curl -fsLS get.chezmoi.io)"
+          sh -c "$(curl -fsLS get.chezmoi.io)" -- -b "$HOME/bin" "${{ env.CHEZMOI_VERSION }}"
           echo "$HOME/bin" >> $GITHUB_PATH
 
-      - name: PowerShell syntax check
+      - name: Run audit
         shell: pwsh
-        run: |
-          $failed = $false
-          Get-ChildItem "*.ps1" | Where-Object { $_.Name -ne "audit.ps1" } | ForEach-Object {
-            $errors = $null
-            [System.Management.Automation.Language.Parser]::ParseFile(
-              $_.FullName, [ref]$null, [ref]$errors) | Out-Null
-            if ($errors) {
-              $errors | ForEach-Object {
-                Write-Host "::error file=$($_.Name),line=$($_.Extent.StartLineNumber)::$($_.Message)"
-              }
-              $failed = $true
-            } else {
-              Write-Host "  [ok] $($_.Name)"
-            }
-          }
-          if ($failed) { exit 1 }
-
-      - name: Markdown lint
-        run: markdownlint "**/*.md" --ignore node_modules
-
-      - name: chezmoi dry-run
-        run: chezmoi -S "$PWD" apply --dry-run --verbose
+        run: .\audit.ps1
