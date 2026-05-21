@@ -1,13 +1,12 @@
 # run_once_install-fonts.ps1
 # chezmoi 在新機器第一次 apply 時自動執行一次
-# 安裝 Zed / Neovim / VSCode / Starship 設定所需的字型（不需要系統管理員）
+# 安裝 Zed / Neovim / Starship 設定所需的字型（不需要系統管理員）
 #
 # 安裝清單：
-#   - Hack Nerd Font         (Zed terminal.font_family, VSCode terminal)
+#   - Hack Nerd Font         (terminal 字型，內建完整 Nerd Font 圖示)
 #   - JetBrains Mono NF      (Zed buffer_font_family)
 #   - FiraCode Nerd Font      (Zed buffer_font_fallbacks)
 #   - Noto Sans TC            (Zed buffer_font_fallbacks, CJK fallback)
-#   - Symbols Nerd Font Mono  (terminal icon fallback; lightweight icon-only font)
 #
 # 字型安裝到使用者目錄（%LOCALAPPDATA%\Microsoft\Windows\Fonts\）
 # 不需要 Admin，Windows 10/11 會自動識別
@@ -105,7 +104,7 @@ function Install-FontZip {
 # ------------------------------------------------------------
 # 1. Hack Nerd Font
 # ------------------------------------------------------------
-Write-Host "[1/5] Hack Nerd Font..." -ForegroundColor Yellow
+Write-Host "[1/4] Hack Nerd Font..." -ForegroundColor Yellow
 
 $hackUrl = "https://github.com/ryanoasis/nerd-fonts/releases/download/$nerdFontsVersion/Hack.zip"
 Install-FontZip -Url $hackUrl -ZipName "Hack.zip" -Patterns @(
@@ -119,7 +118,7 @@ Write-Host ""
 # ------------------------------------------------------------
 # 2. JetBrains Mono Nerd Font
 # ------------------------------------------------------------
-Write-Host "[2/5] JetBrains Mono Nerd Font..." -ForegroundColor Yellow
+Write-Host "[2/4] JetBrains Mono Nerd Font..." -ForegroundColor Yellow
 
 $jbUrl = "https://github.com/ryanoasis/nerd-fonts/releases/download/$nerdFontsVersion/JetBrainsMono.zip"
 Install-FontZip -Url $jbUrl -ZipName "JetBrainsMono.zip" -Patterns @(
@@ -133,7 +132,7 @@ Write-Host ""
 # ------------------------------------------------------------
 # 3. FiraCode Nerd Font
 # ------------------------------------------------------------
-Write-Host "[3/5] FiraCode Nerd Font..." -ForegroundColor Yellow
+Write-Host "[3/4] FiraCode Nerd Font..." -ForegroundColor Yellow
 
 $fcUrl = "https://github.com/ryanoasis/nerd-fonts/releases/download/$nerdFontsVersion/FiraCode.zip"
 Install-FontZip -Url $fcUrl -ZipName "FiraCode.zip" -Patterns @(
@@ -149,21 +148,9 @@ Write-Host ""
 # ------------------------------------------------------------
 # 4. Noto Sans TC（official Noto CJK release，CJK fallback）
 # ------------------------------------------------------------
-Write-Host "[4/5] Noto Sans TC..." -ForegroundColor Yellow
+Write-Host "[4/4] Noto Sans TC..." -ForegroundColor Yellow
 $notoUrl = "https://github.com/notofonts/noto-cjk/releases/download/$notoSansCjkVersion/19_NotoSansTC.zip"
 Install-FontZip -Url $notoUrl -ZipName "NotoSansTC.zip" -Patterns $null
-Write-Host ""
-
-# ------------------------------------------------------------
-# 5. Symbols Nerd Font Mono（icon-only fallback font）
-# ------------------------------------------------------------
-Write-Host "[5/5] Symbols Nerd Font Mono..." -ForegroundColor Yellow
-
-$symUrl = "https://github.com/ryanoasis/nerd-fonts/releases/download/$nerdFontsVersion/NerdFontsSymbolsOnly.zip"
-Install-FontZip -Url $symUrl -ZipName "NerdFontsSymbolsOnly.zip" -Patterns @(
-    "SymbolsNerdFont-Regular.ttf",
-    "SymbolsNerdFontMono-Regular.ttf"
-)
 Write-Host ""
 
 # ------------------------------------------------------------

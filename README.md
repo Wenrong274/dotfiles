@@ -41,7 +41,7 @@ VSCode 設定由 **Settings Sync** 自動還原，登入帳號即可。
 | `run_once_install-chocolatey.ps1`      | Chocolatey、ripgrep、bat                              | 需要 Admin     |
 | `run_once_install-claude-cli.ps1`      | Claude Code CLI                                       | 需要 Node.js   |
 | `run_once_install-codex-cli.ps1`       | Codex CLI                                             | 需要 Node.js   |
-| `run_once_install-fonts.ps1`           | Hack NF、JetBrains Mono NF、FiraCode NF、Noto Sans TC、Symbols NF |                |
+| `run_once_install-fonts.ps1`           | Hack NF、JetBrains Mono NF、FiraCode NF、Noto Sans TC |                |
 | `run_once_install-neovim.ps1`          | Git、Neovim、PowerShell 7、im-select.exe              |                |
 | `run_once_install-notepadpp.ps1`       | Notepad++、插件                                       | 插件需要 Admin |
 | `run_once_install-rime.ps1`            | Weasel（小狼毫）、rime-config                         |                |
