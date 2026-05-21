@@ -30,7 +30,7 @@ Zed GitHub Personal Access Token (留空跳過): ▌
 >
 > `git clone` 任意私人 repo 可正常運作。
 
-VSCode 設定由 **Settings Sync** 自動還原，登入帳號即可。chezmoi 部署的 `settings.json` 僅含 terminal 字型設定，Settings Sync 套用後兩者共存。
+VSCode 設定由 **Settings Sync** 自動還原，登入帳號即可。
 
 ---
 
@@ -65,9 +65,6 @@ dotfiles/
 │   │       ├── init.lua              # Neovim 設定（vscode-neovim）
 │   │       └── lazy-lock.json        # Plugin 版本鎖
 │   └── Roaming/
-│       ├── Code/
-│       │   └── User/
-│       │       └── settings.json        # VSCode terminal 字型設定（Nerd Font）
 │       ├── Notepad++/                # config.xml / shortcuts.xml / stylers.xml / langs.xml / contextMenu.xml
 │       └── Zed/
 │           └── settings.json.tmpl   # Zed 設定（GitHub token 由 chezmoi template 填入）
