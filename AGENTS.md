@@ -21,11 +21,40 @@ chezmoi -S "$PWD" apply --dry-run --verbose
 chezmoi -S "$PWD" apply
 ```
 
+## Definition of Done
+
+修改腳本或文件後，**提交前必須全部通過**：
+
+```powershell
+# 1. 所有腳本語法驗證
+Get-ChildItem "*.ps1" | ForEach-Object {
+    $errors = $null
+    [System.Management.Automation.Language.Parser]::ParseFile($_.FullName, [ref]$null, [ref]$errors) | Out-Null
+    if ($errors) { Write-Host "[error] $($_.Name)"; $errors }
+}
+
+# 2. Markdown lint
+npx markdownlint-cli "**/*.md" --ignore node_modules
+
+# 3. chezmoi 乾跑
+chezmoi -S "$PWD" apply --dry-run --verbose
+```
+
 ## Repository Layout
 
 `dot_config/` → `~/.config/`，`AppData/` 依子路徑對應 `%LOCALAPPDATA%` / `%APPDATA%`，`dot_*` 檔案去前綴後對應 `~/`。
 
 腳本按字母順序執行：`run_once_*` 每台機器跑一次，`run_onchange_*` 在腳本內容變更時重跑。
+
+## Script Type Selection
+
+| 情境 | 類型 | 說明 |
+|------|------|------|
+| 軟體安裝、資源下載，只需初始化一次 | `run_once_` | 腳本本身改動**不會**觸發重跑 |
+| 安裝邏輯本身日後可能更新 | `run_onchange_` | 腳本內容變更時 chezmoi 自動重跑 |
+| 純設定檔 | 不用腳本 | 直接放入 chezmoi source，chezmoi 自動部署 |
+
+**判斷原則**：日後若改了腳本邏輯需要重跑，用 `run_onchange_`；只是首次初始化用 `run_once_`。
 
 ## Script Pattern — 所有腳本必須遵守
 
@@ -79,10 +108,36 @@ Write-Host ""
 | Neovim, Git, Starship, Claude CLI, Codex CLI | 必裝 | `exit 1`             |
 | Clink, PowerToys, Snipaste                   | 選用 | `$warnings.Add(...)` |
 
-**npm 安裝樣板（Claude CLI / Codex CLI）：**
+**npm 依賴腳本的 Node.js 前置檢查（必須在安裝步驟前加入）：**
 
 ```powershell
-# npm skip/install — 先 check 再裝，避免已安裝時顯示誤導訊息
+$npmExe = Get-Command npm -ErrorAction SilentlyContinue
+if (-not $npmExe) {
+    $fallback = @("$env:ProgramFiles\nodejs\npm.cmd", "$env:APPDATA\npm\npm.cmd")
+    $found = $fallback | Where-Object { Test-Path $_ } | Select-Object -First 1
+    if ($found) {
+        $npmExe = $found
+    } else {
+        Write-Host "  Node.js not found — installing via winget..." -ForegroundColor Yellow
+        winget install --id OpenJS.NodeJS.LTS --exact --source winget `
+            --accept-source-agreements --accept-package-agreements
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "  [error] Node.js install failed (exit $LASTEXITCODE)" -ForegroundColor Red
+            exit 1
+        }
+        $npmExe = "$env:ProgramFiles\nodejs\npm.cmd"
+        if (-not (Test-Path $npmExe)) {
+            Write-Host "  [error] npm not found — open a new shell and re-run: chezmoi apply" -ForegroundColor Red
+            exit 1
+        }
+    }
+}
+Write-Host "  npm: $($npmExe.Source ?? $npmExe)" -ForegroundColor DarkGray
+```
+
+**npm skip/install 樣板（先 check 再裝）：**
+
+```powershell
 $exe = Get-Command <cmd> -ErrorAction SilentlyContinue
 if ($exe) {
     $ver = & <cmd> --version 2>&1 | Select-Object -First 1
@@ -116,6 +171,8 @@ if ($exe) {
 
 Token 在 `chezmoi init` 時提示輸入，寫入 `~/.config/chezmoi/chezmoi.toml`（不進 git）。
 
+**可選資料一律用 `{{ get . "key" }}` 而非 `{{ .key }}`**：前者在 key 不存在時回傳空字串；後者在缺少本機 `chezmoi.toml` 設定時 panic，導致 `dry-run` 失敗。
+
 ## Notepad++ Plugins
 
 插件清單由 `notepadpp/plugins.json` 管理，`run_once_install-notepadpp.ps1` 讀取此檔案下載安裝。
@@ -143,7 +200,17 @@ Token 在 `chezmoi init` 時提示輸入，寫入 `~/.config/chezmoi/chezmoi.tom
 - **禁止** 在 `.chezmoi.toml.tmpl` 以外的地方硬寫 token 或 secret 字串。
 - **禁止** 使用 `git push --force` 或 `git reset --hard` 破壞 git 歷史。
 - **禁止** 在 `run_once_*` 腳本裡加入互動式提示（`Read-Host` 等），chezmoi 以 non-interactive 模式執行腳本。
+- **禁止** 新增、刪除或改名 `run_*.ps1` 而不同步更新 `README.md` 的工具表。
 
 ## Markdown Style
 
 Lint 規則見 `.markdownlint.json`。表格與程式碼區塊不受行長限制。`# 標題` 後必須有空行，清單項目縮排 4 格。
+
+## Common Failure Cases
+
+| 錯誤 | 原因 | 處理 |
+|------|------|------|
+| `winget not found` | App Installer 未安裝 | Microsoft Store 搜尋「App Installer」安裝後重試 |
+| 私人 repo clone 失敗 | GCM 未登入 GitHub | 先執行任意私人 repo 的 `git clone` 完成 GCM 認證 |
+| 安裝 Node.js 後 `npm` 找不到 | 新 PATH 尚未載入 | 關閉並重新開啟 pwsh，再執行 `chezmoi apply` |
+| `chezmoi apply --dry-run` panic | `chezmoi.toml` 缺少 template key | 確認 key 已設定，或改用 `{{ get . "key" }}` |
