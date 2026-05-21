@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install markdownlint-cli
+        run: npm install -g markdownlint-cli
+
+      - name: Install chezmoi
+        run: |
+          sh -c "$(curl -fsLS get.chezmoi.io)"
+          echo "$HOME/bin" >> $GITHUB_PATH
+
+      - name: PowerShell syntax check
+        shell: pwsh
+        run: |
+          $failed = $false
+          Get-ChildItem "*.ps1" | Where-Object { $_.Name -ne "audit.ps1" } | ForEach-Object {
+            $errors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile(
+              $_.FullName, [ref]$null, [ref]$errors) | Out-Null
+            if ($errors) {
+              $errors | ForEach-Object {
+                Write-Host "::error file=$($_.Name),line=$($_.Extent.StartLineNumber)::$($_.Message)"
+              }
+              $failed = $true
+            } else {
+              Write-Host "  [ok] $($_.Name)"
+            }
+          }
+          if ($failed) { exit 1 }
+
+      - name: Markdown lint
+        run: markdownlint "**/*.md" --ignore node_modules
+
+      - name: chezmoi dry-run
+        run: chezmoi -S "$PWD" apply --dry-run --verbose
