@@ -9,7 +9,7 @@ Write-Host "========== Bootstrap: Claude CLI ==========" -ForegroundColor Cyan
 Write-Host ""
 
 # ------------------------------------------------------------
-# 前置檢查：Node.js / npm
+# 前置檢查：Node.js / npm（若未安裝則自行透過 winget 安裝）
 # ------------------------------------------------------------
 $npmExe = Get-Command npm -ErrorAction SilentlyContinue
 
@@ -23,8 +23,22 @@ if (-not $npmExe) {
     if ($found) {
         $npmExe = $found
     } else {
-        Write-Host "  [error] npm not found — install Node.js first (run_onchange_install-zed.ps1)" -ForegroundColor Red
-        exit 1
+        # Node.js 尚未安裝，直接在此安裝（不依賴 run_onchange_install-zed.ps1 的執行順序）
+        Write-Host "  Node.js not found — installing via winget..." -ForegroundColor Yellow
+        winget install --id OpenJS.NodeJS.LTS --exact --source winget `
+            --accept-source-agreements --accept-package-agreements
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "  [error] Node.js install failed (exit $LASTEXITCODE)" -ForegroundColor Red
+            exit 1
+        }
+        $fallbackAfterInstall = "$env:ProgramFiles\nodejs\npm.cmd"
+        if (Test-Path $fallbackAfterInstall) {
+            $npmExe = $fallbackAfterInstall
+        } else {
+            Write-Host "  [error] npm still not found after installing Node.js" -ForegroundColor Red
+            Write-Host "          Open a new shell and re-run: chezmoi apply" -ForegroundColor DarkGray
+            exit 1
+        }
     }
 }
 

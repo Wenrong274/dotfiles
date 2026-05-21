@@ -58,7 +58,7 @@ dotfiles/
 ├── dot_config/
 │   └── starship.toml                 # Starship prompt 設定
 ├── dot_bashrc                        # Bash 設定（Git Bash / WSL）
-├── .chezmoi.toml.tmpl               # chezmoi 機器設定（token 等，不進 git）
+├── .chezmoi.toml.tmpl               # chezmoi 機器設定模板（進 git）；產生的 chezmoi.toml 不進 git
 ├── notepadpp/
 │   ├── plugins.json                  # Notepad++ 插件清單
 │   └── docs/

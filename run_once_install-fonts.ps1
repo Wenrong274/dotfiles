@@ -153,7 +153,8 @@ $notoUrl = "https://fonts.google.com/download?family=Noto+Sans+TC"
 $notoZip = Join-Path $tmpDir "NotoSansTC.zip"
 
 try {
-    Invoke-WebRequest -Uri $notoUrl -OutFile $notoZip -UseBasicParsing
+    Invoke-WebRequest -Uri $notoUrl -OutFile $notoZip -UseBasicParsing `
+        -Headers @{ "User-Agent" = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" }
     $notoDir = Join-Path $tmpDir "NotoSansTC"
     if (Test-Path $notoDir) { Remove-Item $notoDir -Recurse -Force }
     Expand-Archive -Path $notoZip -DestinationPath $notoDir -Force
