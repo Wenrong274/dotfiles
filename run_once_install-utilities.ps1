@@ -19,8 +19,9 @@ if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
 # 套件清單
 # ------------------------------------------------------------
 $packages = @(
-    @{ id = "M2Team.NanaZip";    name = "NanaZip" },
-    @{ id = "Snipaste.Snipaste"; name = "Snipaste" }
+    @{ id = "M2Team.NanaZip";      name = "NanaZip" },
+    @{ id = "Snipaste.Snipaste";   name = "Snipaste" },
+    @{ id = "Microsoft.PowerToys"; name = "PowerToys" }
 )
 
 foreach ($pkg in $packages) {

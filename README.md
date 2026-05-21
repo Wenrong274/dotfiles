@@ -28,7 +28,7 @@ VSCode 設定由 **Settings Sync** 自動還原，登入帳號即可。
 
 | 腳本 | 安裝內容 | 備註 |
 |---|---|---|
-| `run_once_install-utilities.ps1` | NanaZip、Snipaste | |
+| `run_once_install-utilities.ps1` | NanaZip、Snipaste、PowerToys | |
 | `run_once_install-chocolatey.ps1` | Chocolatey、ripgrep、bat | 需要 Admin |
 | `run_once_install-neovim.ps1` | Git、Neovim、PowerShell 7、im-select.exe | |
 | `run_once_install-notepadpp.ps1` | Notepad++、插件 | 插件需要 Admin |
