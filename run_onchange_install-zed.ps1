@@ -53,3 +53,22 @@ if ($LASTEXITCODE -eq 0) {
     if ($LASTEXITCODE -ne 0) {
         Write-Host "  [error] winget install Zed failed (exit $LASTEXITCODE)" -ForegroundColor Red
         exit 1
+    }
+    Write-Host "  Zed installed" -ForegroundColor Green
+}
+Write-Host ""
+
+# ------------------------------------------------------------
+# 警告彙整
+# ------------------------------------------------------------
+if ($warnings.Count -gt 0) {
+    Write-Host "========== 警告 ==========" -ForegroundColor Yellow
+    foreach ($w in $warnings) { Write-Host "  !! $w" -ForegroundColor Yellow }
+    Write-Host ""
+}
+
+Write-Host "========== Zed Bootstrap Complete ==========" -ForegroundColor Cyan
+Write-Host ""
+Write-Host "Paths:" -ForegroundColor Yellow
+Write-Host "  Settings: %APPDATA%\Zed\settings.json  (managed by chezmoi)" -ForegroundColor DarkGray
+Write-Host ""

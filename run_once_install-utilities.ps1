@@ -46,9 +46,9 @@ foreach ($pkg in $packages) {
 # 警告彙整
 # ------------------------------------------------------------
 if ($warnings.Count -gt 0) {
-    Write-Host ""
     Write-Host "========== 警告 ==========" -ForegroundColor Yellow
     foreach ($w in $warnings) { Write-Host "  !! $w" -ForegroundColor Yellow }
+    Write-Host ""
 }
 
 Write-Host ""
