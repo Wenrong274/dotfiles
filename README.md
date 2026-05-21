@@ -7,12 +7,16 @@
 > Notepad++ 插件與 Chocolatey 需要**系統管理員**權限，建議以 Admin 身分執行。
 
 ```powershell
-# 1. 安裝 chezmoi
-winget install twpayne.chezmoi
+# 1. 安裝 chezmoi 與 PowerShell 7
+winget install twpayne.chezmoi Microsoft.PowerShell
 
-# 2. 初始化並套用（全部自動完成）
+# 2. 重新開啟 pwsh（PowerShell 7 終端）再執行以下步驟
+
+# 3. 初始化並套用（全部自動完成）
 chezmoi init --apply https://github.com/Wenrong274/dotfiles
 ```
+
+> ℹ️ 步驟 3 必須在 **pwsh（PowerShell 7）** 中執行，chezmoi 才能以 PS 7 直譯所有腳本。
 
 執行後會自動安裝所有工具、部署設定檔，過程中可能需要：
 
