@@ -54,7 +54,7 @@ Write-Host ""
 # ------------------------------------------------------------
 Write-Host "[3/6] chezmoi dry-run..." -ForegroundColor Yellow
 Write-Host "  (target names shown: run_once_install-X.ps1 → install-X.ps1 in diff headers)" -ForegroundColor DarkGray
-$dryRunOutput = chezmoi -S $root apply --dry-run --verbose 2>&1
+$dryRunOutput = chezmoi -S $root apply --dry-run --verbose --force 2>&1
 # Show only file-level summary lines, not full diff hunks
 $dryRunOutput | Where-Object {
     "$_" -match '^diff --git|^Run script|^chezmoi:'

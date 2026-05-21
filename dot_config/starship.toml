@@ -1,5 +1,7 @@
 "$schema" = 'https://starship.rs/config-schema.json'
 
+# Nerd Font Symbols preset applied: https://starship.rs/presets/nerd-font
+
 # 每個 prompt 之間插入空行
 add_newline = true
 
@@ -28,9 +30,64 @@ disabled = false
 style = "bold blue"
 
 [os.symbols]
-Windows = " "
-Macos   = " "
-Linux   = " "
+AIX           = " "
+AlmaLinux     = " "
+Alpaquita     = " "
+Alpine        = " "
+ALTLinux      = " "
+Amazon        = " "
+Android       = " "
+AOSC          = " "
+Arch          = " "
+Artix         = " "
+Bluefin       = " "
+CachyOS       = " "
+CentOS        = " "
+Debian        = " "
+DragonFly     = " "
+Elementary    = " "
+Emscripten    = " "
+EndeavourOS   = " "
+Fedora        = " "
+FreeBSD       = " "
+Garuda        = " "
+Gentoo        = " "
+HardenedBSD   = "󰞌 "
+Illumos       = " "
+InstantOS     = " "
+Ios           = "󰀷 "
+Kali          = " "
+Linux         = " "
+Mabox         = " "
+Macos         = " "
+Manjaro       = " "
+Mariner       = " "
+MidnightBSD   = " "
+Mint          = " "
+NetBSD        = " "
+NixOS         = " "
+Nobara        = " "
+OpenBSD       = " "
+OpenCloudOS   = " "
+openEuler     = " "
+openSUSE      = " "
+OracleLinux   = "󰺡 "
+PikaOS        = " "
+Pop           = " "
+Raspbian      = " "
+Redhat        = "󱄛 "
+RedHatEnterprise = "󱄛 "
+Redox         = "󰀘 "
+RockyLinux    = " "
+Solus         = " "
+SUSE          = " "
+Ubuntu        = " "
+Ultramarine   = " "
+Unknown       = " "
+Uos           = " "
+Void          = " "
+Windows       = "󰍲 "
+Zorin         = " "
 
 # ------------------------------------------------------------
 # 使用者 / 主機（SSH 時才顯示）
@@ -95,7 +152,7 @@ style  = "bold blue"
 format = "[$symbol$version( 󰓾 $tfm)]($style) "
 
 [rust]
-symbol = " "
+symbol = "󱘗 "
 style  = "bold red"
 format = "[$symbol$version]($style) "
 
