@@ -19,9 +19,10 @@ if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
 # 套件清單
 # ------------------------------------------------------------
 $packages = @(
-    @{ id = "M2Team.NanaZip";      name = "NanaZip" },
-    @{ id = "Snipaste.Snipaste";   name = "Snipaste" },
-    @{ id = "Microsoft.PowerToys"; name = "PowerToys" }
+    @{ id = "M2Team.NanaZip";          name = "NanaZip" },
+    @{ id = "Snipaste.Snipaste";       name = "Snipaste" },
+    @{ id = "Microsoft.PowerToys";     name = "PowerToys" },
+    @{ id = "AnyAssociation.Anytype";  name = "Anytype" }
 )
 
 Write-Host "Installing utilities via winget..." -ForegroundColor Yellow

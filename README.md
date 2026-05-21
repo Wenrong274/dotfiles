@@ -41,7 +41,7 @@ VSCode 設定由 **Settings Sync** 自動還原，登入帳號即可。
 | `run_once_install-notepadpp.ps1` | Notepad++、插件 | 插件需要 Admin |
 | `run_once_install-rime.ps1` | Weasel（小狼毫）、rime-config | |
 | `run_once_install-starship.ps1` | Starship、Clink | |
-| `run_once_install-utilities.ps1` | NanaZip、Snipaste、PowerToys | |
+| `run_once_install-utilities.ps1` | NanaZip、Snipaste、PowerToys、Anytype | |
 | `run_once_install-vscode.ps1` | Visual Studio Code | |
 | `run_onchange_install-zed.ps1` | Node.js LTS、Zed | |
 | `run_onchange_setup-pwsh-starship.ps1` | Starship 加入 pwsh profile | |
