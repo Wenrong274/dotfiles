@@ -1,0 +1,26 @@
+# EditorConfig: https://editorconfig.org
+# Mirrors line-ending rules in .gitattributes
+root = true
+
+# ── Default ─────────────────────────────────────────────────────────────────
+[*]
+charset                  = utf-8
+end_of_line              = lf
+indent_style             = space
+indent_size              = 4
+trim_trailing_whitespace = true
+insert_final_newline     = true
+
+# ── PowerShell / Windows batch ───────────────────────────────────────────────
+[*.{ps1,cmd,bat}]
+charset     = utf-8-bom
+end_of_line = crlf
+
+# ── JSON / JSONC / TOML / YAML ───────────────────────────────────────────────
+[*.{json,jsonc,toml,yaml,yml}]
+indent_size = 2
+
+# ── Markdown ─────────────────────────────────────────────────────────────────
+# Trailing spaces are meaningful in Markdown (hard line-break), so keep them.
+[*.md]
+trim_trailing_whitespace = false

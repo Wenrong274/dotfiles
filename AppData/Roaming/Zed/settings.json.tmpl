@@ -9,8 +9,6 @@
 {
   "context_servers": {
     "mcp-server-github": {
-      "enabled": true,
-      "remote": false,
       "settings": {
         "github_personal_access_token": "{{ get . "zed_github_token" }}",
       },
@@ -26,7 +24,7 @@
   "preview_tabs": {
     "enabled": false,
   },
-  "relative_line_numbers": "enabled",
+  "relative_line_numbers": true,
   "sticky_scroll": {
     "enabled": true,
   },
@@ -40,6 +38,9 @@
   },
   "buffer_font_fallbacks": ["Noto Sans TC", "FiraCode Nerd Font"],
   "buffer_font_family": "JetBrains Mono",
+  "tab_size": 4,
+  "hard_tabs": false,
+  "format_on_save": "on",
   "use_on_type_format": true,
   "semantic_tokens": "full",
   "ensure_final_newline_on_save": true,

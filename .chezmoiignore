@@ -4,6 +4,7 @@ AGENTS.md
 CLAUDE.md
 .markdownlint.json
 .gitattributes
+.editorconfig
 
 # ── Script-support data ────────────────────────────────────────
 notepadpp/
