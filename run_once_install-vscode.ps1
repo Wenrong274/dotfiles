@@ -4,6 +4,7 @@
 # 設定檔由 VSCode Settings Sync 自動還原，不在此腳本處理
 
 $ErrorActionPreference = "Stop"
+$warnings = [System.Collections.Generic.List[string]]::new()
 
 Write-Host "========== Bootstrap: VSCode ==========" -ForegroundColor Cyan
 Write-Host ""

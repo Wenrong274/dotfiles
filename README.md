@@ -68,10 +68,8 @@ dotfiles/
 ├── dot_bashrc                        # Bash 設定（Git Bash / WSL）
 ├── .chezmoi.toml.tmpl               # chezmoi 機器設定模板（進 git）；產生的 chezmoi.toml 不進 git
 ├── notepadpp/
-│   ├── plugins.json                  # Notepad++ 插件清單
-│   └── docs/
-├── vscode-nvim/docs/                 # Vim 使用文件（僅供參考，不部署）
-└── zed/docs/                         # Zed 使用文件（僅供參考，不部署）
+│   └── plugins.json                  # Notepad++ 插件清單
+└── vscode-nvim/docs/                 # Vim 使用文件（僅供參考，不部署）
 ```
 
 ---
@@ -140,4 +138,5 @@ Neovim 在 Normal / Insert 模式自動切換中英文輸入法用。`run_once_i
 ```powershell
 # 驗證（True = 正確）
 (Get-FileHash im-select.exe -Algorithm SHA256).Hash -eq `
-    "E66F0A6E30B9F20787C7D4A1C57B8F2B518D36C1C7CBDBBB6220D51226DDD0B
+    "E66F0A6E30B9F20787C7D4A1C57B8F2B518D36C1C7CBDBBB6220D51226DDD0B6"
+```

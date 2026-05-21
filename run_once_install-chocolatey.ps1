@@ -4,6 +4,7 @@
 # 注意：需要系統管理員權限
 
 $ErrorActionPreference = "Stop"
+$warnings = [System.Collections.Generic.List[string]]::new()
 
 Write-Host "========== Bootstrap: Chocolatey ==========" -ForegroundColor Cyan
 Write-Host ""
@@ -62,8 +63,6 @@ $packages = @(
     @{ id = "bat";     name = "bat" }
 )
 
-$warnings = [System.Collections.Generic.List[string]]::new()
-
 foreach ($pkg in $packages) {
     $installed = choco list --exact $pkg.id 2>$null | Select-String $pkg.id
     if ($installed) {
@@ -85,6 +84,7 @@ if ($warnings.Count -gt 0) {
     Write-Host ""
     Write-Host "========== 警告 ==========" -ForegroundColor Yellow
     foreach ($w in $warnings) { Write-Host "  !! $w" -ForegroundColor Yellow }
+    Write-Host ""
 }
 
 Write-Host ""
