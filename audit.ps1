@@ -61,7 +61,7 @@ $consistencyFailed = $false
 # 4a. README 工具表 vs 實際 run_*.ps1 檔案
 $scriptFiles   = (Get-ChildItem "$root\run_*.ps1").Name
 $readmeContent = Get-Content "$root\README.md" -Raw
-$readmeScripts = [regex]::Matches($readmeContent, '`(run_\w+\.ps1)`') |
+$readmeScripts = [regex]::Matches($readmeContent, '`(run_[\w-]+\.ps1)`') |
     ForEach-Object { $_.Groups[1].Value } | Sort-Object -Unique
 
 foreach ($f in $scriptFiles) {

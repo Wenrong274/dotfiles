@@ -22,6 +22,11 @@ if (-not $npmExe) {
     if ($found) {
         $npmExe = $found
     } else {
+        if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
+            Write-Host "  [error] winget not found." -ForegroundColor Red
+            Write-Host "          Install 'App Installer' from Microsoft Store, then re-run." -ForegroundColor DarkGray
+            exit 1
+        }
         Write-Host "  Node.js not found — installing via winget..." -ForegroundColor Yellow
         winget install --id OpenJS.NodeJS.LTS --exact --source winget `
             --accept-source-agreements --accept-package-agreements

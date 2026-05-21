@@ -24,6 +24,11 @@ if (-not $npmExe) {
         $npmExe = $found
     } else {
         # Node.js 尚未安裝，直接在此安裝（不依賴 run_onchange_install-zed.ps1 的執行順序）
+        if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
+            Write-Host "  [error] winget not found." -ForegroundColor Red
+            Write-Host "          Install 'App Installer' from Microsoft Store, then re-run." -ForegroundColor DarkGray
+            exit 1
+        }
         Write-Host "  Node.js not found — installing via winget..." -ForegroundColor Yellow
         winget install --id OpenJS.NodeJS.LTS --exact --source winget `
             --accept-source-agreements --accept-package-agreements
