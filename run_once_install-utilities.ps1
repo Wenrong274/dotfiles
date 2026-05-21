@@ -20,7 +20,7 @@ if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
 # ------------------------------------------------------------
 $packages = @(
     @{ id = "M2Team.NanaZip";          name = "NanaZip" },
-    @{ id = "Snipaste.Snipaste";       name = "Snipaste" },
+    @{ id = "liule.Snipaste";          name = "Snipaste" },
     @{ id = "Microsoft.PowerToys";     name = "PowerToys" },
     @{ id = "AnyAssociation.Anytype";  name = "Anytype" }
 )
