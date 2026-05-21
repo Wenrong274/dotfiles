@@ -13,13 +13,12 @@ Write-Host ""
 $profilePath = $PROFILE.CurrentUserCurrentHost
 $profileDir  = Split-Path $profilePath -Parent
 
-if (-not (Get-Command starship -ErrorAction SilentlyContinue)) {
-    Write-Host "  [skip] starship not found on PATH — run run_once_install-starship.ps1 first" -ForegroundColor Yellow
-    Write-Host ""
-} elseif ((Test-Path $profilePath) -and ((Get-Content $profilePath -Raw -Encoding UTF8) -match 'starship init')) {
+if ((Test-Path $profilePath) -and ((Get-Content $profilePath -Raw -Encoding UTF8) -match 'starship init')) {
     Write-Host "  [skip] Starship already configured in $profilePath" -ForegroundColor DarkGray
     Write-Host ""
 } else {
+    # starship 可能剛透過 winget 安裝、PATH 尚未刷新，不以 Get-Command 判斷
+    # profile 寫入後，下次 pwsh 啟動時 PATH 已更新，starship init 就會生效
     if (-not (Test-Path $profileDir)) {
         New-Item -ItemType Directory -Path $profileDir -Force | Out-Null
     }
