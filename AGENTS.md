@@ -23,7 +23,7 @@ chezmoi -S "$PWD" apply
 
 ## Definition of Done
 
-修改腳本或文件後，**提交前必須全部通過**：
+修改腳本或文件後，**提交前必須全部通過**（執行 `.\audit.ps1` 一次跑完）：
 
 ```powershell
 # 1. 所有腳本語法驗證
@@ -40,6 +40,30 @@ npx markdownlint-cli "**/*.md" --ignore node_modules
 chezmoi -S "$PWD" apply --dry-run --verbose
 ```
 
+## Change Checklist
+
+### 新增 `run_*.ps1`
+
+- 分類正確（`run_once_` vs `run_onchange_`，參見 Script Type Selection）
+- 符合 Script Pattern 樣板（`$ErrorActionPreference`、`$warnings`、banner、警告彙整）
+- npm 依賴腳本包含完整 Node.js 前置檢查區段
+- 更新 `README.md` 工具表
+- Definition of Done 全部通過（`audit.ps1`）
+
+### 刪除或改名 `run_*.ps1`
+
+- 更新 `README.md` 工具表
+
+### 修改或新增 chezmoi template key
+
+- 更新 `AGENTS.md` Templates 節
+- 更新 `.chezmoi.toml.tmpl` 提示文字
+- 使用 `{{ get . "key" }}` 語法（可選 key 不得用 `{{ .key }}`）
+
+### 新增硬寫值（版本號、hash、路徑）
+
+- 加入 `AGENTS.md` Known Hardcoded Values 表格
+
 ## Repository Layout
 
 `dot_config/` → `~/.config/`，`AppData/` 依子路徑對應 `%LOCALAPPDATA%` / `%APPDATA%`，`dot_*` 檔案去前綴後對應 `~/`。
@@ -48,11 +72,11 @@ chezmoi -S "$PWD" apply --dry-run --verbose
 
 ## Script Type Selection
 
-| 情境 | 類型 | 說明 |
-|------|------|------|
-| 軟體安裝、資源下載，只需初始化一次 | `run_once_` | 腳本本身改動**不會**觸發重跑 |
-| 安裝邏輯本身日後可能更新 | `run_onchange_` | 腳本內容變更時 chezmoi 自動重跑 |
-| 純設定檔 | 不用腳本 | 直接放入 chezmoi source，chezmoi 自動部署 |
+| 情境                               | 類型            | 說明                                      |
+| ---------------------------------- | --------------- | ----------------------------------------- |
+| 軟體安裝、資源下載，只需初始化一次 | `run_once_`     | 腳本本身改動**不會**觸發重跑              |
+| 安裝邏輯本身日後可能更新           | `run_onchange_` | 腳本內容變更時 chezmoi 自動重跑           |
+| 純設定檔                           | 不用腳本        | 直接放入 chezmoi source，chezmoi 自動部署 |
 
 **判斷原則**：日後若改了腳本邏輯需要重跑，用 `run_onchange_`；只是首次初始化用 `run_once_`。
 
@@ -153,6 +177,10 @@ if ($exe) {
 }
 ```
 
+> **共用邏輯說明**：chezmoi 以獨立進程執行各腳本，無法 dot-source 共用函式庫，
+> 因此 `claude-cli` / `codex-cli` 的 Node.js 前置檢查區段接受合理重複。
+> 新增同類腳本直接複製上方兩份樣板即可。
+
 ## Templates
 
 `AppData/Roaming/Zed/settings.json.tmpl` 是唯一的 chezmoi template 檔案：
@@ -208,9 +236,9 @@ Lint 規則見 `.markdownlint.json`。表格與程式碼區塊不受行長限制
 
 ## Common Failure Cases
 
-| 錯誤 | 原因 | 處理 |
-|------|------|------|
-| `winget not found` | App Installer 未安裝 | Microsoft Store 搜尋「App Installer」安裝後重試 |
-| 私人 repo clone 失敗 | GCM 未登入 GitHub | 先執行任意私人 repo 的 `git clone` 完成 GCM 認證 |
-| 安裝 Node.js 後 `npm` 找不到 | 新 PATH 尚未載入 | 關閉並重新開啟 pwsh，再執行 `chezmoi apply` |
-| `chezmoi apply --dry-run` panic | `chezmoi.toml` 缺少 template key | 確認 key 已設定，或改用 `{{ get . "key" }}` |
+| 錯誤                            | 原因                             | 處理                                             |
+| ------------------------------- | -------------------------------- | ------------------------------------------------ |
+| `winget not found`              | App Installer 未安裝             | Microsoft Store 搜尋「App Installer」安裝後重試  |
+| 私人 repo clone 失敗            | GCM 未登入 GitHub                | 先執行任意私人 repo 的 `git clone` 完成 GCM 認證 |
+| 安裝 Node.js 後 `npm` 找不到    | 新 PATH 尚未載入                 | 關閉並重新開啟 pwsh，再執行 `chezmoi apply`      |
+| `chezmoi apply --dry-run` panic | `chezmoi.toml` 缺少 template key | 確認 key 已設定，或改用 `{{ get . "key" }}`      |

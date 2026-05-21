@@ -1,0 +1,13 @@
+# ── Repo documentation / tooling (not for deployment) ─────────
+README.md
+AGENTS.md
+CLAUDE.md
+.markdownlint.json
+.gitattributes
+
+# ── Script-support data ────────────────────────────────────────
+notepadpp/
+vscode-nvim/
+
+# ── Local audit helper ─────────────────────────────────────────
+audit.ps1
