@@ -1,6 +1,6 @@
 # run_once_install-claude-cli.ps1
 # chezmoi 在新機器第一次 apply 時自動執行一次
-# 安裝 Claude Code CLI（需要 Node.js，由 run_onchange_install-zed.ps1 負責安裝）
+# 安裝 Claude Code CLI（Node.js 若未安裝會自行透過 winget 安裝）
 
 $ErrorActionPreference = "Stop"
 $warnings = [System.Collections.Generic.List[string]]::new()
@@ -56,7 +56,7 @@ if ($claudeExe) {
     $version = & claude --version 2>&1 | Select-Object -First 1
     Write-Host "  [skip] Claude CLI already installed ($version)" -ForegroundColor DarkGray
 } else {
-    npm install -g @anthropic-ai/claude-code
+    & $npmExe install -g @anthropic-ai/claude-code
     if ($LASTEXITCODE -ne 0) {
         Write-Host "  [error] npm install failed (exit $LASTEXITCODE)" -ForegroundColor Red
         exit 1

@@ -1,6 +1,6 @@
 # run_once_install-chocolatey.ps1
 # chezmoi 在新機器第一次 apply 時自動執行一次
-# 安裝 Chocolatey 套件管理器
+# 安裝 Chocolatey 套件管理器，以及開發工具：ripgrep、bat
 # 注意：需要系統管理員權限
 
 $ErrorActionPreference = "Stop"
@@ -65,7 +65,7 @@ $packages = @(
 $warnings = [System.Collections.Generic.List[string]]::new()
 
 foreach ($pkg in $packages) {
-    $installed = choco list --local-only --exact $pkg.id 2>$null | Select-String $pkg.id
+    $installed = choco list --exact $pkg.id 2>$null | Select-String $pkg.id
     if ($installed) {
         Write-Host "  [skip] $($pkg.name) already installed" -ForegroundColor DarkGray
     } else {
