@@ -52,19 +52,19 @@ if (-not $isAdmin) {
     Write-Host "  [skip] 跳過插件安裝（非 Admin）" -ForegroundColor DarkGray
     $warnings.Add("plugins 未安裝 — 請以系統管理員重新執行此腳本")
 } else {
-    # plugins.json 與此腳本放在同一目錄（chezmoi source root）
-    $pluginsJson = Join-Path $PSScriptRoot "notepadpp\plugins.json"
-    if (-not (Test-Path $pluginsJson)) {
-        # fallback: 同層
-        $pluginsJson = Join-Path $PSScriptRoot "plugins.json"
-    }
-
-    try {
-        $plugins = Get-Content $pluginsJson -Raw -ErrorAction Stop | ConvertFrom-Json -ErrorAction Stop
-    } catch {
-        Write-Host "  [error] plugins.json 讀取失敗: $($_.Exception.Message)" -ForegroundColor Red
-        exit 1
-    }
+    # chezmoi 執行腳本時 $PSScriptRoot 指向暫存目錄，無法讀取旁邊的檔案，
+    # 因此直接將 plugins 資料嵌入腳本。
+    $plugins = @(
+        [PSCustomObject]@{ name = "AutoSave";      version = "2.0.0";    url = "https://github.com/francostellari/NppPlugins/raw/main/AutoSave/AutoSave_dll_2v00_x64.zip" }
+        [PSCustomObject]@{ name = "ComparePlugin"; version = "2.0.2";    url = "https://github.com/pnedev/compare-plugin/releases/download/v2.0.2/ComparePlugin_v2.0.2_X64.zip" }
+        [PSCustomObject]@{ name = "ComparePlus";   version = "3.0.0";    url = "https://github.com/pnedev/comparePlus/releases/download/cp_3.0.0/ComparePlus_cp_3.0.0_x64.zip" }
+        [PSCustomObject]@{ name = "CSVLint";       version = "0.4.7";    url = "https://github.com/BdR76/CSVLint/releases/download/0.4.7/CSVLint_x64.zip" }
+        [PSCustomObject]@{ name = "DSpellCheck";   version = "1.5.0";    url = "https://github.com/Predelnik/DSpellCheck/releases/download/v1.5.0/DSpellCheck_x64.zip" }
+        [PSCustomObject]@{ name = "MultiReplace";  version = "5.0.0.35"; url = "https://github.com/daddel80/notepadpp-multireplace/releases/download/5.0.0.35/MultiReplace-v5.0.0.35-x64.zip" }
+        [PSCustomObject]@{ name = "NPPJSONViewer"; version = "2.1.1.0";  url = "https://github.com/NPP-JSONViewer/JSON-Viewer/releases/download/v2.1.1.0/NppJSONViewer_x64_Release.zip" }
+        [PSCustomObject]@{ name = "NppTextFX";     version = "2.0.3";    url = "https://github.com/rainman74/NPPTextFX2/releases/download/2.0.3/NppTextFX2.2.0.3.x64.zip" }
+        [PSCustomObject]@{ name = "XMLTools";      version = "3.1.1.13"; url = "https://github.com/morbac/xmltools/releases/download/3.1.1.13/XMLTools-3.1.1.13-x64.zip" }
+    )
 
     $nppPluginDir = "$env:ProgramFiles\Notepad++\plugins"
     $tmpDir       = Join-Path $env:TEMP "npp-plugins-bootstrap"
