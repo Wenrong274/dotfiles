@@ -218,7 +218,7 @@ Token 在 `chezmoi init` 時提示輸入，寫入 `~/.config/chezmoi/chezmoi.tom
 | `E66F0A6E...DDD0B6`                        | im-select.exe SHA256        | `run_once_install-neovim.ps1`                                |
 | `v3.4.0`                                   | Nerd Fonts 版本             | `run_once_install-fonts.ps1`                                 |
 | `Wenrong274/rime-config`                   | 私有 Rime 設定倉庫          | `run_once_install-rime.ps1`                                  |
-| `v2.63.1`                                  | chezmoi CI 版本 pin         | `.github/workflows/ci.yml`                                   |
+| `2.70.4`                                   | chezmoi CI 版本 pin         | `.github/workflows/ci.yml`                                   |
 
 ## Absolute Prohibitions
 

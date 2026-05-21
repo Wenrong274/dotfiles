@@ -8,7 +8,7 @@ on:
 
 env:
   # Pin chezmoi to reduce CI drift; update when bumping (see AGENTS.md Known Hardcoded Values)
-  CHEZMOI_VERSION: v2.63.1
+  CHEZMOI_VERSION: "2.70.4"
 
 jobs:
   audit:
@@ -27,7 +27,9 @@ jobs:
 
       - name: Install chezmoi ${{ env.CHEZMOI_VERSION }}
         run: |
-          sh -c "$(curl -fsLS get.chezmoi.io)" -- -b "$HOME/bin" "${{ env.CHEZMOI_VERSION }}"
+          mkdir -p "$HOME/bin"
+          curl -fsL "https://github.com/twpayne/chezmoi/releases/download/v${{ env.CHEZMOI_VERSION }}/chezmoi_${{ env.CHEZMOI_VERSION }}_linux_amd64.tar.gz" | \
+            tar -xzf - -C "$HOME/bin" chezmoi
           echo "$HOME/bin" >> $GITHUB_PATH
 
       - name: Run audit
