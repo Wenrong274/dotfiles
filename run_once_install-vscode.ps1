@@ -20,7 +20,7 @@ if ($LASTEXITCODE -eq 0) {
 } else {
     Write-Host "  Installing VSCode..." -ForegroundColor Green
     winget install --id Microsoft.VisualStudioCode --exact --source winget `
-        --accept-source-agreements --accept-package-agreements
+        --accept-source-agreements --accept-package-agreements --disable-interactivity
     if ($LASTEXITCODE -ne 0) {
         Write-Host "  [error] winget install VSCode failed (exit $LASTEXITCODE)" -ForegroundColor Red
         exit 1

@@ -29,7 +29,7 @@ if ($LASTEXITCODE -eq 0) {
 } else {
     Write-Host "  Installing Weasel..." -ForegroundColor Green
     winget install --id Rime.Weasel --exact --source winget `
-        --accept-source-agreements --accept-package-agreements
+        --accept-source-agreements --accept-package-agreements --disable-interactivity
     if ($LASTEXITCODE -ne 0) {
         Write-Host "  [error] Weasel install failed (exit $LASTEXITCODE)" -ForegroundColor Red
         exit 1

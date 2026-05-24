@@ -29,7 +29,7 @@ if (-not $npmExe) {
         }
         Write-Host "  Node.js not found — installing via winget..." -ForegroundColor Yellow
         winget install --id OpenJS.NodeJS.LTS --exact --source winget `
-            --accept-source-agreements --accept-package-agreements
+            --accept-source-agreements --accept-package-agreements --disable-interactivity
         if ($LASTEXITCODE -ne 0) {
             Write-Host "  [error] Node.js install failed (exit $LASTEXITCODE)" -ForegroundColor Red
             exit 1

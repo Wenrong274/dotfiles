@@ -23,7 +23,7 @@ if ($LASTEXITCODE -eq 0) {
     Write-Host "  [skip] Starship already installed" -ForegroundColor DarkGray
 } else {
     winget install --id Starship.Starship --exact --source winget `
-        --accept-source-agreements --accept-package-agreements
+        --accept-source-agreements --accept-package-agreements --disable-interactivity
     if ($LASTEXITCODE -ne 0) {
         Write-Host "  [error] winget install Starship failed (exit $LASTEXITCODE)" -ForegroundColor Red
         exit 1
@@ -42,7 +42,7 @@ if ($LASTEXITCODE -eq 0) {
     Write-Host "  [skip] Clink already installed" -ForegroundColor DarkGray
 } else {
     winget install --id chrisant996.Clink --exact --source winget `
-        --accept-source-agreements --accept-package-agreements
+        --accept-source-agreements --accept-package-agreements --disable-interactivity
     if ($LASTEXITCODE -ne 0) {
         Write-Host "  [warn] winget install Clink failed (exit $LASTEXITCODE)" -ForegroundColor Yellow
         $warnings.Add("Clink 安裝失敗 — CMD 的 Starship 整合將無法運作，請手動安裝: https://chrisant996.github.io/clink/")

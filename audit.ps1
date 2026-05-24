@@ -157,6 +157,14 @@ foreach ($s in $scriptInventory) {
     }
 }
 
+# 4b.2. winget install 是否包含 --disable-interactivity（non-interactive 執行必須）
+foreach ($s in $scriptInventory) {
+    if (($s.Content -match 'winget install') -and (-not ($s.Content -match '--disable-interactivity'))) {
+        Write-Host "  [warn] $($s.SourceName): winget install missing --disable-interactivity" -ForegroundColor Yellow
+        $script:consistencyFailed = $true
+    }
+}
+
 # 4c. npm 腳本是否包含完整 Node.js 前置區段（涵蓋 .ps1 與 .ps1.tmpl）
 foreach ($s in $scriptInventory) {
     if ($s.Content -match 'npm install -g') {
@@ -215,7 +223,8 @@ foreach ($s in $scriptInventory) {
 #   - no hardcoded $plugins array
 #   - uses ConvertFrom-Json + {{ include "notepadpp/plugins.json" }}
 #   - uses .chezmoi-plugin.json structured marker
-#   - skip condition references both plugin.version and plugin.url
+#   - skip condition references plugin.version, plugin.url, and plugin.sha256
+#   - verifies downloaded zip with Get-FileHash
 #   - does NOT use $($plugin.name).dll as DLL path assumption
 $nppEntry = $scriptInventory | Where-Object { $_.TargetName -match 'install-notepadpp' } | Select-Object -First 1
 if ($nppEntry) {
@@ -233,7 +242,7 @@ if ($nppEntry) {
         $script:consistencyFailed = $true
     }
     if (-not ($nppContent -match '\.chezmoi-plugin\.json')) {
-        Write-Host "  [warn] $($nppEntry.SourceName): missing .chezmoi-plugin.json marker — version+url updates won't detect upgrades" -ForegroundColor Yellow
+        Write-Host "  [warn] $($nppEntry.SourceName): missing .chezmoi-plugin.json marker — version+url+sha256 updates won't detect upgrades" -ForegroundColor Yellow
         $script:consistencyFailed = $true
     }
     if (-not ($nppContent -match 'plugin\.version')) {
@@ -244,8 +253,36 @@ if ($nppEntry) {
         Write-Host "  [warn] $($nppEntry.SourceName): marker skip condition missing plugin.url check" -ForegroundColor Yellow
         $script:consistencyFailed = $true
     }
+    if (-not ($nppContent -match 'plugin\.sha256')) {
+        Write-Host "  [warn] $($nppEntry.SourceName): marker skip condition missing plugin.sha256 check" -ForegroundColor Yellow
+        $script:consistencyFailed = $true
+    }
+    if (-not ($nppContent -match 'Get-FileHash')) {
+        Write-Host "  [warn] $($nppEntry.SourceName): missing SHA256 verification with Get-FileHash" -ForegroundColor Yellow
+        $script:consistencyFailed = $true
+    }
     if ($nppContent -match [regex]::Escape('$($plugin.name).dll')) {
         Write-Host "  [warn] $($nppEntry.SourceName): uses `$plugin.name.dll as DLL name — use Get-ChildItem *.dll instead" -ForegroundColor Yellow
+        $script:consistencyFailed = $true
+    }
+}
+
+# 4f.2. notepadpp/plugins.json entries must include valid sha256 pins
+$pluginsJsonPath = Join-Path $root "notepadpp\plugins.json"
+if (Test-Path $pluginsJsonPath) {
+    try {
+        $plugins = Get-Content $pluginsJsonPath -Raw -Encoding UTF8 | ConvertFrom-Json
+        foreach ($plugin in $plugins) {
+            if (-not $plugin.name -or -not $plugin.version -or -not $plugin.url -or -not $plugin.sha256) {
+                Write-Host "  [warn] notepadpp/plugins.json: $($plugin.name) missing name/version/url/sha256" -ForegroundColor Yellow
+                $script:consistencyFailed = $true
+            } elseif ($plugin.sha256 -notmatch '^[A-Fa-f0-9]{64}$') {
+                Write-Host "  [warn] notepadpp/plugins.json: $($plugin.name) sha256 is not 64 hex chars" -ForegroundColor Yellow
+                $script:consistencyFailed = $true
+            }
+        }
+    } catch {
+        Write-Host "  [warn] notepadpp/plugins.json: invalid JSON or unreadable plugin list" -ForegroundColor Yellow
         $script:consistencyFailed = $true
     }
 }
@@ -271,7 +308,7 @@ if ($starshipEntry) {
 if ($consistencyFailed) {
     $failed = $true
 } else {
-    Write-Host "  [ok] README sync, winget/npm/Antigravity guard (incl. .tmpl), Node.js drift, Notepad++ template + XML guard, Starship managed block" -ForegroundColor DarkGray
+    Write-Host "  [ok] README sync, winget/npm/Antigravity guard (incl. .tmpl), winget --disable-interactivity, Node.js drift, Notepad++ template + SHA256 + XML guard, Starship managed block" -ForegroundColor DarkGray
 }
 Write-Host ""
 

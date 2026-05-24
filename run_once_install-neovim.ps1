@@ -37,7 +37,7 @@ foreach ($pkg in $packages) {
     } else {
         Write-Host "  Installing $($pkg.name)..." -ForegroundColor Green
         winget install --id $pkg.id --exact --source winget `
-            --accept-source-agreements --accept-package-agreements
+            --accept-source-agreements --accept-package-agreements --disable-interactivity
         if ($LASTEXITCODE -ne 0) {
             Write-Host "  [error] winget install $($pkg.name) failed (exit $LASTEXITCODE)" -ForegroundColor Red
             exit 1

@@ -2,46 +2,55 @@
   {
     "name": "AutoSave",
     "version": "2.0.0",
-    "url": "https://github.com/francostellari/NppPlugins/raw/main/AutoSave/AutoSave_dll_2v00_x64.zip"
+    "url": "https://github.com/francostellari/NppPlugins/raw/main/AutoSave/AutoSave_dll_2v00_x64.zip",
+    "sha256": "1396d0f2a98be097c316be6639693b528b98f57afadf2f762d00eaf4e8d9ca60"
   },
   {
     "name": "ComparePlugin",
     "version": "2.0.2",
-    "url": "https://github.com/pnedev/compare-plugin/releases/download/v2.0.2/ComparePlugin_v2.0.2_X64.zip"
+    "url": "https://github.com/pnedev/compare-plugin/releases/download/v2.0.2/ComparePlugin_v2.0.2_X64.zip",
+    "sha256": "4151fbc9778047991cf4b900363d846bda5b0d1783e5fed9eb77e4c8253ba315"
   },
   {
     "name": "ComparePlus",
     "version": "3.0.0",
-    "url": "https://github.com/pnedev/comparePlus/releases/download/cp_3.0.0/ComparePlus_cp_3.0.0_x64.zip"
+    "url": "https://github.com/pnedev/comparePlus/releases/download/cp_3.0.0/ComparePlus_cp_3.0.0_x64.zip",
+    "sha256": "ed6256afcddca5715d81c48d3d1d2f35f4533cfa238320cb21d9d69ce86b5572"
   },
   {
     "name": "CSVLint",
     "version": "0.4.7",
-    "url": "https://github.com/BdR76/CSVLint/releases/download/0.4.7/CSVLint_x64.zip"
+    "url": "https://github.com/BdR76/CSVLint/releases/download/0.4.7/CSVLint_x64.zip",
+    "sha256": "1bc0b02a11905d9656f568f6a7beb7ceb18ab5ac378bd2ecac5161828f6a2f60"
   },
   {
     "name": "DSpellCheck",
     "version": "1.5.0",
-    "url": "https://github.com/Predelnik/DSpellCheck/releases/download/v1.5.0/DSpellCheck_x64.zip"
+    "url": "https://github.com/Predelnik/DSpellCheck/releases/download/v1.5.0/DSpellCheck_x64.zip",
+    "sha256": "e906fdd4758732d56e54c9e7ce56be7d9356f818fb6f1710f47fbdca6cbb9a26"
   },
   {
     "name": "MultiReplace",
     "version": "5.0.0.35",
-    "url": "https://github.com/daddel80/notepadpp-multireplace/releases/download/5.0.0.35/MultiReplace-v5.0.0.35-x64.zip"
+    "url": "https://github.com/daddel80/notepadpp-multireplace/releases/download/5.0.0.35/MultiReplace-v5.0.0.35-x64.zip",
+    "sha256": "9218099e90e43901029a01ba9131462bfe0aacfcda7d6338e18efd78deb5a858"
   },
   {
     "name": "NPPJSONViewer",
     "version": "2.1.1.0",
-    "url": "https://github.com/NPP-JSONViewer/JSON-Viewer/releases/download/v2.1.1.0/NppJSONViewer_x64_Release.zip"
+    "url": "https://github.com/NPP-JSONViewer/JSON-Viewer/releases/download/v2.1.1.0/NppJSONViewer_x64_Release.zip",
+    "sha256": "d9e779084aee1a45a150eaa27dc10000be575364af4c9fc3f3f6937f2e5bf00c"
   },
   {
     "name": "NppTextFX",
     "version": "2.0.3",
-    "url": "https://github.com/rainman74/NPPTextFX2/releases/download/2.0.3/NppTextFX2.2.0.3.x64.zip"
+    "url": "https://github.com/rainman74/NPPTextFX2/releases/download/2.0.3/NppTextFX2.2.0.3.x64.zip",
+    "sha256": "4382c6499decb260ff00dcf2205d74d3c0582dc411696b32b0d14e55eb0b845d"
   },
   {
     "name": "XMLTools",
     "version": "3.1.1.13",
-    "url": "https://github.com/morbac/xmltools/releases/download/3.1.1.13/XMLTools-3.1.1.13-x64.zip"
+    "url": "https://github.com/morbac/xmltools/releases/download/3.1.1.13/XMLTools-3.1.1.13-x64.zip",
+    "sha256": "7631ea990e731172e28e9fe85ac4861185c0292143603b9486bc969cc8e8e046"
   }
 ]

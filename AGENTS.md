@@ -102,7 +102,7 @@ if ($LASTEXITCODE -eq 0) {
     Write-Host "  [skip] Package already installed" -ForegroundColor DarkGray
 } else {
     winget install --id Vendor.Package --exact --source winget `
-        --accept-source-agreements --accept-package-agreements
+        --accept-source-agreements --accept-package-agreements --disable-interactivity
     if ($LASTEXITCODE -ne 0) {
         Write-Host "  [error] winget install failed (exit $LASTEXITCODE)" -ForegroundColor Red
         exit 1                                    # 必裝工具（擇一）
@@ -144,7 +144,7 @@ if (-not $npmExe) {
     } else {
         Write-Host "  Node.js not found — installing via winget..." -ForegroundColor Yellow
         winget install --id OpenJS.NodeJS.LTS --exact --source winget `
-            --accept-source-agreements --accept-package-agreements
+            --accept-source-agreements --accept-package-agreements --disable-interactivity
         if ($LASTEXITCODE -ne 0) {
             Write-Host "  [error] Node.js install failed (exit $LASTEXITCODE)" -ForegroundColor Red
             exit 1
@@ -219,10 +219,10 @@ Token 在 `chezmoi init` 時提示輸入，寫入 `~/.config/chezmoi/chezmoi.tom
 
 更新插件只需修改 `notepadpp/plugins.json`，下次 `chezmoi apply` 時 template 重新渲染、installer 自動重跑。
 
-**狀態 marker**：installer 在每個插件目錄寫入 `.chezmoi-plugin.json`，記錄 `name`、`version`、`url` 三欄位。
-判斷邏輯：plugin 目錄存在、目錄內至少有一個 `*.dll`、marker 可解析、且 name／version／url 全符 → skip；
-否則下載、覆蓋 DLL、更新 marker。
-下載或解壓失敗、或 zip 內無 DLL 時不更新 marker，確保下次重跑時能重試。
+**狀態 marker**：installer 在每個插件目錄寫入 `.chezmoi-plugin.json`，記錄 `name`、`version`、`url`、`sha256` 四欄位。
+判斷邏輯：plugin 目錄存在、目錄內至少有一個 `*.dll`、marker 可解析、且 name／version／url／sha256 全符 → skip；
+否則下載、驗證 SHA256、覆蓋 DLL、更新 marker。
+下載、SHA256 驗證、解壓失敗，或 zip 內無 DLL 時不更新 marker，確保下次重跑時能重試。
 **禁止將 skip 判斷改為只檢查 DLL 存在**，或假設 DLL 名稱等於插件名稱——前者導致版本升級無法觸發更新，
 後者導致 DLL 名稱不同的插件永遠無法識別已安裝狀態。
 

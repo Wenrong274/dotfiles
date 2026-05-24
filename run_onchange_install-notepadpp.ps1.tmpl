@@ -35,7 +35,7 @@ if ($LASTEXITCODE -eq 0) {
     Write-Host "  [skip] Notepad++ already installed" -ForegroundColor DarkGray
 } else {
     winget install --id Notepad++.Notepad++ --exact --source winget `
-        --accept-source-agreements --accept-package-agreements
+        --accept-source-agreements --accept-package-agreements --disable-interactivity
     if ($LASTEXITCODE -ne 0) {
         Write-Host "  [error] winget install Notepad++ failed (exit $LASTEXITCODE)" -ForegroundColor Red
         exit 1
@@ -46,12 +46,12 @@ Write-Host ""
 # ------------------------------------------------------------
 # 2. 安裝 / 更新插件（需要 Admin）
 # 插件清單由 notepadpp/plugins.json 在 chezmoi render 時嵌入
-# 狀態追蹤：各插件目錄存放 .chezmoi-plugin.json marker（結構化 JSON，含 name/version/url）
+# 狀態追蹤：各插件目錄存放 .chezmoi-plugin.json marker（結構化 JSON，含 name/version/url/sha256）
 #   skip 條件（四者全滿足）：
 #     1. plugin 目錄存在
 #     2. 目錄內至少有一個 *.dll
 #     3. .chezmoi-plugin.json 可解析
-#     4. marker 的 name、version、url 都等於 plugins.json 目前值
+#     4. marker 的 name、version、url、sha256 都等於 plugins.json 目前值
 #   → 任一不符即下載、覆蓋 DLL、更新 marker
 #   → zip 內無 DLL 時加入 warning，不寫 marker，確保下次可重試
 #   → 下載/解壓失敗時同樣不更新 marker
@@ -88,14 +88,15 @@ if (-not $isAdmin) {
             #   1. plugin 目錄存在
             #   2. 目錄內至少有一個 *.dll
             #   3. marker 可解析
-            #   4. marker 的 name / version / url 全符
+            #   4. marker 的 name / version / url / sha256 全符
             if (
                 (Test-Path $pluginDest) -and
                 ($installedDlls.Count -gt 0) -and
                 ($null -ne $marker) -and
                 ($marker.name    -eq $plugin.name) -and
                 ($marker.version -eq $plugin.version) -and
-                ($marker.url     -eq $plugin.url)
+                ($marker.url     -eq $plugin.url) -and
+                ($marker.sha256  -eq $plugin.sha256)
             ) {
                 Write-Host "  [skip] $($plugin.name) v$($plugin.version) already installed" -ForegroundColor DarkGray
                 continue
@@ -113,6 +114,18 @@ if (-not $isAdmin) {
             try {
                 Invoke-WebRequest -Uri $plugin.url -OutFile $zipPath -UseBasicParsing
 
+                # SHA256 完整性驗證（防下載損毀或 url 被竄改）
+                if ($plugin.sha256) {
+                    $actualHash = (Get-FileHash $zipPath -Algorithm SHA256).Hash.ToLower()
+                    if ($actualHash -ne $plugin.sha256.ToLower()) {
+                        Write-Host "    [error] SHA256 mismatch for $($plugin.name)" -ForegroundColor Red
+                        Write-Host "             expected: $($plugin.sha256)" -ForegroundColor DarkGray
+                        Write-Host "             actual:   $actualHash" -ForegroundColor DarkGray
+                        $warnings.Add("$($plugin.name) SHA256 驗證失敗，跳過安裝。plugins.json 的 sha256 或 url 可能需要更新。")
+                        continue
+                    }
+                }
+
                 if (Test-Path $extractDir) { Remove-Item $extractDir -Recurse -Force }
                 Expand-Archive -Path $zipPath -DestinationPath $extractDir -Force
 
@@ -126,7 +139,7 @@ if (-not $isAdmin) {
                     $dllsToCopy | ForEach-Object { Copy-Item $_.FullName -Destination $pluginDest -Force }
 
                     # 成功後才寫入結構化 marker，避免失敗時誤判已完成
-                    $markerObj = [PSCustomObject]@{ name = $plugin.name; version = $plugin.version; url = $plugin.url }
+                    $markerObj = [PSCustomObject]@{ name = $plugin.name; version = $plugin.version; url = $plugin.url; sha256 = $plugin.sha256 }
                     $markerObj | ConvertTo-Json -Compress | Set-Content -Path $markerPath -Encoding UTF8 -NoNewline
                     $doneMsg = if ($isUpdate) { "updated to v$($plugin.version)" } else { "installed v$($plugin.version)" }
                     Write-Host "    Done ($doneMsg)" -ForegroundColor Green

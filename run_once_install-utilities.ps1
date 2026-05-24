@@ -35,7 +35,7 @@ foreach ($pkg in $packages) {
     } else {
         Write-Host "  Installing $($pkg.name)..." -ForegroundColor Green
         winget install --id $pkg.id --exact --source winget `
-            --accept-source-agreements --accept-package-agreements
+            --accept-source-agreements --accept-package-agreements --disable-interactivity
         if ($LASTEXITCODE -ne 0) {
             Write-Host "  [warn] $($pkg.name) install failed (exit $LASTEXITCODE)" -ForegroundColor Yellow
             $warnings.Add("$($pkg.name) 安裝失敗 — 請手動執行: winget install $($pkg.id)")

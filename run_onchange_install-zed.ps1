@@ -30,7 +30,7 @@ if ($LASTEXITCODE -eq 0) {
 } else {
     Write-Host "  Installing Node.js LTS..." -ForegroundColor Green
     winget install --id OpenJS.NodeJS.LTS --exact --source winget `
-        --accept-source-agreements --accept-package-agreements
+        --accept-source-agreements --accept-package-agreements --disable-interactivity
     if ($LASTEXITCODE -ne 0) {
         Write-Host "  [error] winget install Node.js failed (exit $LASTEXITCODE)" -ForegroundColor Red
         exit 1
@@ -49,7 +49,7 @@ if ($LASTEXITCODE -eq 0) {
 } else {
     Write-Host "  Installing Zed..." -ForegroundColor Green
     winget install --id ZedIndustries.Zed --exact --source winget `
-        --accept-source-agreements --accept-package-agreements
+        --accept-source-agreements --accept-package-agreements --disable-interactivity
     if ($LASTEXITCODE -ne 0) {
         Write-Host "  [error] winget install Zed failed (exit $LASTEXITCODE)" -ForegroundColor Red
         exit 1
