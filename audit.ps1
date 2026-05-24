@@ -259,10 +259,19 @@ if ($nppXmls) {
     $script:consistencyFailed = $true
 }
 
+# 4h. Starship setup must use managed block markers（確保舊 profile snippet 可被精確識別/升級）
+$starshipEntry = $scriptInventory | Where-Object { $_.TargetName -match 'setup-pwsh-starship' } | Select-Object -First 1
+if ($starshipEntry) {
+    if (-not ($starshipEntry.Content -match '# >>> chezmoi-starship >>>')) {
+        Write-Host "  [warn] $($starshipEntry.SourceName): missing managed block markers (# >>> chezmoi-starship >>>)" -ForegroundColor Yellow
+        $script:consistencyFailed = $true
+    }
+}
+
 if ($consistencyFailed) {
     $failed = $true
 } else {
-    Write-Host "  [ok] README sync, winget/npm/Antigravity guard (incl. .tmpl), Node.js drift, Notepad++ template + XML guard" -ForegroundColor DarkGray
+    Write-Host "  [ok] README sync, winget/npm/Antigravity guard (incl. .tmpl), Node.js drift, Notepad++ template + XML guard, Starship managed block" -ForegroundColor DarkGray
 }
 Write-Host ""
 

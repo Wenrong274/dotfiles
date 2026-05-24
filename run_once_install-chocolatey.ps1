@@ -64,7 +64,11 @@ $packages = @(
 )
 
 foreach ($pkg in $packages) {
-    $installed = choco list --exact $pkg.id 2>$null | Select-String $pkg.id
+    # --local-only：只查已安裝套件（choco v1 預設含遠端；v2 已預設本機，加了無害）
+    # --limit-output (-r)：輸出 "id|version" 格式，比文字比對更精準
+    # 比對第一欄（id）是否完全等於 $pkg.id，避免相似字串造成誤判
+    $installed = choco list --local-only --exact --limit-output $pkg.id 2>$null |
+        Where-Object { ($_ -split '\|')[0] -ieq $pkg.id }
     if ($installed) {
         Write-Host "  [skip] $($pkg.name) already installed" -ForegroundColor DarkGray
     } else {
