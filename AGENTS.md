@@ -12,7 +12,7 @@ $errors = $null
 if ($errors) { $errors }
 
 # Markdown lint
-npx markdownlint-cli "**/*.md" --ignore node_modules
+npx markdownlint-cli@0.48.0 "**/*.md" --ignore node_modules
 
 # chezmoi 乾跑（以目前 repo 當 source，不實際套用）
 chezmoi -S "$PWD" apply --dry-run --verbose
@@ -34,7 +34,7 @@ Get-ChildItem "*.ps1" | ForEach-Object {
 }
 
 # 2. Markdown lint
-npx markdownlint-cli "**/*.md" --ignore node_modules
+npx markdownlint-cli@0.48.0 "**/*.md" --ignore node_modules
 
 # 3. chezmoi 乾跑
 chezmoi -S "$PWD" apply --dry-run --verbose
@@ -188,24 +188,29 @@ if ($exe) {
 - **`run_onchange_install-notepadpp.ps1.tmpl`**：在 render 時將 `notepadpp/plugins.json` 嵌入腳本，
     使插件清單成為唯一真相來源。`plugins.json` 更新時，chezmoi 偵測到渲染結果改變並自動重跑 installer。
 - **`AppData/Roaming/Zed/settings.json.tmpl`**：Zed 設定，GitHub token 由 chezmoi template 填入。
+    token 不存在（空字串或未設定）時，完全不輸出 `mcp-server-github` 區塊，避免空 token 寫入設定。
 
-`AppData/Roaming/Zed/settings.json.tmpl` 內容：
+`AppData/Roaming/Zed/settings.json.tmpl` 關鍵片段：
 
 ```json
 {
+{{- if get . "zed_github_token" }}
   "context_servers": {
     "mcp-server-github": {
       "settings": {
-        "github_personal_access_token": "{{ get . "zed_github_token" }}"
-      }
-    }
-  }
+        "github_personal_access_token": "{{ get . "zed_github_token" }}",
+      },
+    },
+  },
+{{- end }}
+  ...
 }
 ```
 
 Token 在 `chezmoi init` 時提示輸入，寫入 `~/.config/chezmoi/chezmoi.toml`（不進 git）。
 
 **可選資料一律用 `{{ get . "key" }}` 而非 `{{ .key }}`**：前者在 key 不存在時回傳空字串；後者在缺少本機 `chezmoi.toml` 設定時 panic，導致 `dry-run` 失敗。
+**條件輸出用 `{{ if get . "key" }}`**：token 空白時整個區塊不輸出，比放空字串更乾淨。
 
 ## Notepad++ Plugins
 
@@ -238,6 +243,7 @@ Token 在 `chezmoi init` 時提示輸入，寫入 `~/.config/chezmoi/chezmoi.tom
 | `Sans2.004`                                | Noto Sans TC release pin    | `run_once_install-fonts.ps1`                                 |
 | `Wenrong274/rime-config`                   | 私有 Rime 設定倉庫          | `run_once_install-rime.ps1`                                  |
 | `2.70.4`                                   | chezmoi CI 版本 pin         | `.github/workflows/ci.yml`                                   |
+| `0.48.0`                                   | markdownlint-cli 版本 pin   | `audit.ps1`                                                  |
 
 ## Absolute Prohibitions
 
@@ -260,5 +266,7 @@ Lint 規則見 `.markdownlint.json`。表格與程式碼區塊不受行長限制
 | ------------------------------- | -------------------------------- | ------------------------------------------------ |
 | `winget not found`              | App Installer 未安裝             | Microsoft Store 搜尋「App Installer」安裝後重試  |
 | 私人 repo clone 失敗            | GCM 未登入 GitHub                | 先執行任意私人 repo 的 `git clone` 完成 GCM 認證 |
+| Rime clone 失敗後設定消失       | 舊流程先移走 `%APPDATA%\Rime` 才 clone | **已修正**：clone 先到 temp，成功後才移入正式位置，失敗時原設定不受影響 |
+| 安裝 Git 後 `git` 找不到        | winget 安裝後 PATH 尚未刷新      | Rime 腳本自動 fallback 到 `%ProgramFiles%\Git\cmd\git.exe`；若仍失敗，重開 pwsh 再執行 `chezmoi apply` |
 | 安裝 Node.js 後 `npm` 找不到    | 新 PATH 尚未載入                 | 關閉並重新開啟 pwsh，再執行 `chezmoi apply`      |
 | `chezmoi apply --dry-run` panic | `chezmoi.toml` 缺少 template key | 確認 key 已設定，或改用 `{{ get . "key" }}`      |

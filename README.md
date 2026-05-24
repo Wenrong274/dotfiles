@@ -131,6 +131,26 @@ version 或 url 任一變更時自動覆蓋舊 DLL 並更新 marker。
 > ⚠️ 若首次 `chezmoi apply` 非以系統管理員執行，插件安裝步驟會略過。
 > 之後請以系統管理員身分執行 `chezmoi apply --force` 補裝插件。
 
+### 版本 pin 更新後的套用方式
+
+`run_once_` 腳本（字型、Neovim 工具等）每台機器**只跑一次**，更新 pin 後已套用過的機器不會自動重跑。
+
+#### 目標機器補跑
+
+```powershell
+chezmoi update           # pull 最新 dotfiles
+chezmoi apply --force    # 強制重跑 run_once_ 腳本（補裝 / 重下載）
+```
+
+#### `audit.ps1` 使用的 `markdownlint-cli` 版本
+
+版本固定在 `audit.ps1` 中的 `markdownlint-cli@<version>`，更新時同步修改：
+
+1. `audit.ps1` — `markdownlint-cli@新版本` 兩處（lint 指令 + pin 驗證陣列）
+2. `AGENTS.md` Known Hardcoded Values 表格 — `0.48.0` 那列
+
+---
+
 ### GitHub token 更新
 
 token 存在本機 `~/.config/chezmoi/chezmoi.toml`，不進 git。修改方式：

@@ -55,12 +55,13 @@ Write-Host ""
 
 # ------------------------------------------------------------
 # 2. Markdown lint
+# Version pin: markdownlint-cli@0.48.0 — update here + AGENTS.md Known Hardcoded Values when bumping.
 # ------------------------------------------------------------
 Write-Host "[2/6] Markdown lint..." -ForegroundColor Yellow
 Push-Location $root
 # NPM_CONFIG_LOGLEVEL=error suppresses npm's "npm exec ..." console progress line
 $env:npm_config_loglevel = 'error'
-$mdOutput = npx --yes markdownlint-cli "**/*.md" --ignore node_modules 2>$null
+$mdOutput = npx --yes markdownlint-cli@0.48.0 "**/*.md" --ignore node_modules 2>$null
 $mdExit = $LASTEXITCODE
 Remove-Item Env:\npm_config_loglevel -ErrorAction SilentlyContinue
 # Only forward actual lint violations (format: path.md:line ...)
@@ -308,7 +309,8 @@ $pins = @(
     @{ value = "v3.4.0";                 file = "run_once_install-fonts.ps1";           desc = "Nerd Fonts version" },
     @{ value = "Sans2.004";              file = "run_once_install-fonts.ps1";           desc = "Noto Sans TC release pin" },
     @{ value = "Wenrong274/rime-config"; file = "run_once_install-rime.ps1";            desc = "Rime config repo" },
-    @{ value = "2.70.4";                 file = ".github\workflows\ci.yml";             desc = "chezmoi CI version pin" }
+    @{ value = "2.70.4";                 file = ".github\workflows\ci.yml";             desc = "chezmoi CI version pin" },
+    @{ value = "0.48.0";                 file = "audit.ps1";                            desc = "markdownlint-cli version pin" }
 )
 
 # AGENTS.md stores the SHA256 abbreviated, so check the prefix only
@@ -319,7 +321,8 @@ $agentsPins = @(
     @{ value = "v3.4.0";               desc = "Nerd Fonts version" },
     @{ value = "Sans2.004";            desc = "Noto Sans TC release" },
     @{ value = "Wenrong274/rime-config"; desc = "Rime config repo" },
-    @{ value = "2.70.4";               desc = "chezmoi CI version" }
+    @{ value = "2.70.4";               desc = "chezmoi CI version" },
+    @{ value = "0.48.0";               desc = "markdownlint-cli version" }
 )
 
 foreach ($pin in $pins) {
