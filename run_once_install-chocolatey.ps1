@@ -35,8 +35,14 @@ Set-ExecutionPolicy Bypass -Scope Process -Force
 [System.Net.ServicePointManager]::SecurityProtocol = `
     [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
 
-Invoke-Expression ((New-Object System.Net.WebClient).DownloadString(
-    'https://community.chocolatey.org/install.ps1'))
+$installScript = Join-Path $env:TEMP "install-chocolatey.ps1"
+try {
+    Invoke-WebRequest -Uri 'https://community.chocolatey.org/install.ps1' -OutFile $installScript -UseBasicParsing
+    Write-Host "  Installer downloaded to: $installScript" -ForegroundColor DarkGray
+    & $installScript
+} finally {
+    if (Test-Path $installScript) { Remove-Item $installScript -Force -ErrorAction SilentlyContinue }
+}
 
 if (-not (Get-Command choco -ErrorAction SilentlyContinue)) {
     # PATH 尚未刷新，從預設路徑確認

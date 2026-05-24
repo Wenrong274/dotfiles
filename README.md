@@ -144,9 +144,9 @@ chezmoi apply --force    # 強制重跑 run_once_ 腳本（補裝 / 重下載）
 
 #### `audit.ps1` 使用的 `markdownlint-cli` 版本
 
-版本固定在 `audit.ps1` 中的 `markdownlint-cli@<version>`，更新時同步修改：
+版本固定在 npm lockfile 中，更新時同步修改：
 
-1. `audit.ps1` — `markdownlint-cli@新版本` 兩處（lint 指令 + pin 驗證陣列）
+1. `package.json` / `package-lock.json` — `markdownlint-cli` 版本
 2. `AGENTS.md` Known Hardcoded Values 表格 — `0.48.0` 那列
 
 ---

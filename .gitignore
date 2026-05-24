@@ -16,3 +16,6 @@ desktop.ini
 
 # Logs
 *.log
+
+# Node tooling
+node_modules/

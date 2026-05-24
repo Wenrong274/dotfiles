@@ -55,15 +55,17 @@ Write-Host ""
 
 # ------------------------------------------------------------
 # 2. Markdown lint
-# Version pin: markdownlint-cli@0.48.0 — update here + AGENTS.md Known Hardcoded Values when bumping.
+# Version pin: package.json devDependency markdownlint-cli@0.48.0 — update package-lock.json + AGENTS.md when bumping.
 # ------------------------------------------------------------
 Write-Host "[2/6] Markdown lint..." -ForegroundColor Yellow
 Push-Location $root
-# NPM_CONFIG_LOGLEVEL=error suppresses npm's "npm exec ..." console progress line
-$env:npm_config_loglevel = 'error'
-$mdOutput = npx --yes markdownlint-cli@0.48.0 "**/*.md" --ignore node_modules 2>$null
+npm ci --ignore-scripts --no-audit --fund=false | Out-Null
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "  [error] npm ci failed" -ForegroundColor Red
+    $failed = $true
+}
+$mdOutput = if (-not $failed) { npm run --silent lint:md 2>&1 } else { @() }
 $mdExit = $LASTEXITCODE
-Remove-Item Env:\npm_config_loglevel -ErrorAction SilentlyContinue
 # Only forward actual lint violations (format: path.md:line ...)
 $mdOutput | Where-Object { "$_" -match '\.md:\d+' } | ForEach-Object { Write-Host "  $_" }
 if ($mdExit -ne 0) {
@@ -219,6 +221,18 @@ foreach ($s in $scriptInventory) {
     }
 }
 
+# 4e.2. Remote installer scripts should be downloaded to a file before execution, not string-piped into Invoke-Expression.
+foreach ($s in $scriptInventory) {
+    if ($s.Content -match 'DownloadString\s*\(') {
+        Write-Host "  [warn] $($s.SourceName): uses DownloadString for remote installer execution — download to temp file instead" -ForegroundColor Yellow
+        $script:consistencyFailed = $true
+    }
+    if ($s.Content -match 'Invoke-(RestMethod|WebRequest)[^\r\n|]*\|[^\r\n]*Invoke-Expression') {
+        Write-Host "  [warn] $($s.SourceName): pipes remote installer directly into Invoke-Expression" -ForegroundColor Yellow
+        $script:consistencyFailed = $true
+    }
+}
+
 # 4f. Notepad++ installer guard:
 #   - no hardcoded $plugins array
 #   - uses ConvertFrom-Json + {{ include "notepadpp/plugins.json" }}
@@ -356,7 +370,10 @@ $pins = @(
     @{ value = "Sans2.004";              file = "run_once_install-fonts.ps1";           desc = "Noto Sans TC release pin" },
     @{ value = "Wenrong274/rime-config"; file = "run_once_install-rime.ps1";            desc = "Rime config repo" },
     @{ value = "2.70.4";                 file = ".github\workflows\ci.yml";             desc = "chezmoi CI version pin" },
-    @{ value = "0.48.0";                 file = "audit.ps1";                            desc = "markdownlint-cli version pin" }
+    @{ value = "7382f585d35647ebb492bd6345466e7f35564068b78285bb029cb2f35056ecf4"; file = ".github\workflows\ci.yml"; desc = "chezmoi Linux amd64 SHA256" },
+    @{ value = "93cb6efe18208431cddfb8368fd83d5badbf9bfd"; file = ".github\workflows\ci.yml"; desc = "actions/checkout@v5 SHA" },
+    @{ value = "a0853c24544627f65ddf259abe73b1d18a591444"; file = ".github\workflows\ci.yml"; desc = "actions/setup-node@v5 SHA" },
+    @{ value = "0.48.0";                 file = "package.json";                         desc = "markdownlint-cli version pin" }
 )
 
 # AGENTS.md stores the SHA256 abbreviated, so check the prefix only
@@ -368,6 +385,9 @@ $agentsPins = @(
     @{ value = "Sans2.004";            desc = "Noto Sans TC release" },
     @{ value = "Wenrong274/rime-config"; desc = "Rime config repo" },
     @{ value = "2.70.4";               desc = "chezmoi CI version" },
+    @{ value = "7382f585";             desc = "chezmoi Linux amd64 SHA256 prefix" },
+    @{ value = "93cb6efe";             desc = "actions/checkout SHA prefix" },
+    @{ value = "a0853c24";             desc = "actions/setup-node SHA prefix" },
     @{ value = "0.48.0";               desc = "markdownlint-cli version" }
 )
 

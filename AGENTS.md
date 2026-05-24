@@ -11,8 +11,8 @@ $errors = $null
     "$PWD\run_once_install-<name>.ps1", [ref]$null, [ref]$errors)
 if ($errors) { $errors }
 
-# Markdown lint
-npx markdownlint-cli@0.48.0 "**/*.md" --ignore node_modules
+# Markdown lint（首次執行先 npm ci）
+npm run lint:md
 
 # chezmoi 乾跑（以目前 repo 當 source，不實際套用）
 chezmoi -S "$PWD" apply --dry-run --verbose
@@ -34,7 +34,7 @@ Get-ChildItem "*.ps1" | ForEach-Object {
 }
 
 # 2. Markdown lint
-npx markdownlint-cli@0.48.0 "**/*.md" --ignore node_modules
+npm run lint:md
 
 # 3. chezmoi 乾跑
 chezmoi -S "$PWD" apply --dry-run --verbose
@@ -243,7 +243,10 @@ Token 在 `chezmoi init` 時提示輸入，寫入 `~/.config/chezmoi/chezmoi.tom
 | `Sans2.004`                                | Noto Sans TC release pin    | `run_once_install-fonts.ps1`                                 |
 | `Wenrong274/rime-config`                   | 私有 Rime 設定倉庫          | `run_once_install-rime.ps1`                                  |
 | `2.70.4`                                   | chezmoi CI 版本 pin         | `.github/workflows/ci.yml`                                   |
-| `0.48.0`                                   | markdownlint-cli 版本 pin   | `audit.ps1`                                                  |
+| `7382f585...35056ecf4`                     | chezmoi Linux amd64 SHA256  | `.github/workflows/ci.yml`                                   |
+| `93cb6efe...dbf9bfd`                       | actions/checkout@v5 SHA     | `.github/workflows/ci.yml`                                   |
+| `a0853c24...a591444`                       | actions/setup-node@v5 SHA   | `.github/workflows/ci.yml`                                   |
+| `0.48.0`                                   | markdownlint-cli 版本 pin   | `package.json`, `package-lock.json`                          |
 
 ## Absolute Prohibitions
 

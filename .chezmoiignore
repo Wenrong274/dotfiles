@@ -5,6 +5,9 @@ CLAUDE.md
 .markdownlint.json
 .gitattributes
 .editorconfig
+package.json
+package-lock.json
+node_modules/
 
 # ── Script-support data ────────────────────────────────────────
 notepadpp/

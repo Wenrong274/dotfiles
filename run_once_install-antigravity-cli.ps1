@@ -30,12 +30,17 @@ if ($agyExe) {
     }
 } else {
     Write-Host "  Installing Antigravity CLI..." -ForegroundColor Green
+    $installerPath = Join-Path $env:TEMP "antigravity-cli-install.ps1"
     try {
-        Invoke-RestMethod https://antigravity.google/cli/install.ps1 | Invoke-Expression
+        Invoke-WebRequest -Uri "https://antigravity.google/cli/install.ps1" -OutFile $installerPath -UseBasicParsing
+        Write-Host "  Installer downloaded to: $installerPath" -ForegroundColor DarkGray
+        & $installerPath
     } catch {
         Write-Host "  [error] Antigravity CLI installer 下載或執行失敗: $($_.Exception.Message)" -ForegroundColor Red
         Write-Host "          請確認網路連線後重新執行: chezmoi apply" -ForegroundColor DarkGray
         exit 1
+    } finally {
+        if (Test-Path $installerPath) { Remove-Item $installerPath -Force -ErrorAction SilentlyContinue }
     }
 
     $agyExe = Get-Command agy -ErrorAction SilentlyContinue

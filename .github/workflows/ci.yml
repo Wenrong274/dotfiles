@@ -9,6 +9,7 @@ on:
 env:
   # Pin chezmoi to reduce CI drift; update when bumping (see AGENTS.md Known Hardcoded Values)
   CHEZMOI_VERSION: "2.70.4"
+  CHEZMOI_LINUX_AMD64_SHA256: "7382f585d35647ebb492bd6345466e7f35564068b78285bb029cb2f35056ecf4"
 
 jobs:
   audit:
@@ -18,18 +19,25 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        # actions/checkout@v5
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
 
       - name: Setup Node.js
-        uses: actions/setup-node@v5
+        # actions/setup-node@v5
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444
         with:
           node-version: '24'
+
+      - name: Install npm dependencies
+        run: npm ci
 
       - name: Install chezmoi ${{ env.CHEZMOI_VERSION }}
         run: |
           mkdir -p "$HOME/bin"
-          curl -fsL "https://github.com/twpayne/chezmoi/releases/download/v${{ env.CHEZMOI_VERSION }}/chezmoi_${{ env.CHEZMOI_VERSION }}_linux_amd64.tar.gz" | \
-            tar -xzf - -C "$HOME/bin" chezmoi
+          archive="chezmoi_${{ env.CHEZMOI_VERSION }}_linux_amd64.tar.gz"
+          curl -fsSL -o "$archive" "https://github.com/twpayne/chezmoi/releases/download/v${{ env.CHEZMOI_VERSION }}/$archive"
+          echo "${{ env.CHEZMOI_LINUX_AMD64_SHA256 }}  $archive" | sha256sum -c -
+          tar -xzf "$archive" -C "$HOME/bin" chezmoi
           echo "$HOME/bin" >> $GITHUB_PATH
 
       - name: Run audit
