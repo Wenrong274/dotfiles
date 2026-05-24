@@ -1,7 +1,6 @@
-# run_once_install-notepadpp.ps1.tmpl
-# chezmoi 在新機器第一次 apply 時自動執行一次
-# notepadpp/plugins.json 內容更新時，chezmoi render 結果改變，腳本自動重跑
-# 負責：安裝 Notepad++、安裝插件（清單由 notepadpp/plugins.json 管理）
+# run_onchange_install-notepadpp.ps1.tmpl
+# chezmoi apply 時若 render 結果變更（plugins.json 更新）即自動重跑
+# 負責：安裝 Notepad++、安裝/更新插件（清單由 notepadpp/plugins.json 管理）
 # Notepad++ runtime 設定（*.xml）由 Notepad++ 自身管理，不由 chezmoi 部署
 
 $ErrorActionPreference = "Stop"
@@ -22,7 +21,7 @@ $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIden
     [Security.Principal.WindowsBuiltInRole]::Administrator)
 if (-not $isAdmin) {
     Write-Host "[warn] 未以系統管理員身分執行，插件安裝步驟將略過" -ForegroundColor Yellow
-    Write-Host "       若要安裝插件，請以系統管理員身分重新執行此腳本" -ForegroundColor DarkGray
+    Write-Host "       插件安裝需要 Admin；之後請執行：chezmoi apply --force" -ForegroundColor DarkGray
     Write-Host ""
 }
 
@@ -45,14 +44,23 @@ if ($LASTEXITCODE -eq 0) {
 Write-Host ""
 
 # ------------------------------------------------------------
-# 2. 安裝插件（需要 Admin）
+# 2. 安裝 / 更新插件（需要 Admin）
 # 插件清單由 notepadpp/plugins.json 在 chezmoi render 時嵌入
+# 狀態追蹤：各插件目錄存放 .chezmoi-plugin.json marker（結構化 JSON，含 name/version/url）
+#   skip 條件（四者全滿足）：
+#     1. plugin 目錄存在
+#     2. 目錄內至少有一個 *.dll
+#     3. .chezmoi-plugin.json 可解析
+#     4. marker 的 name、version、url 都等於 plugins.json 目前值
+#   → 任一不符即下載、覆蓋 DLL、更新 marker
+#   → zip 內無 DLL 時加入 warning，不寫 marker，確保下次可重試
+#   → 下載/解壓失敗時同樣不更新 marker
 # ------------------------------------------------------------
 Write-Host "[2/2] Installing plugins..." -ForegroundColor Yellow
 
 if (-not $isAdmin) {
     Write-Host "  [skip] 跳過插件安裝（非 Admin）" -ForegroundColor DarkGray
-    $warnings.Add("plugins 未安裝 — 請以系統管理員重新執行此腳本")
+    $warnings.Add("plugins 未安裝（非 Admin）— 以系統管理員執行: chezmoi apply --force")
 } else {
     $pluginsJson = @'
 {{ include "notepadpp/plugins.json" }}
@@ -65,13 +73,37 @@ if (-not $isAdmin) {
     try {
         foreach ($plugin in $plugins) {
             $pluginDest = Join-Path $nppPluginDir $plugin.name
+            $markerPath = Join-Path $pluginDest ".chezmoi-plugin.json"
 
-            if (Test-Path (Join-Path $pluginDest "$($plugin.name).dll")) {
-                Write-Host "  [skip] $($plugin.name) already installed" -ForegroundColor DarkGray
+            # 讀取已安裝 marker（若存在且可解析）
+            $marker = $null
+            if (Test-Path $markerPath) {
+                try { $marker = (Get-Content $markerPath -Raw -Encoding UTF8) | ConvertFrom-Json } catch { $marker = $null }
+            }
+
+            # 取得目錄內現有 DLL 清單
+            $installedDlls = @(Get-ChildItem $pluginDest -Filter "*.dll" -ErrorAction SilentlyContinue)
+
+            # 全部條件滿足 → skip：
+            #   1. plugin 目錄存在
+            #   2. 目錄內至少有一個 *.dll
+            #   3. marker 可解析
+            #   4. marker 的 name / version / url 全符
+            if (
+                (Test-Path $pluginDest) -and
+                ($installedDlls.Count -gt 0) -and
+                ($null -ne $marker) -and
+                ($marker.name    -eq $plugin.name) -and
+                ($marker.version -eq $plugin.version) -and
+                ($marker.url     -eq $plugin.url)
+            ) {
+                Write-Host "  [skip] $($plugin.name) v$($plugin.version) already installed" -ForegroundColor DarkGray
                 continue
             }
 
-            Write-Host "  Installing $($plugin.name) v$($plugin.version)..." -ForegroundColor Green
+            $isUpdate = ($installedDlls.Count -gt 0)
+            $action   = if ($isUpdate) { "Updating" } else { "Installing" }
+            Write-Host "  $action $($plugin.name) v$($plugin.version)..." -ForegroundColor Green
 
             $zipPath    = Join-Path $tmpDir "$($plugin.name).zip"
             $extractDir = Join-Path $tmpDir $plugin.name
@@ -86,10 +118,19 @@ if (-not $isAdmin) {
 
                 if (-not (Test-Path $pluginDest)) { New-Item -ItemType Directory $pluginDest -Force | Out-Null }
 
-                Get-ChildItem $extractDir -Recurse -Filter "*.dll" | ForEach-Object {
-                    Copy-Item $_.FullName -Destination $pluginDest -Force
+                $dllsToCopy = @(Get-ChildItem $extractDir -Recurse -Filter "*.dll")
+                if ($dllsToCopy.Count -eq 0) {
+                    Write-Host "    [warn] zip 內未找到任何 DLL，跳過 $($plugin.name)" -ForegroundColor Yellow
+                    $warnings.Add("$($plugin.name) zip 內無 DLL，請確認 url 是否正確: $($plugin.url)")
+                } else {
+                    $dllsToCopy | ForEach-Object { Copy-Item $_.FullName -Destination $pluginDest -Force }
+
+                    # 成功後才寫入結構化 marker，避免失敗時誤判已完成
+                    $markerObj = [PSCustomObject]@{ name = $plugin.name; version = $plugin.version; url = $plugin.url }
+                    $markerObj | ConvertTo-Json -Compress | Set-Content -Path $markerPath -Encoding UTF8 -NoNewline
+                    $doneMsg = if ($isUpdate) { "updated to v$($plugin.version)" } else { "installed v$($plugin.version)" }
+                    Write-Host "    Done ($doneMsg)" -ForegroundColor Green
                 }
-                Write-Host "    Done" -ForegroundColor Green
             } catch {
                 Write-Host "    [warn] Failed: $($_.Exception.Message)" -ForegroundColor Yellow
                 $warnings.Add("$($plugin.name) 安裝失敗，請手動安裝: $($plugin.url)")

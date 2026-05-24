@@ -122,9 +122,14 @@ git push
 
 編輯 `notepadpp/plugins.json` 的 `version` 和 `url`，commit 後在目標機器執行 `chezmoi update`。
 chezmoi 重新渲染 installer template，偵測到內容變更後自動重跑安裝腳本。
+各插件目錄內的 `.chezmoi-plugin.json` marker 記錄已安裝狀態（name、version、url）；
+version 或 url 任一變更時自動覆蓋舊 DLL 並更新 marker。
 
 > ⚠️ Notepad++ runtime 設定（`config.xml`、`shortcuts.xml` 等）**不由 chezmoi 管理**，
 > 由 Notepad++ 自身維護。`notepadpp/reference/` 存放參考備份，僅供對照，不會部署到目標機器。
+>
+> ⚠️ 若首次 `chezmoi apply` 非以系統管理員執行，插件安裝步驟會略過。
+> 之後請以系統管理員身分執行 `chezmoi apply --force` 補裝插件。
 
 ### GitHub token 更新
 

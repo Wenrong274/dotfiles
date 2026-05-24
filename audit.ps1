@@ -75,10 +75,10 @@ Write-Host ""
 
 # ------------------------------------------------------------
 # 3. chezmoi dry-run
-# Note: output uses *target* names; run_once_install-X.ps1 → install-X.ps1 in diff headers.
+# Note: output uses *target* names; run_*_install-X.ps1(.tmpl) → install-X.ps1 in diff headers.
 # ------------------------------------------------------------
 Write-Host "[3/6] chezmoi dry-run..." -ForegroundColor Yellow
-Write-Host "  (target names shown: run_once_install-X.ps1 → install-X.ps1 in diff headers)" -ForegroundColor DarkGray
+Write-Host "  (target names shown: run_*_install-X.ps1(.tmpl) → install-X.ps1 in diff headers)" -ForegroundColor DarkGray
 $dryRunOutput = chezmoi -S $root apply --dry-run --verbose --force 2>&1
 # Show only file-level summary lines, not full diff hunks
 $dryRunOutput | Where-Object {
@@ -210,7 +210,12 @@ foreach ($s in $scriptInventory) {
     }
 }
 
-# 4f. Notepad++ installer must use ConvertFrom-Json + {{ include "notepadpp/plugins.json" }}
+# 4f. Notepad++ installer guard:
+#   - no hardcoded $plugins array
+#   - uses ConvertFrom-Json + {{ include "notepadpp/plugins.json" }}
+#   - uses .chezmoi-plugin.json structured marker
+#   - skip condition references both plugin.version and plugin.url
+#   - does NOT use $($plugin.name).dll as DLL path assumption
 $nppEntry = $scriptInventory | Where-Object { $_.TargetName -match 'install-notepadpp' } | Select-Object -First 1
 if ($nppEntry) {
     $nppContent = $nppEntry.Content
@@ -224,6 +229,22 @@ if ($nppEntry) {
     }
     if (-not ($nppContent -match [regex]::Escape('include "notepadpp/plugins.json"'))) {
         Write-Host "  [warn] $($nppEntry.SourceName): missing {{ include `"notepadpp/plugins.json`" }} directive" -ForegroundColor Yellow
+        $script:consistencyFailed = $true
+    }
+    if (-not ($nppContent -match '\.chezmoi-plugin\.json')) {
+        Write-Host "  [warn] $($nppEntry.SourceName): missing .chezmoi-plugin.json marker — version+url updates won't detect upgrades" -ForegroundColor Yellow
+        $script:consistencyFailed = $true
+    }
+    if (-not ($nppContent -match 'plugin\.version')) {
+        Write-Host "  [warn] $($nppEntry.SourceName): marker skip condition missing plugin.version check" -ForegroundColor Yellow
+        $script:consistencyFailed = $true
+    }
+    if (-not ($nppContent -match 'plugin\.url')) {
+        Write-Host "  [warn] $($nppEntry.SourceName): marker skip condition missing plugin.url check" -ForegroundColor Yellow
+        $script:consistencyFailed = $true
+    }
+    if ($nppContent -match [regex]::Escape('$($plugin.name).dll')) {
+        Write-Host "  [warn] $($nppEntry.SourceName): uses `$plugin.name.dll as DLL name — use Get-ChildItem *.dll instead" -ForegroundColor Yellow
         $script:consistencyFailed = $true
     }
 }
