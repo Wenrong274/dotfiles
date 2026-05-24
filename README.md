@@ -36,20 +36,21 @@ VSCode 設定由 **Settings Sync** 自動還原，登入帳號即可。
 
 ## 自動安裝的工具
 
-| 腳本                                   | 安裝內容                                              | 備註           |
-| -------------------------------------- | ----------------------------------------------------- | -------------- |
-| `run_once_install-chocolatey.ps1`      | Chocolatey、ripgrep、bat                              | 需要 Admin     |
-| `run_once_install-claude-cli.ps1`      | Claude Code CLI                                       | 需要 Node.js   |
-| `run_once_install-codex-cli.ps1`       | Codex CLI                                             | 需要 Node.js   |
-| `run_once_install-fonts.ps1`           | Hack NF、JetBrains Mono NF、FiraCode NF、Noto Sans TC |                |
-| `run_once_install-neovim.ps1`          | Git、Neovim、PowerShell 7、im-select.exe              |                |
-| `run_once_install-notepadpp.ps1`       | Notepad++、插件                                       | 插件需要 Admin |
-| `run_once_install-rime.ps1`            | Weasel（小狼毫）、rime-config                         |                |
-| `run_once_install-starship.ps1`        | Starship、Clink                                       |                |
-| `run_once_install-utilities.ps1`       | NanaZip、Snipaste、PowerToys、Anytype                 |                |
-| `run_once_install-vscode.ps1`          | Visual Studio Code                                    |                |
-| `run_onchange_install-zed.ps1`         | Node.js LTS、Zed                                      |                |
-| `run_onchange_setup-pwsh-starship.ps1` | Starship 加入 pwsh profile                            |                |
+| 腳本                                   | 安裝內容                                              | 備註                       |
+| -------------------------------------- | ----------------------------------------------------- | -------------------------- |
+| `run_once_install-antigravity-cli.ps1` | Antigravity CLI                                       | Google OAuth / Antigravity |
+| `run_once_install-chocolatey.ps1`      | Chocolatey、ripgrep、bat                              | 需要 Admin                 |
+| `run_once_install-claude-cli.ps1`      | Claude Code CLI                                       | 需要 Node.js               |
+| `run_once_install-codex-cli.ps1`       | Codex CLI                                             | 需要 Node.js               |
+| `run_once_install-fonts.ps1`           | Hack NF、JetBrains Mono NF、FiraCode NF、Noto Sans TC |                            |
+| `run_once_install-neovim.ps1`          | Git、Neovim、PowerShell 7、im-select.exe              |                            |
+| `run_once_install-rime.ps1`            | Weasel（小狼毫）、rime-config                         |                            |
+| `run_once_install-starship.ps1`        | Starship、Clink                                       |                            |
+| `run_once_install-utilities.ps1`       | NanaZip、Snipaste、PowerToys、Anytype                 |                            |
+| `run_once_install-vscode.ps1`          | Visual Studio Code                                    |                            |
+| `run_onchange_install-notepadpp.ps1`   | Notepad++、插件                                       | 插件需要 Admin             |
+| `run_onchange_install-zed.ps1`         | Node.js LTS、Zed                                      |                            |
+| `run_onchange_setup-pwsh-starship.ps1` | Starship 加入 pwsh profile                            |                            |
 
 ---
 
@@ -65,7 +66,6 @@ dotfiles/
 │   │       ├── init.lua              # Neovim 設定（vscode-neovim）
 │   │       └── lazy-lock.json        # Plugin 版本鎖
 │   └── Roaming/
-│       ├── Notepad++/                # config.xml / shortcuts.xml / stylers.xml / langs.xml / contextMenu.xml
 │       └── Zed/
 │           └── settings.json.tmpl   # Zed 設定（GitHub token 由 chezmoi template 填入）
 ├── dot_config/
@@ -73,7 +73,8 @@ dotfiles/
 ├── dot_bashrc                        # Bash 設定（Git Bash / WSL）
 ├── .chezmoi.toml.tmpl               # chezmoi 機器設定模板（進 git）；產生的 chezmoi.toml 不進 git
 ├── notepadpp/
-│   └── plugins.json                  # Notepad++ 插件清單
+│   ├── plugins.json                  # Notepad++ 插件清單（installer template 嵌入此檔）
+│   └── reference/                    # 設定 XML 參考備份，不由 chezmoi 部署
 └── vscode-nvim/docs/                 # Vim 使用文件（僅供參考，不部署）
 ```
 
@@ -120,6 +121,10 @@ git push
 ### Notepad++ 插件版本更新
 
 編輯 `notepadpp/plugins.json` 的 `version` 和 `url`，commit 後在目標機器執行 `chezmoi update`。
+chezmoi 重新渲染 installer template，偵測到內容變更後自動重跑安裝腳本。
+
+> ⚠️ Notepad++ runtime 設定（`config.xml`、`shortcuts.xml` 等）**不由 chezmoi 管理**，
+> 由 Notepad++ 自身維護。`notepadpp/reference/` 存放參考備份，僅供對照，不會部署到目標機器。
 
 ### GitHub token 更新
 

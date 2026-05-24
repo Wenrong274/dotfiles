@@ -1,7 +1,8 @@
-# run_once_install-notepadpp.ps1
+# run_once_install-notepadpp.ps1.tmpl
 # chezmoi 在新機器第一次 apply 時自動執行一次
-# 負責：安裝 Notepad++、安裝插件
-# 設定檔（config.xml 等）由 chezmoi 管理，不在此腳本處理
+# notepadpp/plugins.json 內容更新時，chezmoi render 結果改變，腳本自動重跑
+# 負責：安裝 Notepad++、安裝插件（清單由 notepadpp/plugins.json 管理）
+# Notepad++ runtime 設定（*.xml）由 Notepad++ 自身管理，不由 chezmoi 部署
 
 $ErrorActionPreference = "Stop"
 $warnings = [System.Collections.Generic.List[string]]::new()
@@ -45,6 +46,7 @@ Write-Host ""
 
 # ------------------------------------------------------------
 # 2. 安裝插件（需要 Admin）
+# 插件清單由 notepadpp/plugins.json 在 chezmoi render 時嵌入
 # ------------------------------------------------------------
 Write-Host "[2/2] Installing plugins..." -ForegroundColor Yellow
 
@@ -52,19 +54,10 @@ if (-not $isAdmin) {
     Write-Host "  [skip] 跳過插件安裝（非 Admin）" -ForegroundColor DarkGray
     $warnings.Add("plugins 未安裝 — 請以系統管理員重新執行此腳本")
 } else {
-    # chezmoi 執行腳本時 $PSScriptRoot 指向暫存目錄，無法讀取旁邊的檔案，
-    # 因此直接將 plugins 資料嵌入腳本。
-    $plugins = @(
-        [PSCustomObject]@{ name = "AutoSave";      version = "2.0.0";    url = "https://github.com/francostellari/NppPlugins/raw/main/AutoSave/AutoSave_dll_2v00_x64.zip" }
-        [PSCustomObject]@{ name = "ComparePlugin"; version = "2.0.2";    url = "https://github.com/pnedev/compare-plugin/releases/download/v2.0.2/ComparePlugin_v2.0.2_X64.zip" }
-        [PSCustomObject]@{ name = "ComparePlus";   version = "3.0.0";    url = "https://github.com/pnedev/comparePlus/releases/download/cp_3.0.0/ComparePlus_cp_3.0.0_x64.zip" }
-        [PSCustomObject]@{ name = "CSVLint";       version = "0.4.7";    url = "https://github.com/BdR76/CSVLint/releases/download/0.4.7/CSVLint_x64.zip" }
-        [PSCustomObject]@{ name = "DSpellCheck";   version = "1.5.0";    url = "https://github.com/Predelnik/DSpellCheck/releases/download/v1.5.0/DSpellCheck_x64.zip" }
-        [PSCustomObject]@{ name = "MultiReplace";  version = "5.0.0.35"; url = "https://github.com/daddel80/notepadpp-multireplace/releases/download/5.0.0.35/MultiReplace-v5.0.0.35-x64.zip" }
-        [PSCustomObject]@{ name = "NPPJSONViewer"; version = "2.1.1.0";  url = "https://github.com/NPP-JSONViewer/JSON-Viewer/releases/download/v2.1.1.0/NppJSONViewer_x64_Release.zip" }
-        [PSCustomObject]@{ name = "NppTextFX";     version = "2.0.3";    url = "https://github.com/rainman74/NPPTextFX2/releases/download/2.0.3/NppTextFX2.2.0.3.x64.zip" }
-        [PSCustomObject]@{ name = "XMLTools";      version = "3.1.1.13"; url = "https://github.com/morbac/xmltools/releases/download/3.1.1.13/XMLTools-3.1.1.13-x64.zip" }
-    )
+    $pluginsJson = @'
+{{ include "notepadpp/plugins.json" }}
+'@
+    $plugins = $pluginsJson | ConvertFrom-Json
 
     $nppPluginDir = "$env:ProgramFiles\Notepad++\plugins"
     $tmpDir       = Join-Path $env:TEMP "npp-plugins-bootstrap"
@@ -121,5 +114,5 @@ Write-Host "========== Notepad++ Bootstrap Complete ==========" -ForegroundColor
 Write-Host ""
 Write-Host "Paths:" -ForegroundColor Yellow
 Write-Host "  Plugins: $env:ProgramFiles\Notepad++\plugins\" -ForegroundColor DarkGray
-Write-Host "  Config:  $env:APPDATA\Notepad++\  (managed by chezmoi)" -ForegroundColor DarkGray
+Write-Host "  Config:  $env:APPDATA\Notepad++\  (Notepad++ 自身管理，不由 chezmoi 部署)" -ForegroundColor DarkGray
 Write-Host ""

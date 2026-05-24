@@ -183,7 +183,13 @@ if ($exe) {
 
 ## Templates
 
-`AppData/Roaming/Zed/settings.json.tmpl` 是唯一的 chezmoi template 檔案：
+目前有兩個 chezmoi template 檔案：
+
+- **`run_onchange_install-notepadpp.ps1.tmpl`**：在 render 時將 `notepadpp/plugins.json` 嵌入腳本，
+    使插件清單成為唯一真相來源。`plugins.json` 更新時，chezmoi 偵測到渲染結果改變並自動重跑 installer。
+- **`AppData/Roaming/Zed/settings.json.tmpl`**：Zed 設定，GitHub token 由 chezmoi template 填入。
+
+`AppData/Roaming/Zed/settings.json.tmpl` 內容：
 
 ```json
 {
@@ -203,9 +209,14 @@ Token 在 `chezmoi init` 時提示輸入，寫入 `~/.config/chezmoi/chezmoi.tom
 
 ## Notepad++ Plugins
 
-插件清單由 `notepadpp/plugins.json` 管理，`run_once_install-notepadpp.ps1` 讀取此檔案下載安裝。
+插件清單由 `notepadpp/plugins.json` 管理。`run_onchange_install-notepadpp.ps1.tmpl` 在 chezmoi render 時
+透過 `{{ include "notepadpp/plugins.json" }}` 嵌入 JSON，腳本以 `ConvertFrom-Json` 解析後下載安裝。
 
-**禁止直接編輯 `AppData/Roaming/Notepad++/` 下的 XML 設定檔**——它們由 Notepad++ 自身管理，chezmoi 只負責初始佈署。
+更新插件只需修改 `notepadpp/plugins.json`，下次 `chezmoi apply` 時 template 重新渲染、installer 自動重跑。
+
+`notepadpp/reference/` 存放 Notepad++ runtime 設定的參考備份，僅供對照，**不由 chezmoi 部署**。
+
+**Notepad++ runtime XML（`config.xml`、`shortcuts.xml` 等）由 Notepad++ 自身管理，不納入 chezmoi 管理範圍。**
 
 ## Known Hardcoded Values
 
@@ -226,11 +237,11 @@ Token 在 `chezmoi init` 時提示輸入，寫入 `~/.config/chezmoi/chezmoi.tom
 禁止執行以下操作，即使用戶要求也不例外：
 
 - **禁止** commit 任何 token、密碼、Personal Access Token。`zed_github_token` 必須只存在於 `~/.config/chezmoi/chezmoi.toml`（本機，不進 git）。
-- **禁止** 直接修改 `AppData/Roaming/Notepad++/*.xml`——這些是 Notepad++ 的執行期設定，由應用程式管理，AI 不應觸碰。
+- **禁止** 將 `AppData/Roaming/Notepad++/*.xml` 加入 source tree 或由 chezmoi 管理——這些是 Notepad++ 的執行期設定，由應用程式自身管理。參考備份只存放於 `notepadpp/reference/`。
 - **禁止** 在 `.chezmoi.toml.tmpl` 以外的地方硬寫 token 或 secret 字串。
 - **禁止** 使用 `git push --force` 或 `git reset --hard` 破壞 git 歷史。
 - **禁止** 在 `run_once_*` 腳本裡加入互動式提示（`Read-Host` 等），chezmoi 以 non-interactive 模式執行腳本。
-- **禁止** 新增、刪除或改名 `run_*.ps1` 而不同步更新 `README.md` 的工具表。
+- **禁止** 新增、刪除或改名 `run_*.ps1` / `run_*.ps1.tmpl` 而不同步更新 `README.md` 的工具表。
 
 ## Markdown Style
 

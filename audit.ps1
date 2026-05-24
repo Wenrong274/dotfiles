@@ -26,6 +26,31 @@ Get-ChildItem "$root\*.ps1" | Where-Object { $_.Name -ne "audit.ps1" } | ForEach
         Write-Host "  [ok] $($_.Name)" -ForegroundColor DarkGray
     }
 }
+# .ps1.tmpl: render via chezmoi execute-template, then check rendered PS syntax
+Get-ChildItem "$root\*.ps1.tmpl" -ErrorAction SilentlyContinue | ForEach-Object {
+    $tmplName = $_.Name
+    $tmpPs1   = [System.IO.Path]::GetTempFileName() + ".ps1"
+    try {
+        (Get-Content $_.FullName -Raw) | chezmoi -S $root execute-template 2>$null |
+            Out-File $tmpPs1 -Encoding UTF8
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "  [error] ${tmplName}: template render failed (exit $LASTEXITCODE)" -ForegroundColor Red
+            $script:failed = $true
+        } else {
+            $errors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile($tmpPs1, [ref]$null, [ref]$errors) | Out-Null
+            if ($errors) {
+                Write-Host "  [error] $tmplName (rendered)" -ForegroundColor Red
+                $errors | ForEach-Object { Write-Host "    line $($_.Extent.StartLineNumber): $($_.Message)" -ForegroundColor Red }
+                $script:failed = $true
+            } else {
+                Write-Host "  [ok] $tmplName (rendered)" -ForegroundColor DarkGray
+            }
+        }
+    } finally {
+        if (Test-Path $tmpPs1) { Remove-Item $tmpPs1 -Force -ErrorAction SilentlyContinue }
+    }
+}
 Write-Host ""
 
 # ------------------------------------------------------------
@@ -85,44 +110,61 @@ Write-Host ""
 Write-Host "[4/6] Consistency checks..." -ForegroundColor Yellow
 $consistencyFailed = $false
 
-# 4a. README 工具表 vs 實際 run_*.ps1 檔案
-$scriptFiles   = (Get-ChildItem "$root\run_*.ps1").Name
+# Unified script inventory: .ps1 (SourceName = TargetName) + .ps1.tmpl (TargetName strips .tmpl)
+# All subsequent checks iterate this inventory so .ps1.tmpl scripts get the same coverage as .ps1.
+$scriptInventory = [System.Collections.Generic.List[PSCustomObject]]::new()
+Get-ChildItem "$root\run_*.ps1" -ErrorAction SilentlyContinue | ForEach-Object {
+    $scriptInventory.Add([PSCustomObject]@{
+        SourceName = $_.Name
+        TargetName = $_.Name
+        Content    = Get-Content $_.FullName -Raw
+    })
+}
+Get-ChildItem "$root\run_*.ps1.tmpl" -ErrorAction SilentlyContinue | ForEach-Object {
+    $scriptInventory.Add([PSCustomObject]@{
+        SourceName = $_.Name
+        TargetName = ($_.Name -replace '\.tmpl$', '')
+        Content    = Get-Content $_.FullName -Raw
+    })
+}
+
+# 4a. README 工具表 vs 實際 run_*.ps1 / run_*.ps1.tmpl 檔案
 $readmeContent = Get-Content "$root\README.md" -Raw
 $readmeScripts = [regex]::Matches($readmeContent, '`(run_[\w-]+\.ps1)`') |
     ForEach-Object { $_.Groups[1].Value } | Sort-Object -Unique
 
-foreach ($f in $scriptFiles) {
-    if ($f -notin $readmeScripts) {
-        Write-Host "  [warn] $f exists but not listed in README.md" -ForegroundColor Yellow
+foreach ($s in $scriptInventory) {
+    if ($s.TargetName -notin $readmeScripts) {
+        $label = if ($s.SourceName -ne $s.TargetName) { "$($s.SourceName) → $($s.TargetName)" } else { $s.SourceName }
+        Write-Host "  [warn] $label not listed in README.md" -ForegroundColor Yellow
         $consistencyFailed = $true
     }
 }
 foreach ($r in $readmeScripts) {
-    if ($r -notin $scriptFiles) {
-        Write-Host "  [warn] README.md lists $r but file not found" -ForegroundColor Yellow
+    $found = $scriptInventory | Where-Object { $_.TargetName -eq $r }
+    if (-not $found) {
+        Write-Host "  [warn] README.md lists $r but no source script found" -ForegroundColor Yellow
         $consistencyFailed = $true
     }
 }
 
-# 4b. winget 腳本是否都有前置檢查
-Get-ChildItem "$root\run_*.ps1" | ForEach-Object {
-    $content = Get-Content $_.FullName -Raw
-    if (($content -match 'winget install') -and (-not ($content -match 'Get-Command winget'))) {
-        Write-Host "  [warn] $($_.Name): uses winget but missing Get-Command winget check" -ForegroundColor Yellow
+# 4b. winget 腳本是否都有前置檢查（涵蓋 .ps1 與 .ps1.tmpl）
+foreach ($s in $scriptInventory) {
+    if (($s.Content -match 'winget install') -and (-not ($s.Content -match 'Get-Command winget'))) {
+        Write-Host "  [warn] $($s.SourceName): uses winget but missing Get-Command winget check" -ForegroundColor Yellow
         $script:consistencyFailed = $true
     }
 }
 
-# 4c. npm 腳本是否包含完整 Node.js 前置區段
-Get-ChildItem "$root\run_*.ps1" | ForEach-Object {
-    $content = Get-Content $_.FullName -Raw
-    if ($content -match 'npm install -g') {
-        if (-not ($content -match 'Get-Command npm')) {
-            Write-Host "  [warn] $($_.Name): uses npm but missing Get-Command npm check" -ForegroundColor Yellow
+# 4c. npm 腳本是否包含完整 Node.js 前置區段（涵蓋 .ps1 與 .ps1.tmpl）
+foreach ($s in $scriptInventory) {
+    if ($s.Content -match 'npm install -g') {
+        if (-not ($s.Content -match 'Get-Command npm')) {
+            Write-Host "  [warn] $($s.SourceName): uses npm but missing Get-Command npm check" -ForegroundColor Yellow
             $script:consistencyFailed = $true
         }
-        if (-not ($content -match 'OpenJS\.NodeJS\.LTS')) {
-            Write-Host "  [warn] $($_.Name): uses npm but missing Node.js fallback install" -ForegroundColor Yellow
+        if (-not ($s.Content -match 'OpenJS\.NodeJS\.LTS')) {
+            Write-Host "  [warn] $($s.SourceName): uses npm but missing Node.js fallback install" -ForegroundColor Yellow
             $script:consistencyFailed = $true
         }
     }
@@ -159,10 +201,46 @@ if ($null -eq $claudeBootstrap -or $null -eq $codexBootstrap -or
     $consistencyFailed = $true
 }
 
+# 4e. Antigravity official installer scripts must verify agy exists（涵蓋 .ps1 與 .ps1.tmpl）
+foreach ($s in $scriptInventory) {
+    if (($s.Content -match 'antigravity\.google/cli/install\.ps1') -and
+        (-not ($s.Content -match 'Get-Command\s+agy'))) {
+        Write-Host "  [warn] $($s.SourceName): uses Antigravity installer but missing Get-Command agy check" -ForegroundColor Yellow
+        $script:consistencyFailed = $true
+    }
+}
+
+# 4f. Notepad++ installer must use ConvertFrom-Json + {{ include "notepadpp/plugins.json" }}
+$nppEntry = $scriptInventory | Where-Object { $_.TargetName -match 'install-notepadpp' } | Select-Object -First 1
+if ($nppEntry) {
+    $nppContent = $nppEntry.Content
+    if ($nppContent -match '\$plugins\s*=\s*@\(') {
+        Write-Host "  [warn] $($nppEntry.SourceName): hardcoded `$plugins array — use ConvertFrom-Json from plugins.json" -ForegroundColor Yellow
+        $script:consistencyFailed = $true
+    }
+    if (-not ($nppContent -match 'ConvertFrom-Json')) {
+        Write-Host "  [warn] $($nppEntry.SourceName): missing ConvertFrom-Json — plugins.json not embedded" -ForegroundColor Yellow
+        $script:consistencyFailed = $true
+    }
+    if (-not ($nppContent -match [regex]::Escape('include "notepadpp/plugins.json"'))) {
+        Write-Host "  [warn] $($nppEntry.SourceName): missing {{ include `"notepadpp/plugins.json`" }} directive" -ForegroundColor Yellow
+        $script:consistencyFailed = $true
+    }
+}
+
+# 4g. AppData/Roaming/Notepad++/*.xml must not exist in source tree
+$nppXmls = Get-ChildItem "$root\AppData\Roaming\Notepad++" -Filter "*.xml" -ErrorAction SilentlyContinue
+if ($nppXmls) {
+    foreach ($f in $nppXmls) {
+        Write-Host "  [warn] Notepad++ runtime XML in source tree: AppData\Roaming\Notepad++\$($f.Name)" -ForegroundColor Yellow
+    }
+    $script:consistencyFailed = $true
+}
+
 if ($consistencyFailed) {
     $failed = $true
 } else {
-    Write-Host "  [ok] README sync, winget checks, npm bootstrap, Node.js drift" -ForegroundColor DarkGray
+    Write-Host "  [ok] README sync, winget/npm/Antigravity guard (incl. .tmpl), Node.js drift, Notepad++ template + XML guard" -ForegroundColor DarkGray
 }
 Write-Host ""
 
@@ -171,7 +249,7 @@ Write-Host ""
 # ------------------------------------------------------------
 Write-Host "[5/6] File encoding..." -ForegroundColor Yellow
 $encodingFailed = $false
-Get-ChildItem $root -Include "*.ps1", "*.md" -Recurse |
+Get-ChildItem $root -Include "*.ps1", "*.ps1.tmpl", "*.md" -Recurse |
     Where-Object { $_.FullName -notmatch '\\.git\\' } |
     ForEach-Object {
         $bytes = [System.IO.File]::ReadAllBytes($_.FullName)
@@ -192,7 +270,7 @@ Get-ChildItem $root -Include "*.ps1", "*.md" -Recurse |
             $script:encodingFailed = $true
         }
     }
-if ($encodingFailed) { $failed = $true } else { Write-Host "  [ok] all .ps1/.md files are valid UTF-8" -ForegroundColor DarkGray }
+if ($encodingFailed) { $failed = $true } else { Write-Host "  [ok] all .ps1/.ps1.tmpl/.md files are valid UTF-8" -ForegroundColor DarkGray }
 Write-Host ""
 
 # ------------------------------------------------------------
