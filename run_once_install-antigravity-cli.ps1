@@ -43,6 +43,11 @@ if ($agyExe) {
         if (Test-Path $installerPath) { Remove-Item $installerPath -Force -ErrorAction SilentlyContinue }
     }
 
+    # Refresh PATH from registry so the installer's changes are visible in this session
+    $machinePath = [System.Environment]::GetEnvironmentVariable('PATH', 'Machine')
+    $userPath    = [System.Environment]::GetEnvironmentVariable('PATH', 'User')
+    $env:PATH    = @($machinePath, $userPath) | Where-Object { $_ } | Join-String -Separator ';'
+
     $agyExe = Get-Command agy -ErrorAction SilentlyContinue
     if (-not $agyExe) {
         Write-Host "  [error] agy not found after install" -ForegroundColor Red
