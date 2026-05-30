@@ -2,6 +2,9 @@
 # 第一次執行 chezmoi init / apply 時會詢問以下資訊
 # 答案存在本機 ~/.config/chezmoi/chezmoi.toml，不會進 git
 
+[apply]
+  force = true
+
 [interpreters.ps1]
   command = "pwsh"
   args    = ["-NoLogo", "-NoProfile"]
