@@ -24,12 +24,6 @@ chezmoi init --apply https://github.com/Wenrong274/dotfiles
 Zed GitHub Personal Access Token (留空跳過): ▌
 ```
 
-> ⚠️ `rime-config` 為私人 repo，若 Git Credential Manager 尚未登入 GitHub，
->
-> clone 會略過並顯示手動指令。建議 `chezmoi apply` 前先確認
->
-> `git clone` 任意私人 repo 可正常運作。
-
 VSCode 設定由 **Settings Sync** 自動還原，登入帳號即可。
 
 ---
@@ -47,7 +41,6 @@ VSCode 設定由 **Settings Sync** 自動還原，登入帳號即可。
 | `run_once_install-fonts.ps1`           | Hack NF、JetBrains Mono NF、FiraCode NF、Noto Sans TC |                            |
 | `run_once_install-github-cli.ps1`      | GitHub CLI（gh）                                      |                            |
 | `run_once_install-neovim.ps1`          | Git、Neovim、PowerShell 7、im-select.exe              |                            |
-| `run_once_install-rime.ps1`            | Weasel（小狼毫）、rime-config                         |                            |
 | `run_once_install-starship.ps1`        | Starship、Clink                                       |                            |
 | `run_once_install-utilities.ps1`       | NanaZip、Snipaste、PowerToys、Anytype                 |                            |
 | `run_once_install-vscode.ps1`          | Visual Studio Code                                    |                            |

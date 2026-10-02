@@ -241,7 +241,6 @@ Token 在 `chezmoi init` 時提示輸入，寫入 `~/.config/chezmoi/chezmoi.tom
 | `E66F0A6E...DDD0B6`                        | im-select.exe SHA256        | `run_once_install-neovim.ps1`                                |
 | `v3.4.0`                                   | Nerd Fonts 版本             | `run_once_install-fonts.ps1`                                 |
 | `Sans2.004`                                | Noto Sans TC release pin    | `run_once_install-fonts.ps1`                                 |
-| `Wenrong274/rime-config`                   | 私有 Rime 設定倉庫          | `run_once_install-rime.ps1`                                  |
 | `2.70.4`                                   | chezmoi CI 版本 pin         | `.github/workflows/ci.yml`                                   |
 | `7382f585...35056ecf4`                     | chezmoi Linux amd64 SHA256  | `.github/workflows/ci.yml`                                   |
 | `93cb6efe...dbf9bfd`                       | actions/checkout@v5 SHA     | `.github/workflows/ci.yml`                                   |
@@ -268,8 +267,5 @@ Lint 規則見 `.markdownlint.json`。表格與程式碼區塊不受行長限制
 | 錯誤                            | 原因                             | 處理                                             |
 | ------------------------------- | -------------------------------- | ------------------------------------------------ |
 | `winget not found`              | App Installer 未安裝             | Microsoft Store 搜尋「App Installer」安裝後重試  |
-| 私人 repo clone 失敗            | GCM 未登入 GitHub                | 先執行任意私人 repo 的 `git clone` 完成 GCM 認證 |
-| Rime clone 失敗後設定消失       | 舊流程先移走 `%APPDATA%\Rime` 才 clone | **已修正**：clone 先到 temp，成功後才移入正式位置，失敗時原設定不受影響 |
-| 安裝 Git 後 `git` 找不到        | winget 安裝後 PATH 尚未刷新      | Rime 腳本自動 fallback 到 `%ProgramFiles%\Git\cmd\git.exe`；若仍失敗，重開 pwsh 再執行 `chezmoi apply` |
 | 安裝 Node.js 後 `npm` 找不到    | 新 PATH 尚未載入                 | 關閉並重新開啟 pwsh，再執行 `chezmoi apply`      |
 | `chezmoi apply --dry-run` panic | `chezmoi.toml` 缺少 template key | 確認 key 已設定，或改用 `{{ get . "key" }}`      |
